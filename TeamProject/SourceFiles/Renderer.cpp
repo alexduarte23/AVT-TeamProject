@@ -51,15 +51,14 @@ namespace avt {
 			Mesh* mesh = node->getMesh();
 
 			mesh->va().bind();
-			mesh->ib().bind();
 			
 			node->beforeDraw();
 			glUniformMatrix4fv(shader.getUniform(MODEL_MATRIX), 1, GL_FALSE, newWorldMat.data());
-			glDrawElements(GL_TRIANGLES, mesh->ib().count(), GL_UNSIGNED_BYTE, (GLvoid*)0);
+			glDrawArrays(GL_TRIANGLES, 0, (GLsizei)mesh->getVertices().size());
+			//glDrawElements(GL_TRIANGLES, mesh->ib().count(), GL_UNSIGNED_BYTE, (GLvoid*)0);
 			node->afterDraw();
 
 			mesh->va().unbind();
-			mesh->ib().unbind();
 		}
 
 		for (auto childNode : node->children()) {

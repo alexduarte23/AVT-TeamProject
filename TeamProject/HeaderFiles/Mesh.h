@@ -32,11 +32,11 @@ namespace avt {
 		std::vector<Vertex> _vertexes;
 		
 		std::vector<GLubyte> _indices;
-		std::vector<Vector3> _vertices;
+		std::vector<Vector3> _vertices, _verticesData;
 		std::vector<Vector2> _textures, _texturesData;
 		std::vector<Vector3> _normals, _normalsData;
 
-		std::vector <unsigned int> _texturesIdx, _normalsIdx;
+		std::vector <unsigned int> _verticesIdx, _texturesIdx, _normalsIdx;
 
 		VertexArray _va;
 		VertexBuffer _vb, _tb, _nb;
@@ -78,8 +78,8 @@ namespace avt {
 		void setup();
 		void setold();
 
-		std::vector<Vertex>& getVertices() {
-			return _vertexes;
+		std::vector<Vector3>& getVertices() {
+			return _vertices;
 		}
 
 		VertexArray& va() {

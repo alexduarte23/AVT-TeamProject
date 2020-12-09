@@ -39,6 +39,11 @@ namespace avt {
 		const std::vector<LayoutEl>& elements() const {
 			return _elements;
 		}
+		
+		void clear() {
+			_elements.clear();
+			_stride = 0;
+		}
 	};
 
 }

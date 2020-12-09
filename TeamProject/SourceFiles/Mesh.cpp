@@ -17,27 +17,29 @@ namespace avt {
 	/**/
 	void Mesh::setup() {
 		_va.create();
-		_ib.create(_indices.data(), (GLuint)_indices.size());
+
+		VertexBufferLayout layout;
 
 		_vb.create(_vertices.data(), _vertices.size() * sizeof(Vector3));
-		VertexBufferLayout layout, layaouttb, layoutnb;
 		layout.add<GLfloat>(3); // VERTICES
 		_va.addBuffer(_vb, layout, VERTICES);
 
 		if (_texturesLoaded) {
 			_tb.create(_textures.data(), _textures.size() * sizeof(Vector2));
-			layaouttb.add<GLfloat>(2); // TEXTURES
-			_va.addBuffer(_tb, layaouttb, TEXTURES);
+			layout.clear();
+			layout.add<GLfloat>(2); // TEXTURES
+			_va.addBuffer(_tb, layout, TEXTURES);
 		}
 		if (_normalsLoaded) {
 			_nb.create(_normals.data(), _normals.size() * sizeof(Vector3));
-			layoutnb.add<GLfloat>(3); // NORMALS
-			_va.addBuffer(_nb, layoutnb, NORMALS);
+			layout.clear();
+			layout.add<GLfloat>(3); // NORMALS
+			_va.addBuffer(_nb, layout, NORMALS);
 		}
 
+		layout.clear();
 		_va.unbind();
 		_vb.unbind();
-		_ib.unbind();
 	}
 
 	void Mesh::setold() {
@@ -58,7 +60,7 @@ namespace avt {
 	void Mesh::parseVertex(std::stringstream& sin) {
 		Vector3 v;
 		sin >> v;
-		_vertices.push_back(v);
+		_verticesData.push_back(v);
 		_vertexes.push_back({ v.to4D(), {0,0,0,0} });
 	}
 
@@ -89,7 +91,7 @@ namespace avt {
 			for (int i = 0; i < 3; i++)
 			{
 				std::getline(sin, token, '/');
-				if (token.size() > 0) _indices.push_back(std::stoi(token) - 1);
+				if (token.size() > 0) _verticesIdx.push_back(std::stoi(token));
 				std::getline(sin, token, '/');
 				if (token.size() > 0) _texturesIdx.push_back(std::stoi(token)); // 1 minus see video thinmatrix
 				std::getline(sin, token, ' ');
@@ -121,7 +123,10 @@ namespace avt {
 
 	void Mesh::processMeshData()
 	{
-		for (unsigned int i = 0; i < _indices.size(); i++) {
+		for (unsigned int i = 0; i < _verticesIdx.size(); i++) {
+			unsigned int vi = _verticesIdx[i];
+			Vector3 v = _verticesData[vi - 1];
+			_vertices.push_back(v);
 			if (_texturesLoaded)
 			{
 				unsigned int ti = _texturesIdx[i];
@@ -139,8 +144,10 @@ namespace avt {
 
 	void Mesh::freeMeshData()
 	{
+		_verticesData.clear();
 		_texturesData.clear();
 		_normalsData.clear();
+		_verticesIdx.clear();
 		_texturesIdx.clear();
 		_normalsIdx.clear();
 	}
