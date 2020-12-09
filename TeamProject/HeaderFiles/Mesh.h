@@ -29,31 +29,43 @@ namespace avt {
 	class Mesh {
 	public:
 
-		std::vector<Vertex> _vertices;
+		std::vector<Vertex> _vertexes;
+		
 		std::vector<GLubyte> _indices;
+		std::vector<Vector3> _vertices;
+		std::vector<Vector2> _textures, _texturesData;
+		std::vector<Vector3> _normals, _normalsData;
+
+		std::vector <unsigned int> _texturesIdx, _normalsIdx;
 
 		VertexArray _va;
-		VertexBuffer _vb;
+		VertexBuffer _vb, _tb, _nb;
 		IndexBuffer _ib;
+
+		bool _texturesLoaded = false, _normalsLoaded = false;
 
 		Mesh(){}
 
 		Mesh(const std::string& filename) {
 			loadMeshData(filename);
+			processMeshData();
+			freeMeshData();
 		}
 
 		void loadOBJ(const std::string& filename) {
 			loadMeshData(filename);
+			processMeshData();
+			freeMeshData();
 		}
 
 		void addVertex(const Vector3& v, const Vector4& color) {
-			_vertices.push_back({ v.to4D(), color });
+			_vertexes.push_back({ v.to4D(), color });
 		}
 
 		void addVertex(const Vertex& v) {
-			_vertices.push_back(v);
+			_vertexes.push_back(v);
 		}
-
+		
 		void addFace(GLubyte i1, GLubyte i2, GLubyte i3) {
 			_indices.push_back(i1);
 			_indices.push_back(i2);
@@ -63,11 +75,11 @@ namespace avt {
 		void colorAll(Vector4 color);
 
 		void applyTransform(Mat4 mat);
-
 		void setup();
+		void setold();
 
 		std::vector<Vertex>& getVertices() {
-			return _vertices;
+			return _vertexes;
 		}
 
 		VertexArray& va() {
@@ -86,11 +98,23 @@ namespace avt {
 
 		void parseVertex(std::stringstream& sin);
 
+		void parseTexture(std::stringstream& sin);
+
+		void parseNormal(std::stringstream& sin);
+
 		void parseFace(std::stringstream& sin);
 
 		void parseLine(const std::string& line);
 
 		void loadMeshData(const std::string& filename);
+
+		void processMeshData();
+		
+		void freeMeshData();
+		
+		void setTexturesLoaded(bool b);
+		
+		void setNormalsLoaded(bool b);
 
 	};
 }

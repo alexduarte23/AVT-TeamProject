@@ -19,6 +19,8 @@ namespace avt {
 
 		void addBuffer(const VertexBuffer& vb, const VertexBufferLayout& layout);
 
+		void addBuffer(const VertexBuffer& vb, const VertexBufferLayout& layout, GLuint index);
+
 		void bind() const;
 
 		void unbind() const;

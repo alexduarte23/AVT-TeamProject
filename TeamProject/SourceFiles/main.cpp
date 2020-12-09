@@ -1,6 +1,7 @@
 #include <iostream>
 
 #include "../HeaderFiles/Engine.h"
+#include "../HeaderFiles/Globals.h"
 
 #include <vector>
 
@@ -39,32 +40,28 @@ private:
 	double _time = 0, _time2 = 0;
 	bool _animating = false, _rotating = false;
 
-	const GLuint UBO_BP = 0;
-	const GLuint VERTICES = 0;
-	const GLuint COLORS = 1;
-
 	void createScene() {
 
-		auto cubeM = _meshes.add("cube", new avt::Cube());
-		auto frameM = _meshes.add("frame", new avt::Mesh("./Resources/frame.obj"));
-		auto panelM = _meshes.add("panel", new avt::Mesh("./Resources/backpanel.obj"));
-		frameM->colorAll(avt::Vector4(0.396f, 0.263f, 0.129f, 1.f));
-		panelM->colorAll(avt::Vector4(0.1f, 0.1f, 0.1f, 1.f));
+		auto cubeM = _meshes.add("cube", new avt::Mesh("./Resources/cube_vtn_flat.obj"));
+		//auto frameM = _meshes.add("frame", new avt::Mesh("./Resources/frame.obj"));
+		//auto panelM = _meshes.add("panel", new avt::Mesh("./Resources/backpanel.obj"));
+		//frameM->colorAll(avt::Vector4(0.396f, 0.263f, 0.129f, 1.f));
+		//panelM->colorAll(avt::Vector4(0.1f, 0.1f, 0.1f, 1.f));
 
 		cubeM->setup();
-		frameM->setup();
-		panelM->setup();
+		//frameM->setup();
+		//panelM->setup();
 
 		_ub.create(2 * 16 * sizeof(GLfloat), 0); // change
 		_ub.unbind();
 
-		_frame = _scene.createNode(frameM);
+		//_frame = _scene.createNode(frameM);
 
-		_panel = _frame->createNode(panelM);
-		_panel->scale({ 1.9f, 1.9f, 1.9f });
-		_panel->translate({ 0.0f, 0.0f, -0.3f });
+		//_panel = _frame->createNode(panelM);
+		//_panel->scale({ 1.9f, 1.9f, 1.9f });
+		//_panel->translate({ 0.0f, 0.0f, -0.3f });
 		
-		_cubeStruct = _frame->createNode();
+		_cubeStruct = _scene.createNode();
 		
 		_cube9 = _cubeStruct->createNode(cubeM);
 		_cube9->translate({ 9.0f, 6.0f, 9.f });
@@ -147,8 +144,9 @@ private:
 	void createShader() {
 		_shader.addShader(GL_VERTEX_SHADER, "./Resources/vertexshader3d.shader");
 		_shader.addShader(GL_FRAGMENT_SHADER, "./Resources/fragmentshader3d.shader");
-		_shader.addAttribute("in_Position", VERTICES);
-		_shader.addAttribute("in_Color", COLORS);
+		_shader.addAttribute("inPosition", VERTICES);
+		_shader.addAttribute("inTexcoord", TEXTURES);
+		_shader.addAttribute("inNormal", NORMALS);
 		_shader.addUniform("ModelMatrix");
 		_shader.addUbo("SharedMatrices", UBO_BP);
 		_shader.create();
@@ -160,7 +158,7 @@ private:
 
 		float aspect = winx / (float)winy;
 		_cams.add("per", new avt::PerspectiveCamera(45.f, aspect, 0.1f, 100.0f, avt::Vector3(0, 0, 10.f)));
-		_cams.add("ort", new avt::OrthographicCamera(-6.0f, 6.0f, -6.0f / aspect, 6.0f / aspect, 0.1f, 100.0f, avt::Vector3(0, 0, 15.f)));
+		_cams.add("ort", new avt::OrthographicCamera(-10.0f, 10.0f, -10.0f / aspect, 10.0f / aspect, 0.1f, 100.0f, avt::Vector3(0, 0, 20.f)));
 
 		_cams.get("ort")->setSpeed(12.f);
 		_cams.get("per")->setSpeed(12.f);

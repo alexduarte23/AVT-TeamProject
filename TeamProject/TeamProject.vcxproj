@@ -173,6 +173,7 @@
     <ClInclude Include="HeaderFiles\Cube.h" />
     <ClInclude Include="HeaderFiles\Engine.h" />
     <ClInclude Include="HeaderFiles\ErrorManager.h" />
+    <ClInclude Include="HeaderFiles\Globals.h" />
     <ClInclude Include="HeaderFiles\IndexBuffer.h" />
     <ClInclude Include="HeaderFiles\Manager.h" />
     <ClInclude Include="HeaderFiles\Mat2.h" />

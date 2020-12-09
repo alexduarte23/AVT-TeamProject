@@ -36,6 +36,19 @@ namespace avt {
 #endif
 	}
 
+	void VertexArray::addBuffer(const VertexBuffer& vb, const VertexBufferLayout& layout, GLuint index) {
+		bind();
+		vb.bind();
+
+		const auto& el = layout.elements()[0];
+		glEnableVertexAttribArray(index);
+		glVertexAttribPointer(index, el.count, el.type, el.norm, layout.stride(), 0); // buffer index, num items, type, norm, stride to next, offset
+
+#ifndef ERROR_CALLBACK
+		ErrorManager::checkOpenGLError("ERROR: Could not destroy Vertex Array.");
+#endif
+	}
+
 	void VertexArray::bind() const {
 		glBindVertexArray(_vaoID);
 	}
