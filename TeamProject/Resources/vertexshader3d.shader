@@ -1,16 +1,20 @@
 #version 330 core
 
+//VERTEX ATTRIBUTES
 in vec3 inPosition;
 in vec2 inTexcoord;
 in vec3 inNormal;
 
+//OUTPUTS
 out vec3 exPosition;
 out vec2 exTexcoord;
 out vec3 exNormal;
+out vec3 FragPos;
 
+//UNIFORMS
 uniform mat4 ModelMatrix;
 
-uniform SharedMatrices
+uniform CameraMatrices
 {
 	mat4 ViewMatrix;
 	mat4 ProjectionMatrix;
@@ -24,4 +28,6 @@ void main(void)
 
 	vec4 MCPosition = vec4(inPosition, 1.0);
 	gl_Position = ProjectionMatrix * ViewMatrix * ModelMatrix * MCPosition;
+
+	FragPos = vec3(ModelMatrix * vec4(inPosition, 1.0));
 }

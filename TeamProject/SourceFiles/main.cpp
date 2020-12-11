@@ -28,12 +28,9 @@ private:
 
 	avt::Manager<avt::Mesh> _meshes;
 	avt::Manager<avt::Camera> _cams;
+	avt::Manager<avt::Light> _lights;
 
-	avt::SceneNode *_cubeStruct=nullptr, *_frame=nullptr, *_panel=nullptr;
-	avt::SceneNode* _cube1 = nullptr, * _cube2 = nullptr, * _cube3 = nullptr;
-	avt::SceneNode* _cube4 = nullptr, * _cube5 = nullptr, * _cube6 = nullptr;
-	avt::SceneNode* _cube7 = nullptr, * _cube8 = nullptr, * _cube9 = nullptr;
-
+	avt::SceneNode* _tree = nullptr;
 	std::string _activeCam = "ort";
 	
 	const float _duration = 3, _duration2 = 6;
@@ -42,60 +39,15 @@ private:
 
 	void createScene() {
 
-		auto cubeM = _meshes.add("cube", new avt::Mesh("./Resources/cube_vtn_flat.obj"));
-		//auto frameM = _meshes.add("frame", new avt::Mesh("./Resources/frame.obj"));
-		//auto panelM = _meshes.add("panel", new avt::Mesh("./Resources/backpanel.obj"));
-		//frameM->colorAll(avt::Vector4(0.396f, 0.263f, 0.129f, 1.f));
-		//panelM->colorAll(avt::Vector4(0.1f, 0.1f, 0.1f, 1.f));
+		auto treeM = _meshes.add("tree", new avt::Mesh("./Resources/treeNormal.obj"));
+		treeM->setup();
 
-		cubeM->setup();
-		//frameM->setup();
-		//panelM->setup();
-
+		//CAMS
 		_ub.create(2 * 16 * sizeof(GLfloat), 0); // change
 		_ub.unbind();
-
-		//_frame = _scene.createNode(frameM);
-
-		//_panel = _frame->createNode(panelM);
-		//_panel->scale({ 1.9f, 1.9f, 1.9f });
-		//_panel->translate({ 0.0f, 0.0f, -0.3f });
 		
-		_cubeStruct = _scene.createNode();
+		_tree = _scene.createNode(treeM);
 		
-		_cube9 = _cubeStruct->createNode(cubeM);
-		_cube9->translate({ 9.0f, 6.0f, 9.f });
-
-		_cube8 = _cubeStruct->createNode(cubeM);
-		_cube8->translate({ 9.0f, 6.0f, 6.f });
-
-		_cube1 = _cubeStruct->createNode(cubeM);
-		_cube1->translate({ 0.0f, 0.0f, 0.f });
-		_cube1->setCallback(&nodeCallback);
-
-		_cube2 = _cubeStruct->createNode(cubeM);
-		_cube2->translate({ 0.0f, 3.0f, 0.f });
-
-		_cube3 = _cubeStruct->createNode(cubeM);
-		_cube3->translate({ 0.0f, 6.0f, 0.f });
-
-		_cube4 = _cubeStruct->createNode(cubeM);
-		_cube4->translate({ 3.0f, 6.0f, 0.f });
-
-		_cube5 = _cubeStruct->createNode(cubeM);
-		_cube5->translate({ 6.0f, 6.0f, 0.f });
-
-		_cube6 = _cubeStruct->createNode(cubeM);
-		_cube6->translate({ 9.0f, 6.0f, 0.f });
-
-		_cube7 = _cubeStruct->createNode(cubeM);
-		_cube7->translate({ 9.0f, 6.0f, 3.f });
-
-
-		_cubeStruct->scale({ 0.5f, 0.5f, 0.5f });
-		_cubeStruct->rotate(avt::Quaternion(avt::Vector3(0, 1.f, 0), avt::toRad(-55))
-			* avt::Quaternion(avt::Vector3(0, 0, 1.f), avt::toRad(-45)));
-		_cubeStruct->translate({ 0.1f, -1.4f, 2.15f });
 
 #ifndef ERROR_CALLBACK
 		avt::ErrorManager::checkOpenGLError("ERROR: Could not create VAOs and VBOs.");
@@ -148,8 +100,12 @@ private:
 		_shader.addAttribute("inTexcoord", TEXTURES);
 		_shader.addAttribute("inNormal", NORMALS);
 		_shader.addUniform("ModelMatrix");
-		_shader.addUbo("SharedMatrices", UBO_BP);
+		_shader.addUniform("LightPosition");
+		_shader.addUniform("LightColor");
+		_shader.addUbo("CameraMatrices", UBO_BP);
 		_shader.create();
+
+
 	}
 
 	void createCams(GLFWwindow* win) {
@@ -164,6 +120,10 @@ private:
 		_cams.get("per")->setSpeed(12.f);
 	}
 
+	void createLights() {
+		_lights.add("sun", new avt::Light({ 3.f, 3.f, 3.f }, { 1.f, 1.f, 1.f }));
+	}
+
 public:
 
 	MyApp() : avt::App() {}
@@ -173,6 +133,7 @@ public:
 	void initCallback(GLFWwindow* win) override {
 		createShader();
 		createCams(win);
+		createLights();
 		createScene();
 	}
 
@@ -182,13 +143,14 @@ public:
 	}
 
 	void updateCallback(GLFWwindow* win, double dt) override {
+		
 		avt::Mat4 rotMat;
-
+		
 		if (_animating) {
 			_time += dt;
 			if (_time > _duration) {
 				_time -= _duration;
-
+				/*/
 				_cube9->setTranslation({ 9.0f, 6.0f, 9.f });
 				_cube8->setTranslation({ 9.0f, 6.0f, 6.f });
 				_cube1->setTranslation({ 0.0f, 0.0f, 0.f });
@@ -198,7 +160,9 @@ public:
 				_cube5->setTranslation({ 6.0f, 6.0f, 0.f });
 				_cube6->setTranslation({ 9.0f, 6.0f, 0.f });
 				_cube7->setTranslation({ 9.0f, 6.0f, 3.f });
+				*/
 			}
+			/*
 			_cube1->translate({ 0, (float)dt, 0 });
 			_cube2->translate({ 0, (float)dt, 0 });
 			_cube3->translate({ (float)dt, 0, 0 });
@@ -208,8 +172,10 @@ public:
 			_cube7->translate({ 0, 0, (float)dt });
 			_cube8->translate({ 0, 0, (float)dt });
 			_cube9->translate({ .001f, (float)dt + .001f, 0 });
+			*/
+			_lights.get("sun")->setPosition({ 3.f, 3.f, (float)_time });
 		}
-
+		/*
 		if (_rotating) {
 			_time2 += dt;
 			if (_time2 > _duration2) {
@@ -220,11 +186,13 @@ public:
 			float k = (float)_time2 / _duration2;
 			_frame->setRotation(avt::Quaternion({ 0,0,1.f }, k * 2 * avt::PI));
 		}
+		*/
+		
 	}
 
 	void displayCallback(GLFWwindow* win, double dt) override {
 		_renderer.clear();
-		_renderer.draw(_scene, _ub, _shader, _cams.get(_activeCam));
+		_renderer.draw(_scene, _ub, _shader, _cams.get(_activeCam), _lights.get("sun"));
 	}
 
 	void windowResizeCallback(GLFWwindow* win, int w, int h) override {

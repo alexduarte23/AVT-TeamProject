@@ -17,6 +17,7 @@
 #include "Renderer.h"
 #include "avt_math.h"
 #include "ErrorManager.h"
+#include "Light.h"
 #include "PerspectiveCamera.h"
 #include "OrthographicCamera.h"
 

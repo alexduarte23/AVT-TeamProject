@@ -40,9 +40,23 @@ namespace avt {
 		ub.fill({ camera->viewMatrix(), camera->projMatrix() });
 		drawNode(scene.getRoot(), shader, Mat4::identity());
 
-		ub.unbind();ub.bind();
+		ub.unbind();//ub.bind();
 		shader.unbind();
 	}
+
+	void Renderer::draw(const Scene& scene, UniformBuffer& ub, Shader& shader, Camera* camera, Light* light) {
+		shader.bind();
+		ub.bind();
+
+		glUniform3f(shader.getUniform("LightPosition"), light->getPosition().x(), light->getPosition().y(), light->getPosition().z());
+		glUniform3f(shader.getUniform("LightColor"), light->getColor().x(), light->getColor().y(), light->getColor().z());
+		ub.fill({ camera->viewMatrix(), camera->projMatrix() });
+		drawNode(scene.getRoot(), shader, Mat4::identity());
+
+		ub.unbind();//ub.bind();
+		shader.unbind();
+	}
+
 
 	void Renderer::drawNode(SceneNode* node, Shader& shader, const Mat4& worldMatrix) {
 		auto newWorldMat = worldMatrix * node->getTransform();

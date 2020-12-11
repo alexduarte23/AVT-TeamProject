@@ -164,5 +164,8 @@
     <ClInclude Include="HeaderFiles\Globals.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="HeaderFiles\Light.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>

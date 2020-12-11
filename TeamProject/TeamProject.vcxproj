@@ -175,6 +175,7 @@
     <ClInclude Include="HeaderFiles\ErrorManager.h" />
     <ClInclude Include="HeaderFiles\Globals.h" />
     <ClInclude Include="HeaderFiles\IndexBuffer.h" />
+    <ClInclude Include="HeaderFiles\Light.h" />
     <ClInclude Include="HeaderFiles\Manager.h" />
     <ClInclude Include="HeaderFiles\Mat2.h" />
     <ClInclude Include="HeaderFiles\Mat3.h" />
