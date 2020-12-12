@@ -142,6 +142,10 @@ namespace avt {
 			if (_callback) _callback->afterDraw();
 		}
 
+		avt::Vector4 pos() {
+			return _parent->getTransform()* getTransform() * avt::Vector4(0.0f, 0.0f, 0.0f, 1.f);
+		}
+
 	};
 
 }

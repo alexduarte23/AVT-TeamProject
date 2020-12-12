@@ -204,7 +204,7 @@ public:
 			}
 			float k = (float)_time2 / _duration2;
 			_lightStruct->setRotation(avt::Quaternion({ 0,0,1.f }, k * 2 * avt::PI));
-			//_lights.get("sun")->setPosition()
+			_lights.get("sun")->setPosition(_light->pos().to3D());
 		}
 		
 		
