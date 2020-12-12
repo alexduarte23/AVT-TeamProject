@@ -3,6 +3,7 @@
 in vec3 exPosition;
 in vec2 exTexcoord;
 in vec3 exNormal;
+in vec3 exColor;
 in vec3 FragPos;
 
 out vec4 FragmentColor;
@@ -12,12 +13,8 @@ uniform vec3 LightColor;
 
 void main(void)
 {
-	/**/
-	//	vec3 color = vec3(1.0);
-	//	vec3 color = (exPosition + vec3(1.0)) * 0.5;
-	//	vec3 color = vec3(exTexcoord, 0.0);
 
-	vec3 objectColor = vec3(0.2, 0.4, 0.2);
+	vec3 objectColor = exColor;
 
 	vec3 lightPos = vec3(3.0, 3.0, 3.0);
 	vec3 lightColor = vec3(1.0, 0.3, 0.0);

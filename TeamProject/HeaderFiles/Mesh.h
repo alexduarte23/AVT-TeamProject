@@ -33,13 +33,14 @@ namespace avt {
 		
 		std::vector<GLubyte> _indices;
 		std::vector<Vector3> _vertices, _verticesData;
+		std::vector<Vector3> _colors;
 		std::vector<Vector2> _textures, _texturesData;
 		std::vector<Vector3> _normals, _normalsData;
 
 		std::vector <unsigned int> _verticesIdx, _texturesIdx, _normalsIdx;
 
 		VertexArray _va;
-		VertexBuffer _vb, _tb, _nb;
+		VertexBuffer _vb, _tb, _nb, _cb;
 		IndexBuffer _ib;
 
 		bool _texturesLoaded = false, _normalsLoaded = false;
@@ -50,6 +51,10 @@ namespace avt {
 			loadMeshData(filename);
 			processMeshData();
 			freeMeshData();
+
+			for (int i = 0; i < _vertices.size(); i++) {
+				_colors.push_back({ 1.f, 1.f, 1.f });
+			}
 		}
 
 		void loadOBJ(const std::string& filename) {
@@ -72,7 +77,7 @@ namespace avt {
 			_indices.push_back(i3);
 		}
 
-		void colorAll(Vector4 color);
+		void colorAll(Vector3 color);
 
 		void applyTransform(Mat4 mat);
 		void setup();

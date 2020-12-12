@@ -3,15 +3,18 @@
 
 namespace avt {
 	/**/
-	void Mesh::colorAll(Vector4 color) {
-		for (int i = 0; i < _vertexes.size(); i++) {
-			_vertexes[i].color = color;
+	void Mesh::colorAll(Vector3 color) {
+		for (int i = 0; i < _vertices.size(); i++) {
+			_colors[i] = color;
 		}
 	}
 
 	void Mesh::applyTransform(Mat4 mat) {
 		for (int i = 0; i < _vertices.size(); i++) {
-			_vertexes[i].position = mat * _vertexes[i].position;
+			avt::Vector4 result = mat * _vertices[i];
+			_vertices[i].setX(result.x());
+			_vertices[i].setY(result.y());
+			_vertices[i].setZ(result.z());
 		}
 	}
 	/**/
@@ -36,6 +39,11 @@ namespace avt {
 			layout.add<GLfloat>(3); // NORMALS
 			_va.addBuffer(_nb, layout, NORMALS);
 		}
+
+		_cb.create(_colors.data(), _colors.size() * sizeof(Vector3));
+		layout.clear();
+		layout.add<GLfloat>(3); // COLORS
+		_va.addBuffer(_cb, layout, COLORS);
 
 		layout.clear();
 		_va.unbind();
