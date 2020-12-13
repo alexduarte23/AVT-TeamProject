@@ -1,7 +1,6 @@
 #include <iostream>
 
 #include "../HeaderFiles/Engine.h"
-#include "../HeaderFiles/Globals.h"
 
 #include <vector>
 
@@ -20,7 +19,7 @@ public:
 
 class MyApp : public avt::App {
 private:
-	avt::Shader _shader;
+
 	avt::Renderer _renderer;
 	avt::UniformBuffer _ub;
 	avt::Scene _scene;
@@ -28,6 +27,8 @@ private:
 
 	avt::Manager<avt::Mesh> _meshes;
 	avt::Manager<avt::Camera> _cams;
+	avt::Manager<avt::Shader> _shaders;
+	avt::Manager<avt::RenderTargetTexture> _rtts;
 
 	avt::SceneNode *_cubeStruct=nullptr, *_frame=nullptr, *_panel=nullptr;
 	avt::SceneNode* _cube1 = nullptr, * _cube2 = nullptr, * _cube3 = nullptr;
@@ -141,15 +142,56 @@ private:
 
 	}
 
+	void createTextures() {
+		avt::RenderTargetTexture* rtt1 = new avt::RenderTargetTexture();
+		rtt1->create(WIDTH, HEIGHT);
+		_rtts.add("rtt1", rtt1);
+
+		avt::RenderTargetTexture* rtt2 = new avt::RenderTargetTexture();
+		rtt2->create(WIDTH, HEIGHT);
+		_rtts.add("rtt2", rtt2);
+
+	}
+
+	void createShader1() {
+		avt::Shader* shader = new avt::Shader();
+		shader->addShader(GL_VERTEX_SHADER, "./Resources/vertexshader3d.shader");
+		shader->addShader(GL_FRAGMENT_SHADER, "./Resources/fragmentshader3d.shader");
+		shader->addAttribute("inPosition", VERTICES);
+		shader->addAttribute("inTexcoord", TEXTURES);
+		shader->addAttribute("inNormal", NORMALS);
+		shader->addUniform("ModelMatrix");
+		shader->addUbo("SharedMatrices", UBO_BP);
+		shader->create();
+		_shaders.add("shader1", shader);
+	}
+
+	void createShader2() {
+		avt::Shader* shader = new avt::Shader();
+		shader->addShader(GL_VERTEX_SHADER, "./Resources/brightVertexshader.shader");
+		shader->addShader(GL_FRAGMENT_SHADER, "./Resources/brightFragmentshader.shader");
+		shader->addAttribute("inVertex", VERTICES); //worng
+		shader->addAttribute("inTexcoord", TEXTURES); //wrong
+		shader->addUniform("TexFramebuffer"); //definir
+		shader->create();
+		_shaders.add("shader2", shader);
+	}
+
+	void createShader3() {
+		avt::Shader* shader = new  avt::Shader();
+		shader->addShader(GL_VERTEX_SHADER, "./Resources/blurVertexshader.shader");
+		shader->addShader(GL_FRAGMENT_SHADER, "./Resources/blurFragmentshader.shader");
+		shader->addAttribute("inVertex", VERTICES); //worng
+		shader->addAttribute("inTexcoord", TEXTURES); //wrong
+		shader->addUniform("TexFramebuffer"); //definir
+		shader->create();
+		_shaders.add("shader3", shader);
+	}
+
 	void createShader() {
-		_shader.addShader(GL_VERTEX_SHADER, "./Resources/vertexshader3d.shader");
-		_shader.addShader(GL_FRAGMENT_SHADER, "./Resources/fragmentshader3d.shader");
-		_shader.addAttribute("inPosition", VERTICES);
-		_shader.addAttribute("inTexcoord", TEXTURES);
-		_shader.addAttribute("inNormal", NORMALS);
-		_shader.addUniform("ModelMatrix");
-		_shader.addUbo("SharedMatrices", UBO_BP);
-		_shader.create();
+		createShader1();
+		createShader2();
+		createShader3();
 	}
 
 	void createCams(GLFWwindow* win) {
@@ -173,7 +215,9 @@ public:
 	void initCallback(GLFWwindow* win) override {
 		createShader();
 		createCams(win);
+		createTextures();
 		createScene();
+		
 	}
 
 	void pollEventsCallback(GLFWwindow* win, const avt::Vector2& lastCursor, const avt::Vector2& newCursor, double dt) override {
@@ -183,7 +227,7 @@ public:
 
 	void updateCallback(GLFWwindow* win, double dt) override {
 		avt::Mat4 rotMat;
-
+		/** /
 		if (_animating) {
 			_time += dt;
 			if (_time > _duration) {
@@ -219,12 +263,24 @@ public:
 			}
 			float k = (float)_time2 / _duration2;
 			_frame->setRotation(avt::Quaternion({ 0,0,1.f }, k * 2 * avt::PI));
-		}
+		}/**/
 	}
 
 	void displayCallback(GLFWwindow* win, double dt) override {
 		_renderer.clear();
-		_renderer.draw(_scene, _ub, _shader, _cams.get(_activeCam));
+
+		avt::RenderTargetTexture* rtt1 = _rtts.get("rtt1");
+		avt::RenderTargetTexture* rtt2 = _rtts.get("rtt2");
+
+		rtt1->bindFramebuffer();
+		_renderer.draw(_scene, _ub, *_shaders.get("shader1") , _cams.get(_activeCam));
+		rtt1->unbindFramebuffer();
+
+		//rtt2->bindFramebuffer();
+		rtt1->renderQuad(_shaders.get("shader2"), "TexFramebuffer");
+		//rtt2->unbindFramebuffer();
+
+		//rtt2->renderQuad(_shaders.get("shader3"), "TexFramebuffer");
 	}
 
 	void windowResizeCallback(GLFWwindow* win, int w, int h) override {

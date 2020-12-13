@@ -75,6 +75,9 @@
     <ClCompile Include="SourceFiles\VertexBufferLayout.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="SourceFiles\Texture.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="HeaderFiles\App.h">
@@ -164,5 +167,14 @@
     <ClInclude Include="HeaderFiles\Globals.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="HeaderFiles\Texture.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\brightFragmentshader.shader" />
+    <None Include="Resources\brightVertexshader.shader" />
+    <None Include="Resources\blurFragmentshader.shader" />
+    <None Include="Resources\blurVertexshader.shader" />
   </ItemGroup>
 </Project>

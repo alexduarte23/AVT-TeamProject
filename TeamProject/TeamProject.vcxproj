@@ -158,6 +158,7 @@
     <ClCompile Include="SourceFiles\Quaternion.cpp" />
     <ClCompile Include="SourceFiles\Renderer.cpp" />
     <ClCompile Include="SourceFiles\Shader.cpp" />
+    <ClCompile Include="SourceFiles\Texture.cpp" />
     <ClCompile Include="SourceFiles\UniformBuffer.cpp" />
     <ClCompile Include="SourceFiles\Vector2.cpp" />
     <ClCompile Include="SourceFiles\Vector3.cpp" />
@@ -189,6 +190,7 @@
     <ClInclude Include="HeaderFiles\SceneNode.h" />
     <ClInclude Include="HeaderFiles\SceneNodeCallback.h" />
     <ClInclude Include="HeaderFiles\Shader.h" />
+    <ClInclude Include="HeaderFiles\Texture.h" />
     <ClInclude Include="HeaderFiles\UniformBuffer.h" />
     <ClInclude Include="HeaderFiles\Vector2.h" />
     <ClInclude Include="HeaderFiles\Vector3.h" />
@@ -196,6 +198,12 @@
     <ClInclude Include="HeaderFiles\VertexArray.h" />
     <ClInclude Include="HeaderFiles\VertexBuffer.h" />
     <ClInclude Include="HeaderFiles\VertexBufferLayout.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\blurFragmentshader.shader" />
+    <None Include="Resources\blurVertexshader.shader" />
+    <None Include="Resources\brightFragmentshader.shader" />
+    <None Include="Resources\brightVertexshader.shader" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

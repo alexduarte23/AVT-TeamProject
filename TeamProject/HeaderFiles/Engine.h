@@ -19,6 +19,8 @@
 #include "ErrorManager.h"
 #include "PerspectiveCamera.h"
 #include "OrthographicCamera.h"
+#include "Texture.h"
+#include "Globals.h"
 
 #include "Scene.h"
 #include "SceneNode.h"
