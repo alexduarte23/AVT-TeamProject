@@ -73,16 +73,14 @@ void avt::RenderTargetTexture::setFramebufferClearColor(const GLfloat r, const G
 void avt::RenderTargetTexture::bindFramebuffer()
 {
 	glBindFramebuffer(GL_FRAMEBUFFER, _framebuffer);
-	glEnable(GL_DEPTH_TEST);
-	glClearColor(_r, _g, _b, _a);
-	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+	glClearColor(1.0f, 0.0f, 0.0f, 1.0f);
+	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
 }
 
 void avt::RenderTargetTexture::unbindFramebuffer()
 {
 	glBindFramebuffer(GL_FRAMEBUFFER, 0);
-	glClearColor(1.0f, 1.0f, 1.0f, 1.0f);
-	glClear(GL_COLOR_BUFFER_BIT);
+	
 }
 
 void avt::RenderTargetTexture::renderQuad(Shader* shader, std::string textureUniform) {

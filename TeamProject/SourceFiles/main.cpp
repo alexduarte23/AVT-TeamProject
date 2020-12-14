@@ -43,13 +43,17 @@ private:
 
 	void createScene() {
 
-		auto cubeM = _meshes.add("cube", new avt::Mesh("./Resources/cube_vtn_flat.obj"));
+		//auto cubeM = _meshes.add("cube", new avt::Mesh("./Resources/cube_vtn_flat.obj"));
+
+		auto ball = _meshes.add("ball", new avt::Mesh("./Resources/bloomball.obj"));
+
 		//auto frameM = _meshes.add("frame", new avt::Mesh("./Resources/frame.obj"));
 		//auto panelM = _meshes.add("panel", new avt::Mesh("./Resources/backpanel.obj"));
 		//frameM->colorAll(avt::Vector4(0.396f, 0.263f, 0.129f, 1.f));
 		//panelM->colorAll(avt::Vector4(0.1f, 0.1f, 0.1f, 1.f));
 
-		cubeM->setup();
+		ball->setup();
+		//cubeM->setup();
 		//frameM->setup();
 		//panelM->setup();
 
@@ -57,12 +61,13 @@ private:
 		_ub.unbind();
 
 		//_frame = _scene.createNode(frameM);
+		_frame = _scene.createNode(ball);
 
 		//_panel = _frame->createNode(panelM);
 		//_panel->scale({ 1.9f, 1.9f, 1.9f });
 		//_panel->translate({ 0.0f, 0.0f, -0.3f });
 		
-		_cubeStruct = _scene.createNode();
+		/*_cubeStruct = _scene.createNode();
 		
 		_cube9 = _cubeStruct->createNode(cubeM);
 		_cube9->translate({ 9.0f, 6.0f, 9.f });
@@ -96,7 +101,7 @@ private:
 		_cubeStruct->scale({ 0.5f, 0.5f, 0.5f });
 		_cubeStruct->rotate(avt::Quaternion(avt::Vector3(0, 1.f, 0), avt::toRad(-55))
 			* avt::Quaternion(avt::Vector3(0, 0, 1.f), avt::toRad(-45)));
-		_cubeStruct->translate({ 0.1f, -1.4f, 2.15f });
+		_cubeStruct->translate({ 0.1f, -1.4f, 2.15f });*/
 
 #ifndef ERROR_CALLBACK
 		avt::ErrorManager::checkOpenGLError("ERROR: Could not create VAOs and VBOs.");
