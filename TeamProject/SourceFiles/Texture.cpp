@@ -9,7 +9,7 @@ void avt::RenderTargetTexture::destroy()
 	glDeleteTextures(1, &id);
 	glBindRenderbuffer(GL_RENDERBUFFER, 0);
 	glDeleteRenderbuffers(1, &_rboDepthStencil);
-	glBindFramebuffer(GL_FRAMEBUFFER, 0);
+	//glBindFramebuffer(GL_FRAMEBUFFER, 0);
 	glDeleteFramebuffers(1, &_framebuffer);
 }
 
@@ -17,7 +17,7 @@ void avt::RenderTargetTexture::createColorTexture(const int width, const int hei
 {
 	glGenTextures(1, &id);
 	glBindTexture(GL_TEXTURE_2D, id);
-	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, width, height, 0, GL_RGB, GL_UNSIGNED_BYTE, 0);
+	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, width, height, 0, GL_RGB, GL_UNSIGNED_BYTE, NULL);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 	glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, id, 0);
@@ -57,7 +57,7 @@ void avt::RenderTargetTexture::unbind()
 void avt::RenderTargetTexture::create(const int width, const int height)
 {
 	glGenFramebuffers(1, &_framebuffer);
-	std::cout << _framebuffer;
+	//std::cout << _framebuffer;
 	glBindFramebuffer(GL_FRAMEBUFFER, _framebuffer);
 	createColorTexture(width, height);
 	createRenderbufferObject(width, height);
@@ -73,13 +73,16 @@ void avt::RenderTargetTexture::setFramebufferClearColor(const GLfloat r, const G
 void avt::RenderTargetTexture::bindFramebuffer()
 {
 	glBindFramebuffer(GL_FRAMEBUFFER, _framebuffer);
+	glEnable(GL_DEPTH_TEST);
 	glClearColor(_r, _g, _b, _a);
-	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
+	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 }
 
 void avt::RenderTargetTexture::unbindFramebuffer()
 {
 	glBindFramebuffer(GL_FRAMEBUFFER, 0);
+	glClearColor(1.0f, 1.0f, 1.0f, 1.0f);
+	glClear(GL_COLOR_BUFFER_BIT);
 }
 
 void avt::RenderTargetTexture::renderQuad(Shader* shader, std::string textureUniform) {
