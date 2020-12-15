@@ -40,7 +40,7 @@ namespace avt {
 		ub.fill({ camera->viewMatrix(), camera->projMatrix() });
 		drawNode(scene.getRoot(), shader, Mat4::identity());
 
-		ub.unbind();//ub.bind();
+		ub.unbind();
 		shader.unbind();
 	}
 
@@ -53,7 +53,15 @@ namespace avt {
 		ub.fill({ camera->viewMatrix(), camera->projMatrix() });
 		drawNode(scene.getRoot(), shader, Mat4::identity());
 
-		ub.unbind();//ub.bind();
+		ub.unbind();
+		shader.unbind();
+	}
+
+	void Renderer::draw(const Scene& scene, Shader& shader) {
+		shader.bind();
+
+		drawNode(scene.getRoot(), shader, Mat4::identity());
+
 		shader.unbind();
 	}
 

@@ -27,8 +27,8 @@ namespace avt {
 
 		void draw(const Scene& scene, UniformBuffer& ub, Shader& shader, Camera* camera);
 		void draw(SceneNode* node, UniformBuffer& ub, Shader& shader, Camera* camera);
-
 		void draw(const Scene& scene, UniformBuffer& ub, Shader& shader, Camera* camera, Light* light);
+		void draw(const Scene& scene, Shader& shader);
 
 		void clear() const;
 	};

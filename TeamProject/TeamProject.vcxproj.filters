@@ -167,5 +167,12 @@
     <ClInclude Include="HeaderFiles\Light.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="HeaderFiles\Shadow.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\vertexDepthShader.glsl" />
+    <None Include="Resources\fragmentDepthShader.glsl" />
   </ItemGroup>
 </Project>

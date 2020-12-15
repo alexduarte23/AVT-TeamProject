@@ -6,10 +6,10 @@
 #include <GL/glew.h>
 #include <GLFW/glfw3.h>
 
+
 #include "App.h"
 
 #include "Renderer.h"
-//#include "Shader.h"
 #include "Shader.h"
 #include "VertexBuffer.h"
 #include "IndexBuffer.h"

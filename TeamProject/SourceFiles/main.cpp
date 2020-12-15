@@ -5,16 +5,18 @@
 
 #include <vector>
 
+#include "../HeaderFiles/Shadow.h"
+
 class MyNodeCallback : public avt::SceneNodeCallback {
 public:
 	void beforeDraw() override {
 		//glDisable(GL_CULL_FACE);
-		glDisable(GL_DEPTH_TEST);
+		//glDisable(GL_DEPTH_TEST);
 	}
 
 	void afterDraw() override {
 		//glEnable(GL_CULL_FACE);
-		glEnable(GL_DEPTH_TEST);
+		//glEnable(GL_DEPTH_TEST);
 	}
 };
 
@@ -26,12 +28,15 @@ private:
 	avt::Scene _scene;
 	MyNodeCallback nodeCallback;
 
+	avt::Shadow _shadow;
+
 	avt::Manager<avt::Mesh> _meshes;
 	avt::Manager<avt::Camera> _cams;
 	avt::Manager<avt::Light> _lights;
 
+
 	avt::SceneNode* _tree = nullptr, *_lightStruct = nullptr , *_light= nullptr, *_floor = nullptr;
-	std::string _activeCam = "ort";
+	std::string _activeCam = "per";
 	
 	const float _duration = 3, _duration2 = 6;
 	double _time = 0, _time2 = 0;
@@ -63,7 +68,7 @@ private:
 		_light->setTranslation(_lights.get("sun")->getPosition());
 		
 		_floor = _scene.createNode(floorM);
-		_floor->scale({3.f, 1.0f, 3.f});
+		_floor->scale({6.f, 1.0f, 6.f});
 		_floor->translate({ 0.0f, -2.8f, 0.0f });
 		
 
@@ -113,12 +118,17 @@ private:
 	}
 
 	void createShader() {
-		_shader.addShader(GL_VERTEX_SHADER, "./Resources/vertexshader3d.shader");
-		_shader.addShader(GL_FRAGMENT_SHADER, "./Resources/fragmentshader3d.shader");
+		//_shader.addShader(GL_VERTEX_SHADER, "./Resources/vertexshader3d.shader");
+		//_shader.addShader(GL_FRAGMENT_SHADER, "./Resources/fragmentshader3d.shader");
+		_shader.addShader(GL_VERTEX_SHADER, "./Resources/vertexShadowShader.glsl");
+		_shader.addShader(GL_FRAGMENT_SHADER, "./Resources/fragmentShadowShader.glsl");
 		_shader.addAttribute("inPosition", VERTICES);
 		_shader.addAttribute("inTexcoord", TEXTURES);
 		_shader.addAttribute("inNormal", NORMALS);
+		_shader.addAttribute("inColor", COLORS);
 		_shader.addUniform("ModelMatrix");
+		_shader.addUniform("lightSpaceMatrix");
+		_shader.addUniform("shadowMap");
 		_shader.addUniform("LightPosition");
 		_shader.addUniform("LightColor");
 		_shader.addUbo("CameraMatrices", UBO_BP);
@@ -135,6 +145,13 @@ private:
 
 		_cams.get("ort")->setSpeed(12.f);
 		_cams.get("per")->setSpeed(12.f);
+
+		//SHADOWS TODO Separate this from the cameras
+		//TODO FIX THE ENGINE ISSUE
+		_shadow = avt::Shadow((unsigned int)1024, (unsigned int)1024, avt::OrthographicCamera(-10.0f, 10.0f, -10.0f / aspect, 10.0f / aspect, 0.1f, 100.0f, avt::Vector3(0, 0, 20.f)));
+		_shadow.setPosition({ 4.0f, 0.0f, 0.0f });
+		_shadow.lookAt({0.0f, 0.0f, 0.0f});
+		_shadow.setup();
 	}
 
 	void createLights() {
@@ -148,8 +165,8 @@ public:
 	~MyApp() {}
 
 	void initCallback(GLFWwindow* win) override {
-		createShader();
 		createCams(win);
+		createShader();
 		createLights();
 		createScene();
 	}
@@ -206,12 +223,22 @@ public:
 			_lightStruct->setRotation(avt::Quaternion({ 0,0,1.f }, k * 2 * avt::PI));
 			_lights.get("sun")->setPosition(_light->pos().to3D());
 		}
+
+		_shadow.setPosition(_light->pos().to3D());
+		_shadow.lookAt({ 0.0f, 0.0f, 0.0f });
+		_shader.bind();
+		glUniformMatrix4fv(_shader.getUniform("lightSpaceMatrix"), 1, GL_FALSE, (_shadow._lightView.projMatrix() * _shadow._lightView.viewMatrix()).GLdata()); //TODO private stuff here
+		_shader.unbind();
 		
 		
 	}
 
 	void displayCallback(GLFWwindow* win, double dt) override {
+		int winx, winy;
+		glfwGetWindowSize(win, &winx, &winy);
 		_renderer.clear();
+		_shadow.renderToDepthMap(_renderer, _scene, (unsigned int)winx, (unsigned int)winy);
+		glBindTexture(GL_TEXTURE_2D, _shadow.depthMap());
 		_renderer.draw(_scene, _ub, _shader, _cams.get(_activeCam), _lights.get("sun"));
 	}
 
