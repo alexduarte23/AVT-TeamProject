@@ -103,6 +103,8 @@ private:
 			* avt::Quaternion(avt::Vector3(0, 0, 1.f), avt::toRad(-45)));
 		_cubeStruct->translate({ 0.1f, -1.4f, 2.15f });*/
 
+		_frame->scale({ 2.0f, 2.0f, 2.0f });
+
 #ifndef ERROR_CALLBACK
 		avt::ErrorManager::checkOpenGLError("ERROR: Could not create VAOs and VBOs.");
 #endif
@@ -178,7 +180,7 @@ private:
 		shader->addAttribute("inVertex", VERTICES); //worng
 		shader->addAttribute("inTexcoord", TEXTURES); //wrong
 		shader->addUniform("TexFramebuffer"); //definir
-		shader->create();
+		shader->create(); 
 		_shaders.add("shader2", shader);
 	}
 
@@ -277,15 +279,19 @@ public:
 		avt::RenderTargetTexture* rtt1 = _rtts.get("rtt1");
 		avt::RenderTargetTexture* rtt2 = _rtts.get("rtt2");
 
-		rtt1->bindFramebuffer();
+		//rtt1->setFramebufferClearColor(0.1f, 0.1f, 0.2f, 1.0f);
+		//rtt1->bindFramebuffer();
 		_renderer.draw(_scene, _ub, *_shaders.get("shader1") , _cams.get(_activeCam));
-		rtt1->unbindFramebuffer();
+		//rtt1->unbindFramebuffer();
 
+		//rtt2->setFramebufferClearColor(0.1f, 0.1f, 0.2f, 1.0f);
 		rtt2->bindFramebuffer();
-		rtt1->renderQuad(_shaders.get("shader2"), "TexFramebuffer");
+		//rtt1->renderQuad(_shaders.get("shader2"), "TexFramebuffer");
 		rtt2->unbindFramebuffer();
 
 		rtt2->renderQuad(_shaders.get("shader3"), "TexFramebuffer");
+		//glClearColor(0.9f, 0.9f, 0.9f, 1.0f);
+		//_renderer.draw(_scene, _ub, *_shaders.get("shader1"), _cams.get(_activeCam));
 	}
 
 	void windowResizeCallback(GLFWwindow* win, int w, int h) override {

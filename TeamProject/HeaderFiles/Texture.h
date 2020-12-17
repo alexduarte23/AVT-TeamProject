@@ -15,6 +15,7 @@ namespace avt {
 	protected:
 		GLuint id;
 	public:
+		Texture() : id(-1) {}
 		virtual void bind();
 		virtual void unbind();
 	};
