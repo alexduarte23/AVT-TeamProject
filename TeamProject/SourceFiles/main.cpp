@@ -6,6 +6,8 @@
 #include <vector>
 
 #include "../HeaderFiles/Shadow.h"
+#include "../HeaderFiles/TerrainPlane.h"
+#include "../HeaderFiles/Cloud.h"
 
 class MyNodeCallback : public avt::SceneNodeCallback {
 public:
@@ -35,7 +37,7 @@ private:
 	avt::Manager<avt::Light> _lights;
 
 
-	avt::SceneNode* _tree = nullptr, *_lightStruct = nullptr , *_light= nullptr, *_floor = nullptr;
+	avt::SceneNode* _tree = nullptr, *_lightStruct = nullptr , *_light= nullptr, *_floor = nullptr, *_cloud = nullptr;
 	std::string _activeCam = "per";
 	
 	const float _duration = 3, _duration2 = 6;
@@ -48,8 +50,12 @@ private:
 		treeM->colorAll({0.2f, 0.6f, 0.2f});
 		treeM->setup();
 
-		auto floorM = _meshes.add("floor", new avt::Mesh("./Resources/cube_vtn_flat.obj"));
+		//auto floorM = _meshes.add("floor", new avt::Mesh("./Resources/cube_vtn_flat.obj"));
+		auto floorM = _meshes.add("floor", new avt::TerrainPlane());
 		floorM->setup();
+
+		auto cloudM = _meshes.add("cloud", new avt::Cloud());
+		cloudM->setup();
 
 		
 		auto lightM = _meshes.add("cube", new avt::Mesh("./Resources/cube_vtn_flat.obj"));
@@ -68,8 +74,12 @@ private:
 		_light->setTranslation(_lights.get("sun")->getPosition());
 		
 		_floor = _scene.createNode(floorM);
-		_floor->scale({6.f, 1.0f, 6.f});
-		_floor->translate({ 0.0f, -2.8f, 0.0f });
+		//_floor->scale({6.f, 1.0f, 6.f});
+		//_floor->translate({ 0.0f, -2.8f, 0.0f });
+		_floor->translate({ -4.5f, -2.f, -4.5f });
+
+		//_cloud = _scene.createNode(cloudM);
+		//_cloud->translate({ -2.5f, 4.f, -2.5f });
 		
 
 
@@ -149,13 +159,13 @@ private:
 		//SHADOWS TODO Separate this from the cameras
 		//TODO FIX THE ENGINE ISSUE
 		_shadow = avt::Shadow((unsigned int)1024, (unsigned int)1024, avt::OrthographicCamera(-10.0f, 10.0f, -10.0f / aspect, 10.0f / aspect, 0.1f, 100.0f, avt::Vector3(0, 0, 20.f)));
-		_shadow.setPosition({ 4.0f, 0.0f, 0.0f });
+		_shadow.setPosition({ 6.0f, 0.0f, 0.0f });
 		_shadow.lookAt({0.0f, 0.0f, 0.0f});
 		_shadow.setup();
 	}
 
 	void createLights() {
-		_lights.add("sun", new avt::Light({ 4.f, 0.0f, 0.0f }, { 1.f, 1.f, 1.f }));
+		_lights.add("sun", new avt::Light({ 6.f, 0.0f, 0.0f }, { 1.f, 1.f, 1.f }));
 	}
 
 public:
@@ -179,38 +189,13 @@ public:
 	void updateCallback(GLFWwindow* win, double dt) override {
 		
 		avt::Mat4 rotMat;
-		/*
+		
 		if (_animating) {
 			_time += dt;
 			if (_time > _duration) {
-				_time -= _duration;
-				
-				_cube9->setTranslation({ 9.0f, 6.0f, 9.f });
-				_cube8->setTranslation({ 9.0f, 6.0f, 6.f });
-				_cube1->setTranslation({ 0.0f, 0.0f, 0.f });
-				_cube2->setTranslation({ 0.0f, 3.0f, 0.f });
-				_cube3->setTranslation({ 0.0f, 6.0f, 0.f });
-				_cube4->setTranslation({ 3.0f, 6.0f, 0.f });
-				_cube5->setTranslation({ 6.0f, 6.0f, 0.f });
-				_cube6->setTranslation({ 9.0f, 6.0f, 0.f });
-				_cube7->setTranslation({ 9.0f, 6.0f, 3.f });
-				
+				_time -= _duration;				
 			}
-			/*
-			_cube1->translate({ 0, (float)dt, 0 });
-			_cube2->translate({ 0, (float)dt, 0 });
-			_cube3->translate({ (float)dt, 0, 0 });
-			_cube4->translate({ (float)dt, 0, 0 });
-			_cube5->translate({ (float)dt, 0, 0 });
-			_cube6->translate({ 0, 0, (float)dt });
-			_cube7->translate({ 0, 0, (float)dt });
-			_cube8->translate({ 0, 0, (float)dt });
-			_cube9->translate({ .001f, (float)dt + .001f, 0 });
-			
-			_lights.get("sun")->setPosition({ 3.f, 3.f, (float)_time });
-			_light->setTranslation(_lights.get("sun")->getPosition());
 		}
-		*/
 		
 		if (_rotating) {
 			_time2 += dt;

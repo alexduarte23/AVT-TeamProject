@@ -99,6 +99,10 @@ namespace avt {
 			return _ib;
 		}
 
+		void computeNormals();
+
+		void update(float time);
+
 	private:
 
 		void parseVertex(std::stringstream& sin);

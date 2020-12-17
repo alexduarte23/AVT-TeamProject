@@ -49,6 +49,10 @@ namespace avt {
 		glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, _glMinor);
 		glfwWindowHint(GLFW_OPENGL_DEBUG_CONTEXT, GLFW_TRUE);
 
+		//AA
+		glfwWindowHint(GLFW_SAMPLES, 4);
+		glEnable(GL_MULTISAMPLE);
+
 		setupWindow();
 
 		glfwSetWindowCloseCallback(_win, Engine::window_close_callback);

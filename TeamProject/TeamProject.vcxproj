@@ -170,6 +170,7 @@
     <ClInclude Include="HeaderFiles\App.h" />
     <ClInclude Include="HeaderFiles\avt_math.h" />
     <ClInclude Include="HeaderFiles\Camera.h" />
+    <ClInclude Include="HeaderFiles\Cloud.h" />
     <ClInclude Include="HeaderFiles\Cube.h" />
     <ClInclude Include="HeaderFiles\Engine.h" />
     <ClInclude Include="HeaderFiles\ErrorManager.h" />
@@ -183,6 +184,7 @@
     <ClInclude Include="HeaderFiles\Matrix.h" />
     <ClInclude Include="HeaderFiles\Mesh.h" />
     <ClInclude Include="HeaderFiles\OrthographicCamera.h" />
+    <ClInclude Include="HeaderFiles\Perlin.h" />
     <ClInclude Include="HeaderFiles\PerspectiveCamera.h" />
     <ClInclude Include="HeaderFiles\Quaternion.h" />
     <ClInclude Include="HeaderFiles\Renderer.h" />
@@ -191,6 +193,7 @@
     <ClInclude Include="HeaderFiles\SceneNodeCallback.h" />
     <ClInclude Include="HeaderFiles\Shader.h" />
     <ClInclude Include="HeaderFiles\Shadow.h" />
+    <ClInclude Include="HeaderFiles\TerrainPlane.h" />
     <ClInclude Include="HeaderFiles\UniformBuffer.h" />
     <ClInclude Include="HeaderFiles\Vector2.h" />
     <ClInclude Include="HeaderFiles\Vector3.h" />
