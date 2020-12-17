@@ -16,7 +16,7 @@
 #include "VertexArray.h"
 #include "UniformBuffer.h"
 #include "Shader.h"
-#include "Renderer.h"
+//#include "Renderer.h"
 #include "Camera.h"
 
 namespace avt {

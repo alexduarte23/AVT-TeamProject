@@ -28,6 +28,8 @@
 #include "Mesh.h"
 #include "Cube.h"
 
+#include "ParticleEmitter.h"
+
 
 #define ERROR_CALLBACK
 

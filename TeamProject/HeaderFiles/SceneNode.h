@@ -3,9 +3,9 @@
 #include <vector>
 #include "avt_math.h"
 #include "SceneNodeCallback.h"
+#include "Mesh.h"
 
 namespace avt {
-	class Mesh;
 
 	class SceneNode {
 	private:
@@ -14,13 +14,17 @@ namespace avt {
 		std::vector<SceneNode*> _nodes;
 		//Mat4 _matrix;
 
+		Shader* _shader;
+
 		Vector3 _translation, _scale;
 		Quaternion _rot;
 
 		SceneNodeCallback* _callback;
 
 	public:
-		SceneNode(Mesh* mesh = nullptr) : _callback(nullptr), _parent(nullptr), _mesh(mesh), _translation(0,0,0), _scale(1.f, 1.f, 1.f), _rot({1.f,0,0}, 0) /*, _matrix(Mat4::identity())*/ {}
+		SceneNode(Mesh* mesh = nullptr)
+			: _callback(nullptr), _parent(nullptr), _mesh(mesh), _translation(0,0,0), _scale(1.f, 1.f, 1.f), _rot({1.f,0,0}, 0) /*, _matrix(Mat4::identity())*/,
+			_shader(nullptr) {}
 
 		virtual ~SceneNode() {
 			for (auto node : _nodes) {
@@ -35,9 +39,10 @@ namespace avt {
 			return node;
 		}
 
-		void add(SceneNode* node) {
+		SceneNode* addNode(SceneNode* node) {
 			_nodes.push_back(node);
 			node->setParent(this);
+			return node;
 		}
 
 		void setMesh(Mesh* mesh) {
@@ -140,6 +145,42 @@ namespace avt {
 
 		void afterDraw() {
 			if (_callback) _callback->afterDraw();
+		}
+
+		void setShader(Shader *shader) {
+			_shader = shader;
+		}
+
+		Shader* getShader() {
+			return _shader;
+		}
+
+		virtual void draw(const Mat4& worldMatrix) {
+			if (_shader) draw(_shader, worldMatrix);
+		}
+
+		virtual void draw(Shader* shader, const Mat4& worldMatrix) {
+			auto newWorldMat = worldMatrix * getTransform();
+			Shader* curr_shader = _shader ? _shader : shader;
+
+			if (_mesh) {
+				curr_shader->bind();
+				_mesh->va().bind();
+				_mesh->ib().bind();
+
+				beforeDraw();
+				glUniformMatrix4fv(curr_shader->getUniform(MODEL_MATRIX), 1, GL_FALSE, newWorldMat.data());
+				glDrawElements(GL_TRIANGLES, _mesh->ib().count(), GL_UNSIGNED_BYTE, (GLvoid*)0);
+				afterDraw();
+
+				_mesh->va().unbind();
+				_mesh->ib().unbind();
+				curr_shader->unbind();
+			}
+
+			for (auto childNode : _nodes) {
+				childNode->draw(curr_shader, newWorldMat);
+			}
 		}
 
 	};

@@ -181,6 +181,7 @@
     <ClInclude Include="HeaderFiles\Matrix.h" />
     <ClInclude Include="HeaderFiles\Mesh.h" />
     <ClInclude Include="HeaderFiles\OrthographicCamera.h" />
+    <ClInclude Include="HeaderFiles\ParticleEmitter.h" />
     <ClInclude Include="HeaderFiles\PerspectiveCamera.h" />
     <ClInclude Include="HeaderFiles\Quaternion.h" />
     <ClInclude Include="HeaderFiles\Renderer.h" />

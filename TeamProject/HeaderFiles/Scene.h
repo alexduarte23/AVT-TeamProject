@@ -17,8 +17,21 @@ namespace avt {
 			return _root->createNode(mesh);
 		}
 
+		SceneNode* addNode(SceneNode* node) {
+			return _root->addNode(node);
+		}
+
 		SceneNode* getRoot() const {
 			return _root;
+		}
+
+		void draw(UniformBuffer& ub, Camera* camera) {
+			ub.bind();
+
+			ub.fill({ camera->viewMatrix(), camera->projMatrix() });
+			_root->draw(Mat4::identity());
+
+			ub.unbind();ub.bind();
 		}
 	};
 

@@ -19,11 +19,13 @@ public:
 
 class MyApp : public avt::App {
 private:
-	avt::Shader _shader;
+	avt::Shader _shader, _shaderP;
 	avt::Renderer _renderer;
 	avt::UniformBuffer _ub;
 	avt::Scene _scene;
 	MyNodeCallback nodeCallback;
+
+	avt::ParticleEmitter *_emitter;
 
 	avt::Manager<avt::Mesh> _meshes;
 	avt::Manager<avt::Camera> _cams;
@@ -33,7 +35,7 @@ private:
 	avt::SceneNode* _cube4 = nullptr, * _cube5 = nullptr, * _cube6 = nullptr;
 	avt::SceneNode* _cube7 = nullptr, * _cube8 = nullptr, * _cube9 = nullptr;
 
-	std::string _activeCam = "ort";
+	std::string _activeCam = "per";
 	
 	const float _duration = 3, _duration2 = 6;
 	double _time = 0, _time2 = 0;
@@ -45,7 +47,10 @@ private:
 
 	void createScene() {
 
+		_scene.getRoot()->setShader(&_shader);
+
 		auto cubeM = _meshes.add("cube", new avt::Cube());
+		cubeM->colorAll({ 1.f,1.f,1.f,1.f });
 		auto frameM = _meshes.add("frame", new avt::Mesh("./Resources/frame.obj"));
 		auto panelM = _meshes.add("panel", new avt::Mesh("./Resources/backpanel.obj"));
 		frameM->colorAll(avt::Vector4(0.396f, 0.263f, 0.129f, 1.f));
@@ -58,6 +63,15 @@ private:
 		_ub.create(2 * 16 * sizeof(GLfloat), 0); // change
 		_ub.unbind();
 
+		auto plane = _scene.createNode(cubeM);
+		plane->translate({ 0,-1.f,0 });
+		plane->scale({10.f,0.1f,10.f});
+
+		_emitter = new avt::ParticleEmitter();
+		_emitter->setShader(&_shaderP);
+		_scene.addNode(_emitter); // scene deletes nodes when destroyed
+
+		/*
 		_frame = _scene.createNode(frameM);
 
 		_panel = _frame->createNode(panelM);
@@ -84,6 +98,7 @@ private:
 
 		_cube4 = _cubeStruct->createNode(cubeM);
 		_cube4->translate({ 3.0f, 6.0f, 0.f });
+		_cube4->setShader(&_shader2);
 
 		_cube5 = _cubeStruct->createNode(cubeM);
 		_cube5->translate({ 6.0f, 6.0f, 0.f });
@@ -99,7 +114,7 @@ private:
 		_cubeStruct->rotate(avt::Quaternion(avt::Vector3(0, 1.f, 0), avt::toRad(-55))
 			* avt::Quaternion(avt::Vector3(0, 0, 1.f), avt::toRad(-45)));
 		_cubeStruct->translate({ 0.1f, -1.4f, 2.15f });
-
+		*/
 #ifndef ERROR_CALLBACK
 		avt::ErrorManager::checkOpenGLError("ERROR: Could not create VAOs and VBOs.");
 #endif
@@ -152,6 +167,18 @@ private:
 		_shader.addUniform("ModelMatrix");
 		_shader.addUbo("SharedMatrices", UBO_BP);
 		_shader.create();
+
+		_shaderP.addShader(GL_VERTEX_SHADER, "./Resources/particles-vs.glsl");
+		_shaderP.addShader(GL_FRAGMENT_SHADER, "./Resources/particles-fs.glsl");
+		//_shaderP.addAttribute("in_Position", VERTICES);
+		//_shaderP.addAttribute("in_Color", COLORS);
+		_shaderP.addAttribute("in_vertex", 0);
+		_shaderP.addAttribute("in_pos", 1);
+		_shaderP.addAttribute("in_color", 2);
+		_shaderP.addAttribute("in_size", 3);
+		_shaderP.addUniform("ModelMatrix");
+		_shaderP.addUbo("SharedMatrices", UBO_BP);
+		_shaderP.create();
 	}
 
 	void createCams(GLFWwindow* win) {
@@ -159,11 +186,12 @@ private:
 		glfwGetWindowSize(win, &winx, &winy);
 
 		float aspect = winx / (float)winy;
-		_cams.add("per", new avt::PerspectiveCamera(45.f, aspect, 0.1f, 100.0f, avt::Vector3(0, 0, 10.f)));
+		_cams.add("per", new avt::PerspectiveCamera(45.f, aspect, 1.f, 50.0f, avt::Vector3(0, 8.f, 15.f)));
 		_cams.add("ort", new avt::OrthographicCamera(-6.0f, 6.0f, -6.0f / aspect, 6.0f / aspect, 0.1f, 100.0f, avt::Vector3(0, 0, 15.f)));
 
 		_cams.get("ort")->setSpeed(12.f);
 		_cams.get("per")->setSpeed(12.f);
+		_cams.get("per")->lookAt(avt::Vector3());
 	}
 
 public:
@@ -186,6 +214,10 @@ public:
 	void updateCallback(GLFWwindow* win, double dt) override {
 		avt::Mat4 rotMat;
 
+		_emitter->update(dt);
+		
+
+		/*
 		if (_animating) {
 			_time += dt;
 			if (_time > _duration) {
@@ -221,12 +253,13 @@ public:
 			}
 			float k = (float)_time2 / _duration2;
 			_frame->setRotation(avt::Quaternion({ 0,0,1.f }, k * 2 * avt::PI));
-		}
+		}*/
 	}
 
 	void displayCallback(GLFWwindow* win, double dt) override {
 		_renderer.clear();
-		_renderer.draw(_scene, _ub, _shader, _cams.get(_activeCam));
+		//_renderer.draw(_scene, _ub, _shader, _cams.get(_activeCam));
+		_scene.draw(_ub, _cams.get(_activeCam));
 	}
 
 	void windowResizeCallback(GLFWwindow* win, int w, int h) override {
