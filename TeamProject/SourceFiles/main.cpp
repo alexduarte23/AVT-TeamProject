@@ -41,15 +41,14 @@ private:
 	double _time = 0, _time2 = 0;
 	bool _animating = false, _rotating = false;
 
+	avt::SceneNode *_ball=nullptr;
+
 	void createScene() {
 
 		//auto cubeM = _meshes.add("cube", new avt::Mesh("./Resources/cube_vtn_flat.obj"));
 
-<<<<<<< Updated upstream
 		auto ball = _meshes.add("ball", new avt::Mesh("./Resources/bloomball.obj"));
-=======
-		auto ball = _meshes.add("ball", new avt::Mesh("./Resources/cube_vtn_flat.obj"));
->>>>>>> Stashed changes
+
 
 		//auto frameM = _meshes.add("frame", new avt::Mesh("./Resources/frame.obj"));
 		//auto panelM = _meshes.add("panel", new avt::Mesh("./Resources/backpanel.obj"));
@@ -57,16 +56,11 @@ private:
 		//panelM->colorAll(avt::Vector4(0.1f, 0.1f, 0.1f, 1.f));
 
 		ball->setup();
-<<<<<<< Updated upstream
 		//cubeM->setup();
 		//frameM->setup();
 		//panelM->setup();
 
-		_ub.create(2 * 16 * sizeof(GLfloat), 0); // change
-		_ub.unbind();
-
-=======
-		_cloud = _scene.createNode(ball);
+		_ball = _scene.createNode(ball);
 
 		_ub.create(2 * 16 * sizeof(GLfloat), 0); // change
 		_ub.unbind();
@@ -80,9 +74,7 @@ private:
 		_cloud->scale({ 4.0f, 4.0f, 4.0f });
 		_cloud->translate({ 0.0f, 0.0f, -0.3f });
 		*/
->>>>>>> Stashed changes
 		//_frame = _scene.createNode(frameM);
-		_frame = _scene.createNode(ball);
 
 		//_panel = _frame->createNode(panelM);
 		//_panel->scale({ 1.9f, 1.9f, 1.9f });
@@ -358,14 +350,7 @@ public:
 
 		//rtt1->setFramebufferClearColor(0.1f, 0.1f, 0.2f, 1.0f);
 		//rtt1->bindFramebuffer();
-<<<<<<< Updated upstream
 		_renderer.draw(_scene, _ub, *_shaders.get("shader1") , _cams.get(_activeCam));
-		//rtt1->unbindFramebuffer();
-=======
-		_renderer.draw(_scene, _ub, *_shaders.get("shader5") , _cams.get(_activeCam));
-		/*rtt1->unbindFramebuffer();
->>>>>>> Stashed changes
-
 		//rtt2->setFramebufferClearColor(0.1f, 0.1f, 0.2f, 1.0f);
 		rtt2->bindFramebuffer();
 		//rtt1->renderQuad(_shaders.get("shader2"), "TexFramebuffer");
