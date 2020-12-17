@@ -45,7 +45,11 @@ private:
 
 		//auto cubeM = _meshes.add("cube", new avt::Mesh("./Resources/cube_vtn_flat.obj"));
 
+<<<<<<< Updated upstream
 		auto ball = _meshes.add("ball", new avt::Mesh("./Resources/bloomball.obj"));
+=======
+		auto ball = _meshes.add("ball", new avt::Mesh("./Resources/cube_vtn_flat.obj"));
+>>>>>>> Stashed changes
 
 		//auto frameM = _meshes.add("frame", new avt::Mesh("./Resources/frame.obj"));
 		//auto panelM = _meshes.add("panel", new avt::Mesh("./Resources/backpanel.obj"));
@@ -53,6 +57,7 @@ private:
 		//panelM->colorAll(avt::Vector4(0.1f, 0.1f, 0.1f, 1.f));
 
 		ball->setup();
+<<<<<<< Updated upstream
 		//cubeM->setup();
 		//frameM->setup();
 		//panelM->setup();
@@ -60,6 +65,22 @@ private:
 		_ub.create(2 * 16 * sizeof(GLfloat), 0); // change
 		_ub.unbind();
 
+=======
+		_cloud = _scene.createNode(ball);
+
+		_ub.create(2 * 16 * sizeof(GLfloat), 0); // change
+		_ub.unbind();
+		//cubeM->setup();
+		//frameM->setup();
+		//panelM->setup();
+		/*auto cloudM = _meshes.add("cloud", new avt::Cloud());
+		cloudM->setup();
+
+		_cloud = _scene.createNode(cloudM);
+		_cloud->scale({ 4.0f, 4.0f, 4.0f });
+		_cloud->translate({ 0.0f, 0.0f, -0.3f });
+		*/
+>>>>>>> Stashed changes
 		//_frame = _scene.createNode(frameM);
 		_frame = _scene.createNode(ball);
 
@@ -150,14 +171,21 @@ private:
 	}
 
 	void createTextures() {
-		avt::RenderTargetTexture* rtt1 = new avt::RenderTargetTexture();
+		/*avt::RenderTargetTexture* rtt1 = new avt::RenderTargetTexture();
 		rtt1->create(WIDTH, HEIGHT);
 		_rtts.add("rtt1", rtt1);
 
 		avt::RenderTargetTexture* rtt2 = new avt::RenderTargetTexture();
 		rtt2->create(WIDTH, HEIGHT);
-		_rtts.add("rtt2", rtt2);
+		_rtts.add("rtt2", rtt2);*/
+		/*Texture2D* texture0 = new Texture2D();
+		texture0->load("./Resources/t1.png");
+		TextureManager::instance()->add("t1", (Texture*)texture0);
 
+		Sampler* sampler = (Sampler*) new NearestSampler();
+		sampler->create();
+		SamplerManager::instance()->add("sampler", sampler);*/
+			
 	}
 
 	void createShader1() {
@@ -195,10 +223,59 @@ private:
 		_shaders.add("shader3", shader);
 	}
 
+	void createShader4() {
+		avt::Shader* shader = new  avt::Shader();
+		shader->addShader(GL_VERTEX_SHADER, "./Resources/convolutedVertexshader.shader");
+		shader->addShader(GL_FRAGMENT_SHADER, "./Resources/convolutedFragmentshader.shader");
+		shader->addAttribute("inVertex", VERTICES); //worng
+		shader->addAttribute("inNormal", NORMALS); //worng
+		shader->addAttribute("inTexcoord", TEXTURES); //wrong
+		shader->addUniform("ModelMatrix");
+		shader->addUbo("SharedMatrices", UBO_BP);
+		//shader->addUniform("BaseImage");
+		shader->addUniform("Mode");
+		shader->addUniform("Scale");
+		shader->addUniform("Kernel");
+		shader->create();
+		_shaders.add("shader4", shader);
+
+		shader->bind();
+		glUniform1i(shader->getUniform("Mode"), 0);
+		glUniform1f(shader->getUniform("Scale"), 0.01f);
+		GLfloat k[9] = { 0, 0.2f, 0, 0.2f, 0.2f, 0.2f, 0, 0.2f, 0 };
+		glUniformMatrix3fv(shader->getUniform("Kernel"), 1, GL_FALSE, k);
+		shader->unbind();
+	}
+
+	void createShader5() {
+		avt::Shader* shader = new  avt::Shader();
+		shader->addShader(GL_VERTEX_SHADER, "./Resources/convolutedVertexshader.shader");
+		shader->addShader(GL_FRAGMENT_SHADER, "./Resources/gaussianblurFragmentshader.shader");
+		shader->addAttribute("inVertex", VERTICES); //worng
+		shader->addAttribute("inNormal", NORMALS); //worng
+		shader->addAttribute("inTexcoord", TEXTURES); //wrong
+		shader->addUniform("ModelMatrix");
+		shader->addUbo("SharedMatrices", UBO_BP);
+		//shader->addUniform("BaseImage");
+		shader->addUniform("Mode");
+		shader->addUniform("Scale");
+		shader->addUniform("Kernel");
+		shader->create();
+		_shaders.add("shader4", shader);
+
+		shader->bind();
+		glUniform1i(shader->getUniform("Mode"), 0);
+		glUniform1f(shader->getUniform("Scale"), 0.01f);
+		GLfloat k[9] = { 0, 0.2f, 0, 0.2f, 0.2f, 0.2f, 0, 0.2f, 0 };
+		glUniformMatrix3fv(shader->getUniform("Kernel"), 1, GL_FALSE, k);
+		shader->unbind();
+	}
+
 	void createShader() {
 		createShader1();
-		createShader2();
-		createShader3();
+		/*createShader2();
+		createShader3();*/
+		createShader4();
 	}
 
 	void createCams(GLFWwindow* win) {
@@ -281,8 +358,13 @@ public:
 
 		//rtt1->setFramebufferClearColor(0.1f, 0.1f, 0.2f, 1.0f);
 		//rtt1->bindFramebuffer();
+<<<<<<< Updated upstream
 		_renderer.draw(_scene, _ub, *_shaders.get("shader1") , _cams.get(_activeCam));
 		//rtt1->unbindFramebuffer();
+=======
+		_renderer.draw(_scene, _ub, *_shaders.get("shader5") , _cams.get(_activeCam));
+		/*rtt1->unbindFramebuffer();
+>>>>>>> Stashed changes
 
 		//rtt2->setFramebufferClearColor(0.1f, 0.1f, 0.2f, 1.0f);
 		rtt2->bindFramebuffer();

@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
+﻿<?xml version="1.0" encoding="utf-8"?>
 <Project DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup Label="ProjectConfigurations">
     <ProjectConfiguration Include="Debug|Win32">
@@ -204,6 +204,12 @@
     <None Include="Resources\blurVertexshader.shader" />
     <None Include="Resources\brightFragmentshader.shader" />
     <None Include="Resources\brightVertexshader.shader" />
+    <None Include="Resources\convolutedFragmentshader.shader" />
+    <None Include="Resources\convolutedVertexshader.shader" />
+  </ItemGroup>
+  <ItemGroup>
+    <Image Include="..\..\..\..\Desktop\t1.png" />
+    <Image Include="Resources\t1.png" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

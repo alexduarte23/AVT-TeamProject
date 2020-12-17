@@ -133,7 +133,7 @@ void avt::Quad2D::destroy() {
 
 void avt::Quad2D::create() {
 	
-	/** /
+	/**
 	_va.create();
 	_vb.create(_vertices.GLdata(), 16 * sizeof(GLfloat));
 
