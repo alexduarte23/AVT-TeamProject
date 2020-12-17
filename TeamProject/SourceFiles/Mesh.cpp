@@ -3,15 +3,18 @@
 
 namespace avt {
 	/**/
-	void Mesh::colorAll(Vector4 color) {
-		for (int i = 0; i < _vertexes.size(); i++) {
-			_vertexes[i].color = color;
+	void Mesh::colorAll(Vector3 color) {
+		for (int i = 0; i < _vertices.size(); i++) {
+			_colors[i] = color;
 		}
 	}
 
 	void Mesh::applyTransform(Mat4 mat) {
 		for (int i = 0; i < _vertices.size(); i++) {
-			_vertexes[i].position = mat * _vertexes[i].position;
+			avt::Vector4 result = mat * _vertices[i].to4D();
+			_vertices[i].setX(result.x());
+			_vertices[i].setY(result.y());
+			_vertices[i].setZ(result.z());
 		}
 	}
 	/**/
@@ -36,6 +39,11 @@ namespace avt {
 			layout.add<GLfloat>(3); // NORMALS
 			_va.addBuffer(_nb, layout, NORMALS);
 		}
+
+		_cb.create(_colors.data(), _colors.size() * sizeof(Vector3));
+		layout.clear();
+		layout.add<GLfloat>(3); // COLORS
+		_va.addBuffer(_cb, layout, COLORS);
 
 		layout.clear();
 		_va.unbind();
@@ -140,6 +148,7 @@ namespace avt {
 				_normals.push_back(n);
 			}
 		}
+		computeNormals();
 	}
 
 	void Mesh::freeMeshData()
@@ -159,6 +168,29 @@ namespace avt {
 
 	void Mesh::setNormalsLoaded(bool b) {
 		_normalsLoaded = b;
+	}
+
+	void Mesh::computeNormals() {
+		for (size_t i = 0; i < _vertices.size(); i = i + 3) {
+			size_t v1 = i;
+			size_t v2 = i + 1;
+			size_t v3 = i + 2;
+			Vector3 vec1 = _vertices[v1] - _vertices[v2];
+			Vector3 vec2 = _vertices[v2] - _vertices[v3];
+			Vector3 normal = vec1.cross(vec2).normalized();
+
+			if (_normalsLoaded) {
+				_normals[v1] = normal;
+				_normals[v2] = normal;
+				_normals[v3] = normal;
+			}
+			else {
+				_normals.push_back(normal);
+				_normals.push_back(normal);
+				_normals.push_back(normal);
+			}
+		}
+		setNormalsLoaded(true);
 	}
 
 }

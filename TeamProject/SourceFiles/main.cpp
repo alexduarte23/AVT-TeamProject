@@ -1,6 +1,8 @@
 #include <iostream>
 
 #include "../HeaderFiles/Engine.h"
+#include "../HeaderFiles/Cloud.h"
+
 
 #include <vector>
 
@@ -30,10 +32,13 @@ private:
 	avt::Manager<avt::Shader> _shaders;
 	avt::Manager<avt::RenderTargetTexture> _rtts;
 
-	avt::SceneNode *_cubeStruct=nullptr, *_frame=nullptr, *_panel=nullptr;
+	//avt::SceneNode *_cubeStruct=nullptr, *_frame=nullptr, *_panel=nullptr;
 	avt::SceneNode* _cube1 = nullptr, * _cube2 = nullptr, * _cube3 = nullptr;
 	avt::SceneNode* _cube4 = nullptr, * _cube5 = nullptr, * _cube6 = nullptr;
 	avt::SceneNode* _cube7 = nullptr, * _cube8 = nullptr, * _cube9 = nullptr;
+
+	avt::SceneNode* _cloud = nullptr;
+
 
 	std::string _activeCam = "ort";
 	
@@ -45,23 +50,29 @@ private:
 
 		//auto cubeM = _meshes.add("cube", new avt::Mesh("./Resources/cube_vtn_flat.obj"));
 
-		auto ball = _meshes.add("ball", new avt::Mesh("./Resources/bloomball.obj"));
+		//auto ball = _meshes.add("ball", new avt::Mesh("./Resources/bloomball.obj"));
 
 		//auto frameM = _meshes.add("frame", new avt::Mesh("./Resources/frame.obj"));
 		//auto panelM = _meshes.add("panel", new avt::Mesh("./Resources/backpanel.obj"));
 		//frameM->colorAll(avt::Vector4(0.396f, 0.263f, 0.129f, 1.f));
 		//panelM->colorAll(avt::Vector4(0.1f, 0.1f, 0.1f, 1.f));
 
-		ball->setup();
+		//ball->setup();
 		//cubeM->setup();
 		//frameM->setup();
 		//panelM->setup();
+		auto cloudM = _meshes.add("cloud", new avt::Cloud());
+		cloudM->setup();
 
 		_ub.create(2 * 16 * sizeof(GLfloat), 0); // change
 		_ub.unbind();
 
+		_cloud = _scene.createNode(cloudM);
+		_cloud->scale({ 4.0f, 4.0f, 4.0f });
+		_cloud->translate({ 0.0f, 0.0f, -0.3f });
+
 		//_frame = _scene.createNode(frameM);
-		_frame = _scene.createNode(ball);
+		//_frame = _scene.createNode(ball);
 
 		//_panel = _frame->createNode(panelM);
 		//_panel->scale({ 1.9f, 1.9f, 1.9f });
@@ -277,15 +288,15 @@ public:
 		avt::RenderTargetTexture* rtt1 = _rtts.get("rtt1");
 		avt::RenderTargetTexture* rtt2 = _rtts.get("rtt2");
 
-		rtt1->bindFramebuffer();
+		//rtt1->bindFramebuffer();
 		_renderer.draw(_scene, _ub, *_shaders.get("shader1") , _cams.get(_activeCam));
-		rtt1->unbindFramebuffer();
+		/*rtt1->unbindFramebuffer();
 
 		rtt2->bindFramebuffer();
 		rtt1->renderQuad(_shaders.get("shader2"), "TexFramebuffer");
 		rtt2->unbindFramebuffer();
 
-		rtt2->renderQuad(_shaders.get("shader3"), "TexFramebuffer");
+		rtt2->renderQuad(_shaders.get("shader3"), "TexFramebuffer");*/
 	}
 
 	void windowResizeCallback(GLFWwindow* win, int w, int h) override {

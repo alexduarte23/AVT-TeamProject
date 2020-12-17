@@ -168,6 +168,7 @@
     <ClCompile Include="SourceFiles\VertexBufferLayout.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="HeaderFiles\Cloud.h" />
     <ClInclude Include="HeaderFiles\App.h" />
     <ClInclude Include="HeaderFiles\avt_math.h" />
     <ClInclude Include="HeaderFiles\Camera.h" />
@@ -198,6 +199,7 @@
     <ClInclude Include="HeaderFiles\VertexArray.h" />
     <ClInclude Include="HeaderFiles\VertexBuffer.h" />
     <ClInclude Include="HeaderFiles\VertexBufferLayout.h" />
+    <ClInclude Include="HeaderFiles\Perlin.h" />
   </ItemGroup>
   <ItemGroup>
     <None Include="Resources\blurFragmentshader.shader" />
