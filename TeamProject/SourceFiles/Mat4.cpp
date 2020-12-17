@@ -208,4 +208,136 @@ namespace avt {
 		return Mat4{ cos(angle), sin(angle), 0, 0, -sin(angle), cos(angle), 0, 0, 0, 0, 1, 0, 0, 0, 0, 1 };
 	}
 
+	Mat4 Mat4::inverted() const
+	{
+		double inv[16], det;
+		int i;
+
+		inv[0] = (double)_cells[5] * (double)_cells[10] * (double)_cells[15] -
+			(double)_cells[5] * (double)_cells[11] * (double)_cells[14] -
+			(double)_cells[9] * (double)_cells[6] * (double)_cells[15] +
+			(double)_cells[9] * (double)_cells[7] * (double)_cells[14] +
+			(double)_cells[13] * (double)_cells[6] * (double)_cells[11] -
+			(double)_cells[13] * (double)_cells[7] * (double)_cells[10];
+
+		inv[4] = -(double)_cells[4] * (double)_cells[10] * (double)_cells[15] +
+			(double)_cells[4] * (double)_cells[11] * (double)_cells[14] +
+			(double)_cells[8] * (double)_cells[6] * (double)_cells[15] -
+			(double)_cells[8] * (double)_cells[7] * (double)_cells[14] -
+			(double)_cells[12] * (double)_cells[6] * (double)_cells[11] +
+			(double)_cells[12] * (double)_cells[7] * (double)_cells[10];
+
+		inv[8] = (double)_cells[4] * (double)_cells[9] * (double)_cells[15] -
+			(double)_cells[4] * (double)_cells[11] * (double)_cells[13] -
+			(double)_cells[8] * (double)_cells[5] * (double)_cells[15] +
+			(double)_cells[8] * (double)_cells[7] * (double)_cells[13] +
+			(double)_cells[12] * (double)_cells[5] * (double)_cells[11] -
+			(double)_cells[12] * (double)_cells[7] * (double)_cells[9];
+
+		inv[12] = -(double)_cells[4] * (double)_cells[9] * (double)_cells[14] +
+			(double)_cells[4] * (double)_cells[10] * (double)_cells[13] +
+			(double)_cells[8] * (double)_cells[5] * (double)_cells[14] -
+			(double)_cells[8] * (double)_cells[6] * (double)_cells[13] -
+			(double)_cells[12] * (double)_cells[5] * (double)_cells[10] +
+			(double)_cells[12] * (double)_cells[6] * (double)_cells[9];
+
+		inv[1] = -(double)_cells[1] * (double)_cells[10] * (double)_cells[15] +
+			(double)_cells[1] * (double)_cells[11] * (double)_cells[14] +
+			(double)_cells[9] * (double)_cells[2] * (double)_cells[15] -
+			(double)_cells[9] * (double)_cells[3] * (double)_cells[14] -
+			(double)_cells[13] * (double)_cells[2] * (double)_cells[11] +
+			(double)_cells[13] * (double)_cells[3] * (double)_cells[10];
+
+		inv[5] = (double)_cells[0] * (double)_cells[10] * (double)_cells[15] -
+			(double)_cells[0] * (double)_cells[11] * (double)_cells[14] -
+			(double)_cells[8] * (double)_cells[2] * (double)_cells[15] +
+			(double)_cells[8] * (double)_cells[3] * (double)_cells[14] +
+			(double)_cells[12] * (double)_cells[2] * (double)_cells[11] -
+			(double)_cells[12] * (double)_cells[3] * (double)_cells[10];
+
+		inv[9] = -(double)_cells[0] * (double)_cells[9] * (double)_cells[15] +
+			(double)_cells[0] * (double)_cells[11] * (double)_cells[13] +
+			(double)_cells[8] * (double)_cells[1] * (double)_cells[15] -
+			(double)_cells[8] * (double)_cells[3] * (double)_cells[13] -
+			(double)_cells[12] * (double)_cells[1] * (double)_cells[11] +
+			(double)_cells[12] * (double)_cells[3] * (double)_cells[9];
+
+		inv[13] = (double)_cells[0] * (double)_cells[9] * (double)_cells[14] -
+			(double)_cells[0] * (double)_cells[10] * (double)_cells[13] -
+			(double)_cells[8] * (double)_cells[1] * (double)_cells[14] +
+			(double)_cells[8] * (double)_cells[2] * (double)_cells[13] +
+			(double)_cells[12] * (double)_cells[1] * (double)_cells[10] -
+			(double)_cells[12] * (double)_cells[2] * (double)_cells[9];
+
+		inv[2] = (double)_cells[1] * (double)_cells[6] * (double)_cells[15] -
+			(double)_cells[1] * (double)_cells[7] * (double)_cells[14] -
+			(double)_cells[5] * (double)_cells[2] * (double)_cells[15] +
+			(double)_cells[5] * (double)_cells[3] * (double)_cells[14] +
+			(double)_cells[13] * (double)_cells[2] * (double)_cells[7] -
+			(double)_cells[13] * (double)_cells[3] * (double)_cells[6];
+
+		inv[6] = -(double)_cells[0] * (double)_cells[6] * (double)_cells[15] +
+			(double)_cells[0] * (double)_cells[7] * (double)_cells[14] +
+			(double)_cells[4] * (double)_cells[2] * (double)_cells[15] -
+			(double)_cells[4] * (double)_cells[3] * (double)_cells[14] -
+			(double)_cells[12] * (double)_cells[2] * (double)_cells[7] +
+			(double)_cells[12] * (double)_cells[3] * (double)_cells[6];
+
+		inv[10] = (double)_cells[0] * (double)_cells[5] * (double)_cells[15] -
+			(double)_cells[0] * (double)_cells[7] * (double)_cells[13] -
+			(double)_cells[4] * (double)_cells[1] * (double)_cells[15] +
+			(double)_cells[4] * (double)_cells[3] * (double)_cells[13] +
+			(double)_cells[12] * (double)_cells[1] * (double)_cells[7] -
+			(double)_cells[12] * (double)_cells[3] * (double)_cells[5];
+
+		inv[14] = -(double)_cells[0] * (double)_cells[5] * (double)_cells[14] +
+			(double)_cells[0] * (double)_cells[6] * (double)_cells[13] +
+			(double)_cells[4] * (double)_cells[1] * (double)_cells[14] -
+			(double)_cells[4] * (double)_cells[2] * (double)_cells[13] -
+			(double)_cells[12] * (double)_cells[1] * (double)_cells[6] +
+			(double)_cells[12] * (double)_cells[2] * (double)_cells[5];
+
+		inv[3] = -(double)_cells[1] * (double)_cells[6] * (double)_cells[11] +
+			(double)_cells[1] * (double)_cells[7] * (double)_cells[10] +
+			(double)_cells[5] * (double)_cells[2] * (double)_cells[11] -
+			(double)_cells[5] * (double)_cells[3] * (double)_cells[10] -
+			(double)_cells[9] * (double)_cells[2] * (double)_cells[7] +
+			(double)_cells[9] * (double)_cells[3] * (double)_cells[6];
+
+		inv[7] = (double)_cells[0] * (double)_cells[6] * (double)_cells[11] -
+			(double)_cells[0] * (double)_cells[7] * (double)_cells[10] -
+			(double)_cells[4] * (double)_cells[2] * (double)_cells[11] +
+			(double)_cells[4] * (double)_cells[3] * (double)_cells[10] +
+			(double)_cells[8] * (double)_cells[2] * (double)_cells[7] -
+			(double)_cells[8] * (double)_cells[3] * (double)_cells[6];
+
+		inv[11] = -(double)_cells[0] * (double)_cells[5] * (double)_cells[11] +
+			(double)_cells[0] * (double)_cells[7] * (double)_cells[9] +
+			(double)_cells[4] * (double)_cells[1] * (double)_cells[11] -
+			(double)_cells[4] * (double)_cells[3] * (double)_cells[9] -
+			(double)_cells[8] * (double)_cells[1] * (double)_cells[7] +
+			(double)_cells[8] * (double)_cells[3] * (double)_cells[5];
+
+		inv[15] = (double)_cells[0] * (double)_cells[5] * (double)_cells[10] -
+			(double)_cells[0] * (double)_cells[6] * (double)_cells[9] -
+			(double)_cells[4] * (double)_cells[1] * (double)_cells[10] +
+			(double)_cells[4] * (double)_cells[2] * (double)_cells[9] +
+			(double)_cells[8] * (double)_cells[1] * (double)_cells[6] -
+			(double)_cells[8] * (double)_cells[2] * (double)_cells[5];
+
+		det = (double)_cells[0] * inv[0] + (double)_cells[1] * inv[4] + (double)_cells[2] * inv[8] + (double)_cells[3] * inv[12];
+
+		if (det == 0)
+			return *this;
+
+		det = 1.0 / det;
+
+		Mat4 inverted;
+
+		for (i = 0; i < 16; i++)
+			inverted[i] = (float)(inv[i] * det);
+
+		return inverted;
+	}
+
 }

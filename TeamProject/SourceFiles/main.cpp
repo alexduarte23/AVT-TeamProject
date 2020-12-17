@@ -3,6 +3,7 @@
 #include "../HeaderFiles/Engine.h"
 
 #include <vector>
+#include <cassert>
 
 class MyNodeCallback : public avt::SceneNodeCallback {
 public:
@@ -23,6 +24,7 @@ private:
 	avt::Renderer _renderer;
 	avt::UniformBuffer _ub;
 	avt::Scene _scene;
+	avt::MousePicker _mousePicker;
 	MyNodeCallback nodeCallback;
 
 	avt::Manager<avt::Mesh> _meshes;
@@ -154,6 +156,71 @@ private:
 		_shader.create();
 	}
 
+	void createBloom() {
+		GLint previousTextureObject = 0;
+		GLint previousFramebufferObject = 0;
+
+		// Save previous GL state that we will change in order to put it back after
+		glGetIntegerv(GL_TEXTURE_BINDING_2D, &previousTextureObject);
+		glGetIntegerv(GL_DRAW_FRAMEBUFFER_BINDING, &previousFramebufferObject);
+
+		GLuint textureObject = 0;
+
+		glGenTextures(1, &textureObject);
+
+		glBindTexture(GL_TEXTURE_2D, textureObject);
+
+		const auto w = GLsizei(640);
+		const auto h = GLsizei(480);
+		glTexStorage2D(GL_TEXTURE_2D, 1, GL_RGBA32F, w, h);
+
+		GLuint depthTexture;
+		glGenTextures(1, &depthTexture);
+
+		glBindTexture(GL_TEXTURE_2D, depthTexture);
+
+		glTexStorage2D(GL_TEXTURE_2D, 1, GL_DEPTH_COMPONENT32F, w, h);
+
+		GLuint framebufferObject = 0;
+		glGenFramebuffers(1, &framebufferObject);
+		glBindFramebuffer(GL_DRAW_FRAMEBUFFER, framebufferObject);
+
+		glFramebufferTexture(
+			GL_DRAW_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, textureObject, 0);
+		glFramebufferTexture(
+			GL_DRAW_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, depthTexture, 0);
+
+		GLenum drawBuffers[1] = { GL_COLOR_ATTACHMENT0 };
+		glDrawBuffers(1, drawBuffers);
+
+		const auto framebufferStatus = glCheckFramebufferStatus(GL_DRAW_FRAMEBUFFER);
+		assert(framebufferStatus == GL_FRAMEBUFFER_COMPLETE);
+
+		//_renderer.draw(_scene, _ub, _shader, _cams.get(_activeCam));
+
+		GLint currentlyBoundFBO = 0;
+		glGetIntegerv(GL_DRAW_FRAMEBUFFER_BINDING, &currentlyBoundFBO);
+		if (currentlyBoundFBO != framebufferObject) {
+			// Display a warning on clog
+			// It may not be an error because the drawScene() function might have render
+			// to the framebuffer but unbound it after.
+			std::clog
+				<< "Warning: renderToImage - GL_DRAW_FRAMEBUFFER_BINDING has "
+				"changed during drawScene. It might lead to unexpected behavior."
+				<< std::endl;
+		}
+
+		glBindTexture(GL_TEXTURE_2D, textureObject);
+		//glGetTexImage(GL_TEXTURE_2D, 0, numComponents == 3 ? GL_RGB : GL_RGBA,
+			//GL_UNSIGNED_BYTE, outPixels);
+
+		glBindTexture(GL_TEXTURE_2D, previousTextureObject);
+		glBindFramebuffer(GL_DRAW_FRAMEBUFFER, previousFramebufferObject);
+	}
+
+	void afterBloom() {
+	}
+
 	void createCams(GLFWwindow* win) {
 		int winx, winy;
 		glfwGetWindowSize(win, &winx, &winy);
@@ -173,6 +240,7 @@ public:
 	~MyApp() {}
 
 	void initCallback(GLFWwindow* win) override {
+		
 		createShader();
 		createCams(win);
 		createScene();
@@ -225,8 +293,13 @@ public:
 	}
 
 	void displayCallback(GLFWwindow* win, double dt) override {
+
 		_renderer.clear();
 		_renderer.draw(_scene, _ub, _shader, _cams.get(_activeCam));
+	}
+
+	void updateMousePicker(double xcursor, double ycursor) override {
+		_mousePicker.update(_cams.get(_activeCam), xcursor, ycursor);
 	}
 
 	void windowResizeCallback(GLFWwindow* win, int w, int h) override {
@@ -279,7 +352,7 @@ int main(int argc, char* argv[]) {
 	avt::Engine engine;
 	engine.setApp(app);
 	engine.setOpenGL(gl_major, gl_minor);
-	engine.setWindow(640, 480, "Penrose Museum", is_fullscreen, is_vsync);
+	engine.setWindow("Penrose Museum", is_fullscreen, is_vsync);
 
 	engine.init();
 	engine.run();

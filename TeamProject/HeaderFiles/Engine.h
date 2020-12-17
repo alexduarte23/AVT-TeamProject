@@ -19,6 +19,9 @@
 #include "ErrorManager.h"
 #include "PerspectiveCamera.h"
 #include "OrthographicCamera.h"
+#include "FrameBuffer.h"
+#include "Globals.h"
+#include "MousePicker.h"
 
 #include "Scene.h"
 #include "SceneNode.h"
@@ -44,8 +47,6 @@ namespace avt {
 		int _glMajor = 0;
 		int _glMinor = 0;
 
-		int _winX = 640;
-		int _winY = 640;
 		const char* _winTitle = "Undefined";
 		int _fullscreen = 0;
 		int _vsync = 1;
@@ -81,9 +82,7 @@ namespace avt {
 			_glMinor = gl_minor;
 		}
 
-		void setWindow(int winx, int winy, const char* title, int is_fullscreen, int is_vsync) {
-			_winX = winx;
-			_winY = winy;
+		void setWindow(const char* title, int is_fullscreen, int is_vsync) {
 			_winTitle = title;
 			_fullscreen = is_fullscreen;
 			_vsync = is_vsync;

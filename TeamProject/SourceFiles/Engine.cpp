@@ -66,7 +66,7 @@ namespace avt {
 	void Engine::setupWindow() {
 		GLFWmonitor* monitor = _fullscreen ? glfwGetPrimaryMonitor() : 0;
 
-		_win = glfwCreateWindow(_winX, _winY, _winTitle, monitor, 0);
+		_win = glfwCreateWindow(WIDTH, HEIGHT, _winTitle, monitor, 0);
 		if (!_win) {
 			glfwTerminate();
 			exit(EXIT_FAILURE);
@@ -103,7 +103,7 @@ namespace avt {
 		glEnable(GL_CULL_FACE);
 		glCullFace(GL_BACK);
 		glFrontFace(GL_CCW);
-		glViewport(0, 0, _winX, _winY);
+		glViewport(0, 0, WIDTH, HEIGHT);
 	}
 
 	void Engine::checkOpenGLInfo() {
@@ -141,6 +141,7 @@ namespace avt {
 
 			_app->updateCallback(_win, elapsed_time);
 			_app->displayCallback(_win, elapsed_time);
+			_app->updateMousePicker(xcursor, ycursor);
 
 #ifndef ERROR_CALLBACK
 			ErrorManager::checkOpenGLError("ERROR: Could not draw scene.");

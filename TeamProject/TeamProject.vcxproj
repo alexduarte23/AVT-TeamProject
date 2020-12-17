@@ -145,6 +145,8 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="SourceFiles\MousePicker.cpp" />
+    <ClCompile Include="SourceFiles\FrameBuffer.cpp" />
     <ClCompile Include="SourceFiles\Camera.cpp" />
     <ClCompile Include="SourceFiles\Engine.cpp" />
     <ClCompile Include="SourceFiles\ErrorManager.cpp" />
@@ -167,12 +169,14 @@
     <ClCompile Include="SourceFiles\VertexBufferLayout.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="HeaderFiles\FrameBuffer.h" />
     <ClInclude Include="HeaderFiles\App.h" />
     <ClInclude Include="HeaderFiles\avt_math.h" />
     <ClInclude Include="HeaderFiles\Camera.h" />
     <ClInclude Include="HeaderFiles\Cube.h" />
     <ClInclude Include="HeaderFiles\Engine.h" />
     <ClInclude Include="HeaderFiles\ErrorManager.h" />
+    <ClInclude Include="HeaderFiles\Globals.h" />
     <ClInclude Include="HeaderFiles\IndexBuffer.h" />
     <ClInclude Include="HeaderFiles\Manager.h" />
     <ClInclude Include="HeaderFiles\Mat2.h" />
@@ -195,6 +199,7 @@
     <ClInclude Include="HeaderFiles\VertexArray.h" />
     <ClInclude Include="HeaderFiles\VertexBuffer.h" />
     <ClInclude Include="HeaderFiles\VertexBufferLayout.h" />
+    <ClInclude Include="HeaderFiles\MousePicker.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

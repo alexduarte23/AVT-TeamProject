@@ -83,6 +83,8 @@ namespace avt {
 		static Mat4 rotationY(float angle); //rads
 
 		static Mat4 rotationZ(float angle); //rads
+
+		Mat4 inverted() const;
 	};
 
 }
