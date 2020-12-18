@@ -46,17 +46,17 @@ namespace avt {
 
 	void Renderer::drawNode(SceneNode* node, Shader& shader, const Mat4& worldMatrix) {
 		auto newWorldMat = worldMatrix * node->getTransform();
-		
 		if (node->getMesh()) {
 			Mesh* mesh = node->getMesh();
 
 			mesh->va().bind();
 			mesh->ib().bind();
 			
-			node->beforeDraw();
-			glUniformMatrix4fv(shader.getUniform(MODEL_MATRIX), 1, GL_FALSE, newWorldMat.data());
+			//node->beforeDraw();
+			glUniformMatrix4fv(shader.getUniform(MODEL_MATRIX), 1 ,GL_FALSE, node->getTransform().data());
+			
 			glDrawElements(GL_TRIANGLES, mesh->ib().count(), GL_UNSIGNED_BYTE, (GLvoid*)0);
-			node->afterDraw();
+			//node->afterDraw();
 
 			mesh->va().unbind();
 			mesh->ib().unbind();

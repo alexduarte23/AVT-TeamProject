@@ -33,14 +33,14 @@ private:
 	avt::SceneNode* _cubeStruct = nullptr;
 	avt::SceneNode* _cube1 = nullptr, * _cube2 = nullptr, * _cube3 = nullptr;
 
-	std::string _activeCam = "ort";
+	std::string _activeCam = "per";
 	
 	const float _duration = 3, _duration2 = 6;
 	double _time = 0, _time2 = 0;
 	bool _animating = false, _rotating = false;
 
 	std::vector<avt::Vector4> Colors;
-	unsigned int selected = 0;
+	unsigned int selected = -1;
 
 	const GLuint UBO_BP = 0;
 	const GLuint VERTICES = 0;
@@ -78,7 +78,7 @@ private:
 		
 		_cube3 = _cubeStruct->createNode(cubeM3);
 		_cube3->rotate(avt::Quaternion(avt::Vector3(0, 1.f, 0), avt::toRad(-55)));
-		_cube3->translate({ 4.0f,0.0f,0.0f});
+		_cube3->translate({ -4.0f,0.0f,0.0f});
 
 
 #ifndef ERROR_CALLBACK
@@ -130,7 +130,9 @@ private:
 		_shader.addShader(GL_FRAGMENT_SHADER, "./Resources/fragmentshader3d.shader");
 		_shader.addAttribute("in_Position", VERTICES);
 		_shader.addAttribute("in_Color", COLORS);
+		_shader.addUniform("Color");
 		_shader.addUniform("ModelMatrix");
+		
 		_shader.addUbo("SharedMatrices", UBO_BP);
 		_shader.create();
 	}
@@ -262,7 +264,6 @@ public:
 	}
 
 	void drawScene() {
-
 		for (int i = 0; i < 3; i++) {
 			_shader.bind();
 			if (selected == i)
@@ -273,7 +274,12 @@ public:
 			glEnable(GL_STENCIL_TEST);
 			glStencilFunc(GL_ALWAYS, i + 1, 0xFF);
 			glStencilOp(GL_KEEP, GL_KEEP, GL_REPLACE);
-			_renderer.drawNode(&_scene.getRoot()->children()[0][i], _shader, avt::Mat4::identity());
+			_shader.bind();
+			_ub.bind();
+
+			_ub.fill({ _cams.get(_activeCam)->viewMatrix(), _cams.get(_activeCam)->projMatrix() });
+			_renderer.drawNode(_scene.getRoot()->children()[0]->children()[i], _shader, avt::Mat4::identity());
+			_ub.unbind(); _shader.unbind();
 			glDisable(GL_STENCIL_TEST);
 		}
 	}
@@ -281,7 +287,8 @@ public:
 	void displayCallback(GLFWwindow* win, double dt) override {
 
 		_renderer.clear();
-		_renderer.draw(_scene, _ub, _shader, _cams.get(_activeCam));
+		//_renderer.draw(_scene, _ub, _shader, _cams.get(_activeCam));
+		drawScene();
 	}
 
 	void updateMousePicker(double xcursor, double ycursor) override {
@@ -340,9 +347,7 @@ public:
 			glReadPixels(x, y, 1, 1, GL_DEPTH_COMPONENT, GL_FLOAT, &depth);
 			GLuint index;
 			glReadPixels(x, y, 1, 1, GL_STENCIL_INDEX, GL_UNSIGNED_INT, &index);
-			std::cout << "color=" << color[0] << color[1] << color[2] << color[3] << std::endl;
-			std::cout << "depth=" << depth << std::endl;
-			std::cout << "index=" << index << std::endl;
+			std::cout << "cube number =" << index << std::endl;
 			selected = index - 1;
 		}
 	}
