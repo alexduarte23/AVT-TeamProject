@@ -10,8 +10,8 @@ out vec4 out_color;
 void main(void)
 {
 	vec4 texel = texture(in_texture, texCoord);
-	if(texel.a < 0.7)
-		discard;
+	//if(texel.a < 0.2)
+	//	discard;
 
 	out_color = texel * ex_color;
 }

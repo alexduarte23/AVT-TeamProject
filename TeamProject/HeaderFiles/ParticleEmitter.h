@@ -27,16 +27,16 @@ namespace avt {
 		VertexBuffer _quad_vb, _instance_vb;
 		VertexArray _va;
 	
-		int _maxParticles = 10000;
+		int _maxParticles = 700;
 
-		float vertices[5*6] = {
+		float vertices[5*4] = {
 				-.1f, -.1f, 0,    0,   0, // bottom left
-				 .1f, -.1f, 0,  .5f,   0, // bottomm right
-				-.1f,  .1f, 0,    0, .5f, // top left
+				 .1f, -.1f, 0,  1.f,   0, // bottomm right
+				-.1f,  .1f, 0,    0, 1.f, // top left
 
-				 .1f, -.1f, 0,  .5f,   0, // bottom right
-				 .1f,  .1f, 0,  .5f, .5f, // top right
-				-.1f,  .1f, 0,    0, .5f // top left
+				 //.1f, -.1f, 0,  1.f,   0, // bottom right
+				 .1f,  .1f, 0,  1.f, 1.f // top right
+				//-.1f,  .1f, 0,    0, 1.f // top left
 		};
 
 		Particle* getUnused() {
@@ -50,6 +50,7 @@ namespace avt {
 
 	protected:
 		double _time;
+		bool _running = false;
 
 		void init() {}
 
@@ -62,25 +63,26 @@ namespace avt {
 
 			_time = 0;
 
-			for (int i = 0; i < 10; i++) {
+			for (int i = 0; i < 1; i++) {
 				Particle* unused = getUnused();
 
 				if (!unused && _particles.size() >= _maxParticles) return;
 
 				if (unused) {
 					unused->s = {};
-					unused->v = Vector3(randrange(-.5f, .5f), 1.f, randrange(-.5f, .5f)).normalized() * 2;
-					unused->size = randrange(.9f,  15.f);
+					unused->v = Vector3(randrange(-.3f, .3f), 1.f, randrange(-.3f, .3f)).normalized() * 3;
+					unused->size = randrange(25.f,  60.f);
 					unused->rot = randrange(0, PI/2);
+					unused->color = { randrange(.4f,.6f),1,1,0};
 					unused->age = 0;
-					unused->lifetime = randrange(4.f, 10.f);;
+					unused->lifetime = randrange(6.f, 12.f);;
 				}
 				else {
-					Particle* p = new Particle({}, { randrange(.2f, .9f),randrange(0, .1f),randrange(0, .1f),.5f });
-					p->v = Vector3(randrange(-.5f, .5f), 1.f, randrange(-.5f, .5f)).normalized() * 2;
-					p->lifetime = randrange(4.f, 10.f);
+					Particle* p = new Particle({}, {randrange(.4f,.6f),1,1,0});// { randrange(.2f, .9f), randrange(0, .1f), randrange(0, .1f), .5f });
+					p->v = Vector3(randrange(-.3f, .3f), 1.f, randrange(-.3f, .3f)).normalized() * 3;
+					p->lifetime = randrange(7.f, 15.f);
 					p->rot = randrange(0, PI/2);
-					p->size = randrange(.9f,  15.f);
+					p->size = randrange(25.f,  60.f);
 					_particles.push_back(p);
 
 				}
@@ -90,8 +92,11 @@ namespace avt {
 
 		void updateParticles(double dt) {
 			for (auto p : _particles) {
+				if (p->age < 0) continue;
 				p->s += p->v * dt;
 				p->age += dt;
+				if (p->age < p->lifetime / 4.0) p->color.setW(p->age / p->lifetime / .25);
+				if (p->age > p->lifetime / 2) p->color.setW(2 - 2*p->age/p->lifetime);
 			}
 		}
 
@@ -111,11 +116,11 @@ namespace avt {
 
 			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
 			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
-			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
 			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 			// load and generate the texture
 			int width, height, nrChannels;
-			unsigned char* data = stbi_load("Resources/ballParticle.png", &width, &height, &nrChannels, 0);
+			unsigned char* data = stbi_load("Resources/particleSmoke.png", &width, &height, &nrChannels, 0);
 			if (data) {
 				glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, data);
 				glGenerateMipmap(GL_TEXTURE_2D);
@@ -132,7 +137,7 @@ namespace avt {
 			quad_layout.add<GLfloat>(3); // VERTICES
 			quad_layout.add<GLfloat>(2); // TEXTURE COORDS
 
-			_quad_vb.create(vertices, 6 * 5 * sizeof(float));
+			_quad_vb.create(vertices, 4 * 5 * sizeof(float));
 			_va.addBuffer(_quad_vb, quad_layout);
 			_quad_vb.unbind();
 
@@ -156,6 +161,10 @@ namespace avt {
 
 		}
 
+		void toggle() {
+			_running = !_running;
+		}
+
 		virtual ~ParticleEmitter () {
 			for (auto p : _particles)
 				delete p;
@@ -165,7 +174,7 @@ namespace avt {
 			_time += dt;
 
 			updateParticles(dt);
-			spawn(dt);
+			if (_running) spawn(dt);
 			kill(dt);
 		}
 
@@ -191,12 +200,14 @@ namespace avt {
 			}
 			_instance_vb.fill(data.data(), data.size() * sizeof(float));
 			_instance_vb.unbind();
-
+			//std::cout << data.size() / 9 << std::endl;
 			glBindTexture(GL_TEXTURE_2D, texture);
 
 			beforeDraw();
+			glDepthMask(GL_FALSE);
 			glUniformMatrix4fv(curr_shader->getUniform(MODEL_MATRIX), 1, GL_FALSE, newWorldMat.data());
-			glDrawArraysInstanced(GL_TRIANGLES, 0, 6, data.size()/9);
+			glDrawArraysInstanced(GL_TRIANGLE_STRIP, 0, 4, data.size()/9);
+			glDepthMask(GL_TRUE);
 			afterDraw();
 
 			_va.unbind();

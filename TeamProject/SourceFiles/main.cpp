@@ -64,11 +64,12 @@ private:
 		_ub.unbind();
 
 		auto plane = _scene.createNode(cubeM);
-		plane->translate({ 0,-1.f,0 });
-		plane->scale({10.f,0.1f,10.f});
+		plane->translate({ 0,20.f,0 });
+		//plane->scale({10.f,0.1f,10.f});
 
 		_emitter = new avt::ParticleEmitter();
 		_emitter->setShader(&_shaderP);
+		//_emitter->scale({0.1,0.1,0.1});
 		_scene.addNode(_emitter); // scene deletes nodes when destroyed
 
 		/*
@@ -188,7 +189,7 @@ private:
 		glfwGetWindowSize(win, &winx, &winy);
 
 		float aspect = winx / (float)winy;
-		_cams.add("per", new avt::PerspectiveCamera(45.f, aspect, 1.f, 50.0f, avt::Vector3(0, 8.f, 15.f)));
+		_cams.add("per", new avt::PerspectiveCamera(45.f, aspect, 1.f, 100.0f, avt::Vector3(0, 8.f, 15.f)));
 		_cams.add("ort", new avt::OrthographicCamera(-6.0f, 6.0f, -6.0f / aspect, 6.0f / aspect, 0.1f, 100.0f, avt::Vector3(0, 0, 15.f)));
 
 		_cams.get("ort")->setSpeed(12.f);
@@ -298,6 +299,9 @@ public:
 			break;
 		case GLFW_KEY_F:
 			_rotating = !_rotating;
+			break;
+		case GLFW_KEY_R:
+			_emitter->toggle();
 			break;
 		}
 

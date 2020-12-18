@@ -104,6 +104,7 @@ namespace avt {
 		glClearDepth(1.0);
 
 		glEnable(GL_BLEND);
+		glBlendEquation(GL_FUNC_ADD);
 		glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 		glEnable(GL_MULTISAMPLE);
 
