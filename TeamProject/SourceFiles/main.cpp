@@ -72,7 +72,8 @@ private:
 
 		_light = _lightStruct->createNode(lightM);
 		_light->setTranslation(_lights.get("sun")->getPosition());
-		
+		_lightStruct->setRotation(avt::Quaternion({ 0,0,1.f }, avt::PI/4));
+
 		_floor = _scene.createNode(floorM);
 		//_floor->scale({6.f, 1.0f, 6.f});
 		//_floor->translate({ 0.0f, -2.8f, 0.0f });
@@ -206,13 +207,14 @@ public:
 			if (_time2 > _duration2) {
 				_time2 = 0;
 				_rotating = false;
-				_lightStruct->setRotation(avt::Quaternion({ 1.f,0,0 }, 0));
+				_lightStruct->setRotation(avt::Quaternion({ 1.f,0,0 }, avt::PI/4));
 			}
 			float k = (float)_time2 / _duration2;
-			_lightStruct->setRotation(avt::Quaternion({ 0,0,1.f }, k * 2 * avt::PI));
-			_lights.get("sun")->setPosition(_light->pos().to3D());
+			_lightStruct->setRotation(avt::Quaternion({ 0,1.f,0.f }, k * 2 * avt::PI));
+			_lightStruct->rotateZ(avt::PI/4);
 		}
 
+		_lights.get("sun")->setPosition(_light->pos().to3D());
 		_shadow.setPosition(_light->pos().to3D());
 		_shadow.lookAt({ 0.0f, 0.0f, 0.0f });
 		_shader.bind();
