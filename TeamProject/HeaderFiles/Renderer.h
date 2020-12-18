@@ -15,7 +15,7 @@ namespace avt {
 
 	class Renderer {
 	private:
-		void drawNode(SceneNode* node, Shader& shader, const Mat4& worldMatrix);
+		
 
 	public:
 		//Renderer (const void* data, GLuint count);
@@ -23,7 +23,7 @@ namespace avt {
 		~Renderer() {}
 
 		void draw(const VertexArray& va, const IndexBuffer& ib, UniformBuffer& ub, Shader& shader, Camera* camera) const;
-
+		void drawNode(SceneNode* node, Shader& shader, const Mat4& worldMatrix);
 		void draw(const Scene& scene, UniformBuffer& ub, Shader& shader, Camera* camera);
 		void draw(SceneNode* node, UniformBuffer& ub, Shader& shader, Camera* camera);
 

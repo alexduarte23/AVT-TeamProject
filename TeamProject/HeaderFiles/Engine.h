@@ -97,6 +97,7 @@ namespace avt {
 		static void window_size_callback(GLFWwindow* win, int winx, int winy);
 		static void glfw_error_callback(int error, const char* description);
 		static void window_key_callback(GLFWwindow* win, int key, int scanncode, int action, int mods);
+		static void mouse_button_callback(GLFWwindow* win, int button, int actions, int mods);
 	};
 
 }

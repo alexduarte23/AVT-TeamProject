@@ -18,6 +18,7 @@ namespace avt {
 		virtual void windowResizeCallback(GLFWwindow* win, int w, int h) {}
 		virtual void windowCloseCallback(GLFWwindow* win) {}
 		virtual void keyCallback(GLFWwindow* win, int key, int scancode, int action, int mods) {}
+		virtual void mouseButtonCallback(GLFWwindow* win, int button, int actions, int mods) {}
 
 	};
 }

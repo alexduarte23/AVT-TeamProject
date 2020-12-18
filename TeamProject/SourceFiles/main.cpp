@@ -30,10 +30,8 @@ private:
 	avt::Manager<avt::Mesh> _meshes;
 	avt::Manager<avt::Camera> _cams;
 
-	avt::SceneNode *_cubeStruct=nullptr, *_frame=nullptr, *_panel=nullptr;
+	avt::SceneNode* _cubeStruct = nullptr;
 	avt::SceneNode* _cube1 = nullptr, * _cube2 = nullptr, * _cube3 = nullptr;
-	avt::SceneNode* _cube4 = nullptr, * _cube5 = nullptr, * _cube6 = nullptr;
-	avt::SceneNode* _cube7 = nullptr, * _cube8 = nullptr, * _cube9 = nullptr;
 
 	std::string _activeCam = "ort";
 	
@@ -41,66 +39,47 @@ private:
 	double _time = 0, _time2 = 0;
 	bool _animating = false, _rotating = false;
 
+	std::vector<avt::Vector4> Colors;
+	unsigned int selected = 0;
+
 	const GLuint UBO_BP = 0;
 	const GLuint VERTICES = 0;
 	const GLuint COLORS = 1;
 
 	void createScene() {
 
-		auto cubeM = _meshes.add("cube", new avt::Cube());
-		auto frameM = _meshes.add("frame", new avt::Mesh("./Resources/frame.obj"));
-		auto panelM = _meshes.add("panel", new avt::Mesh("./Resources/backpanel.obj"));
-		frameM->colorAll(avt::Vector4(0.396f, 0.263f, 0.129f, 1.f));
-		panelM->colorAll(avt::Vector4(0.1f, 0.1f, 0.1f, 1.f));
+		auto cubeM1 = _meshes.add("cube1", new avt::Cube());
+		auto cubeM2 = _meshes.add("cube2", new avt::Cube());
+		auto cubeM3 = _meshes.add("cube3", new avt::Cube());
 
-		cubeM->setup();
-		frameM->setup();
-		panelM->setup();
+		Colors.push_back(avt::Vector4(0.9f, 0.1f, 0.1f, 1.0f));
+		Colors.push_back(avt::Vector4(0.1f, 0.9f, 0.1f, 1.0f));
+		Colors.push_back(avt::Vector4(0.1f, 0.1f, 0.9f, 1.0f));
+
+		cubeM1->colorAll(Colors[0]);
+		cubeM2->colorAll(Colors[1]);
+		cubeM3->colorAll(Colors[2]);
+
+		cubeM1->setup();
+		cubeM2->setup();
+		cubeM3->setup();
 
 		_ub.create(2 * 16 * sizeof(GLfloat), 0); // change
 		_ub.unbind();
 
-		_frame = _scene.createNode(frameM);
-
-		_panel = _frame->createNode(panelM);
-		_panel->scale({ 1.9f, 1.9f, 1.9f });
-		_panel->translate({ 0.0f, 0.0f, -0.3f });
+		_cubeStruct = _scene.createNode();
 		
-		_cubeStruct = _frame->createNode();
+		_cube1 = _cubeStruct->createNode(cubeM1);
+
+		_cube2 = _cubeStruct->createNode(cubeM2);
+		_cube2->rotate(avt::Quaternion(avt::Vector3(0.0f, 1.f, 0.0f), avt::toRad(55)));
+		_cube2->translate({ 4.0f,0.0f,0.0f });
+
 		
-		_cube9 = _cubeStruct->createNode(cubeM);
-		_cube9->translate({ 9.0f, 6.0f, 9.f });
+		_cube3 = _cubeStruct->createNode(cubeM3);
+		_cube3->rotate(avt::Quaternion(avt::Vector3(0, 1.f, 0), avt::toRad(-55)));
+		_cube3->translate({ 4.0f,0.0f,0.0f});
 
-		_cube8 = _cubeStruct->createNode(cubeM);
-		_cube8->translate({ 9.0f, 6.0f, 6.f });
-
-		_cube1 = _cubeStruct->createNode(cubeM);
-		_cube1->translate({ 0.0f, 0.0f, 0.f });
-		_cube1->setCallback(&nodeCallback);
-
-		_cube2 = _cubeStruct->createNode(cubeM);
-		_cube2->translate({ 0.0f, 3.0f, 0.f });
-
-		_cube3 = _cubeStruct->createNode(cubeM);
-		_cube3->translate({ 0.0f, 6.0f, 0.f });
-
-		_cube4 = _cubeStruct->createNode(cubeM);
-		_cube4->translate({ 3.0f, 6.0f, 0.f });
-
-		_cube5 = _cubeStruct->createNode(cubeM);
-		_cube5->translate({ 6.0f, 6.0f, 0.f });
-
-		_cube6 = _cubeStruct->createNode(cubeM);
-		_cube6->translate({ 9.0f, 6.0f, 0.f });
-
-		_cube7 = _cubeStruct->createNode(cubeM);
-		_cube7->translate({ 9.0f, 6.0f, 3.f });
-
-
-		_cubeStruct->scale({ 0.5f, 0.5f, 0.5f });
-		_cubeStruct->rotate(avt::Quaternion(avt::Vector3(0, 1.f, 0), avt::toRad(-55))
-			* avt::Quaternion(avt::Vector3(0, 0, 1.f), avt::toRad(-45)));
-		_cubeStruct->translate({ 0.1f, -1.4f, 2.15f });
 
 #ifndef ERROR_CALLBACK
 		avt::ErrorManager::checkOpenGLError("ERROR: Could not create VAOs and VBOs.");
@@ -226,7 +205,7 @@ private:
 		glfwGetWindowSize(win, &winx, &winy);
 
 		float aspect = winx / (float)winy;
-		_cams.add("per", new avt::PerspectiveCamera(45.f, aspect, 0.1f, 100.0f, avt::Vector3(0, 0, 10.f)));
+		_cams.add("per", new avt::PerspectiveCamera(30.f, aspect, 0.1f, 100.0f, avt::Vector3(0, 0, 10.f)));
 		_cams.add("ort", new avt::OrthographicCamera(-6.0f, 6.0f, -6.0f / aspect, 6.0f / aspect, 0.1f, 100.0f, avt::Vector3(0, 0, 15.f)));
 
 		_cams.get("ort")->setSpeed(12.f);
@@ -259,25 +238,15 @@ public:
 			if (_time > _duration) {
 				_time -= _duration;
 
-				_cube9->setTranslation({ 9.0f, 6.0f, 9.f });
-				_cube8->setTranslation({ 9.0f, 6.0f, 6.f });
 				_cube1->setTranslation({ 0.0f, 0.0f, 0.f });
 				_cube2->setTranslation({ 0.0f, 3.0f, 0.f });
 				_cube3->setTranslation({ 0.0f, 6.0f, 0.f });
-				_cube4->setTranslation({ 3.0f, 6.0f, 0.f });
-				_cube5->setTranslation({ 6.0f, 6.0f, 0.f });
-				_cube6->setTranslation({ 9.0f, 6.0f, 0.f });
-				_cube7->setTranslation({ 9.0f, 6.0f, 3.f });
+
 			}
 			_cube1->translate({ 0, (float)dt, 0 });
 			_cube2->translate({ 0, (float)dt, 0 });
 			_cube3->translate({ (float)dt, 0, 0 });
-			_cube4->translate({ (float)dt, 0, 0 });
-			_cube5->translate({ (float)dt, 0, 0 });
-			_cube6->translate({ 0, 0, (float)dt });
-			_cube7->translate({ 0, 0, (float)dt });
-			_cube8->translate({ 0, 0, (float)dt });
-			_cube9->translate({ .001f, (float)dt + .001f, 0 });
+
 		}
 
 		if (_rotating) {
@@ -285,10 +254,27 @@ public:
 			if (_time2 > _duration2) {
 				_time2 = 0;
 				_rotating = false;
-				_frame->setRotation(avt::Quaternion({ 1.f,0,0 }, 0));
+				_cubeStruct->setRotation(avt::Quaternion({ 1.f,0,0 }, 0));
 			}
 			float k = (float)_time2 / _duration2;
-			_frame->setRotation(avt::Quaternion({ 0,0,1.f }, k * 2 * avt::PI));
+			_cubeStruct->setRotation(avt::Quaternion({ 0,0,1.f }, k * 2 * avt::PI));
+		}
+	}
+
+	void drawScene() {
+
+		for (int i = 0; i < 3; i++) {
+			_shader.bind();
+			if (selected == i)
+				glUniform4f(_shader.getUniform("Color"), 0.9f, 0.9f, 0.9f, 1.0f);
+			else
+				glUniform4f(_shader.getUniform("Color"), Colors[i].x(), Colors[i].y(), Colors[i].z(), Colors[i].w());
+			_shader.unbind();
+			glEnable(GL_STENCIL_TEST);
+			glStencilFunc(GL_ALWAYS, i + 1, 0xFF);
+			glStencilOp(GL_KEEP, GL_KEEP, GL_REPLACE);
+			_renderer.drawNode(&_scene.getRoot()->children()[0][i], _shader, avt::Mat4::identity());
+			glDisable(GL_STENCIL_TEST);
 		}
 	}
 
@@ -341,7 +327,27 @@ public:
 
 	}
 
-};
+	void mouseButtonCallback(GLFWwindow* win, int button, int actions, int mods) override {
+
+		if (button == GLFW_MOUSE_BUTTON_RIGHT && actions == GLFW_PRESS) {
+			double xpos, ypos;
+			glfwGetCursorPos(win, &xpos, &ypos);
+			int x = static_cast<int>(xpos);
+			int y = 480 - static_cast<int>(ypos);
+			GLfloat color[4];
+			glReadPixels(x, y, 1, 1, GL_RGBA, GL_FLOAT, color);
+			GLfloat depth;
+			glReadPixels(x, y, 1, 1, GL_DEPTH_COMPONENT, GL_FLOAT, &depth);
+			GLuint index;
+			glReadPixels(x, y, 1, 1, GL_STENCIL_INDEX, GL_UNSIGNED_INT, &index);
+			std::cout << "color=" << color[0] << color[1] << color[2] << color[3] << std::endl;
+			std::cout << "depth=" << depth << std::endl;
+			std::cout << "index=" << index << std::endl;
+			selected = index - 1;
+		}
+	}
+
+}; 
 
 int main(int argc, char* argv[]) {
 	int gl_major = 4, gl_minor = 3;

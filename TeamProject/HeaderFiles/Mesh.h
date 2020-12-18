@@ -46,7 +46,7 @@ namespace avt {
 			loadMeshData(filename);
 		}
 
-		void addVertex(const Vector3& v, const Vector4& color) {
+		void addVertex(const Vector3& v, Vector4& color) {
 			_vertices.push_back({ v.to4D(), color });
 		}
 

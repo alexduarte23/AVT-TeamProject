@@ -1,4 +1,4 @@
-#include "..\HeaderFiles\VertexArray.h"
+ #include "..\HeaderFiles\VertexArray.h"
 
 #include "..\HeaderFiles\ErrorManager.h"
 
