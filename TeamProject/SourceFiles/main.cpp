@@ -173,9 +173,11 @@ private:
 		//_shaderP.addAttribute("in_Position", VERTICES);
 		//_shaderP.addAttribute("in_Color", COLORS);
 		_shaderP.addAttribute("in_vertex", 0);
-		_shaderP.addAttribute("in_pos", 1);
-		_shaderP.addAttribute("in_color", 2);
-		_shaderP.addAttribute("in_size", 3);
+		_shaderP.addAttribute("in_texCoord", 1);
+		_shaderP.addAttribute("in_pos", 2);
+		_shaderP.addAttribute("in_color", 3);
+		_shaderP.addAttribute("in_size", 4);
+		_shaderP.addAttribute("in_rot", 5);
 		_shaderP.addUniform("ModelMatrix");
 		_shaderP.addUbo("SharedMatrices", UBO_BP);
 		_shaderP.create();

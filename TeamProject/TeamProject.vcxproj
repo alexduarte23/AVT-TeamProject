@@ -81,6 +81,8 @@
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <LinkIncremental>false</LinkIncremental>
+    <IncludePath>$(IncludePath)</IncludePath>
+    <LibraryPath>$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
@@ -158,6 +160,7 @@
     <ClCompile Include="SourceFiles\Quaternion.cpp" />
     <ClCompile Include="SourceFiles\Renderer.cpp" />
     <ClCompile Include="SourceFiles\Shader.cpp" />
+    <ClCompile Include="Dependencies\stb_image.cpp" />
     <ClCompile Include="SourceFiles\UniformBuffer.cpp" />
     <ClCompile Include="SourceFiles\Vector2.cpp" />
     <ClCompile Include="SourceFiles\Vector3.cpp" />
@@ -189,6 +192,7 @@
     <ClInclude Include="HeaderFiles\SceneNode.h" />
     <ClInclude Include="HeaderFiles\SceneNodeCallback.h" />
     <ClInclude Include="HeaderFiles\Shader.h" />
+    <ClInclude Include="Dependencies\stb_image.h" />
     <ClInclude Include="HeaderFiles\UniformBuffer.h" />
     <ClInclude Include="HeaderFiles\Vector2.h" />
     <ClInclude Include="HeaderFiles\Vector3.h" />
