@@ -34,7 +34,7 @@ namespace avt {
 		setupOpenGL();
 #ifdef ERROR_CALLBACK
 		_errorManager = ErrorManager(true);
-		_errorManager.setupErrorCallback();
+		//_errorManager.setupErrorCallback();
 #else
 		_errorManager = ErrorManager(false);
 #endif

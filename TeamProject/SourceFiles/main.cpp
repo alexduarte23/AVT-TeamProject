@@ -76,7 +76,7 @@ private:
 		_floor = _scene.createNode(floorM);
 		//_floor->scale({6.f, 1.0f, 6.f});
 		//_floor->translate({ 0.0f, -2.8f, 0.0f });
-		_floor->translate({ -4.5f, -2.f, -4.5f });
+		_floor->translate({ -4.5f, -1.8f, -4.5f });
 
 		//_cloud = _scene.createNode(cloudM);
 		//_cloud->translate({ -2.5f, 4.f, -2.5f });
@@ -128,8 +128,6 @@ private:
 	}
 
 	void createShader() {
-		//_shader.addShader(GL_VERTEX_SHADER, "./Resources/vertexshader3d.shader");
-		//_shader.addShader(GL_FRAGMENT_SHADER, "./Resources/fragmentshader3d.shader");
 		_shader.addShader(GL_VERTEX_SHADER, "./Resources/vertexShadowShader.glsl");
 		_shader.addShader(GL_FRAGMENT_SHADER, "./Resources/fragmentShadowShader.glsl");
 		_shader.addAttribute("inPosition", VERTICES);
@@ -155,17 +153,22 @@ private:
 
 		_cams.get("ort")->setSpeed(12.f);
 		_cams.get("per")->setSpeed(12.f);
+	}
 
-		//SHADOWS TODO Separate this from the cameras
-		//TODO FIX THE ENGINE ISSUE
+	void createShadows(GLFWwindow* win) {
+		int winx, winy;
+		glfwGetWindowSize(win, &winx, &winy);
+
+		float aspect = winx / (float)winy;
+
 		_shadow = avt::Shadow((unsigned int)1024, (unsigned int)1024, avt::OrthographicCamera(-10.0f, 10.0f, -10.0f / aspect, 10.0f / aspect, 0.1f, 100.0f, avt::Vector3(0, 0, 20.f)));
 		_shadow.setPosition({ 6.0f, 0.0f, 0.0f });
-		_shadow.lookAt({0.0f, 0.0f, 0.0f});
+		_shadow.lookAt({ 0.0f, 0.0f, 0.0f });
 		_shadow.setup();
 	}
 
 	void createLights() {
-		_lights.add("sun", new avt::Light({ 6.f, 0.0f, 0.0f }, { 1.f, 1.f, 1.f }));
+		_lights.add("sun", new avt::Light({ 8.0f, 0.0f, 0.0f }, { 1.f, 1.f, 1.f }));
 	}
 
 public:
@@ -176,6 +179,7 @@ public:
 
 	void initCallback(GLFWwindow* win) override {
 		createCams(win);
+		createShadows(win);
 		createShader();
 		createLights();
 		createScene();
