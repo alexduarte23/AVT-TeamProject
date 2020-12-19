@@ -350,14 +350,13 @@ public:
 		//rtt1->bindFramebuffer();
 		//_renderer.draw(_scene, _ub, *_shaders.get("shader1") , _cams.get(_activeCam));
 		//rtt1->unbindFramebuffer();
-
-		
-
+		//rtt2->bindFramebuffer();
+		_renderer.draw(_scene, _ub, *_shaders.get("shader1") , _cams.get(_activeCam), *rtt1);
+		//rtt2->unbindFramebuffer();
 
 		//rtt2->setFramebufferClearColor(0.1f, 0.1f, 0.2f, 1.0f);
 		rtt2->bindFramebuffer();
-		_renderer.draw(_scene, _ub, *_shaders.get("shader1"), _cams.get(_activeCam));
-		//rtt1->renderQuad(_shaders.get("shader2"), "TexFramebuffer");
+		rtt1->renderQuad(_shaders.get("shader2"), "TexFramebuffer");
 		rtt2->unbindFramebuffer();
 
 		rtt2->renderQuad(_shaders.get("shader3"), "TexFramebuffer");

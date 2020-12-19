@@ -7,6 +7,7 @@
 #include "VertexArray.h"
 #include "Shader.h"
 #include "Camera.h"
+#include "Texture.h"
 
 #include "Scene.h"
 #include "SceneNode.h"
@@ -23,8 +24,8 @@ namespace avt {
 		~Renderer() {}
 
 		void draw(const VertexArray& va, const IndexBuffer& ib, UniformBuffer& ub, Shader& shader, Camera* camera) const;
-
 		void draw(const Scene& scene, UniformBuffer& ub, Shader& shader, Camera* camera);
+		void draw(const Scene& scene, UniformBuffer& ub, Shader& shader, Camera* camera, RenderTargetTexture& rtt);
 		void draw(SceneNode* node, UniformBuffer& ub, Shader& shader, Camera* camera);
 
 		void clear() const;

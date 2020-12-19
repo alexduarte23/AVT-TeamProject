@@ -4,7 +4,7 @@ in vec2 exTexcoord;
 out vec4 FragmentColor;
 
 uniform sampler2D TexFramebuffer;
-const float scaley = 128;
+const float scaley = 256;
 
 void main(void)
 {
