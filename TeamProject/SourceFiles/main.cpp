@@ -161,13 +161,13 @@ private:
 	}
 
 	void createTextures() {
-		/*avt::RenderTargetTexture* rtt1 = new avt::RenderTargetTexture();
+		avt::RenderTargetTexture* rtt1 = new avt::RenderTargetTexture();
 		rtt1->create(WIDTH, HEIGHT);
 		_rtts.add("rtt1", rtt1);
 
 		avt::RenderTargetTexture* rtt2 = new avt::RenderTargetTexture();
 		rtt2->create(WIDTH, HEIGHT);
-		_rtts.add("rtt2", rtt2);*/
+		_rtts.add("rtt2", rtt2);
 		/*Texture2D* texture0 = new Texture2D();
 		texture0->load("./Resources/t1.png");
 		TextureManager::instance()->add("t1", (Texture*)texture0);
@@ -263,8 +263,8 @@ private:
 
 	void createShader() {
 		createShader1();
-		/*createShader2();
-		createShader3();*/
+		createShader2();
+		createShader3();
 		createShader4();
 	}
 
@@ -351,11 +351,12 @@ public:
 		//_renderer.draw(_scene, _ub, *_shaders.get("shader1") , _cams.get(_activeCam));
 		//rtt1->unbindFramebuffer();
 
-		_renderer.draw(_scene, _ub, *_shaders.get("shader1") , _cams.get(_activeCam));
+		
 
 
-		rtt2->setFramebufferClearColor(0.1f, 0.1f, 0.2f, 1.0f);
+		//rtt2->setFramebufferClearColor(0.1f, 0.1f, 0.2f, 1.0f);
 		rtt2->bindFramebuffer();
+		_renderer.draw(_scene, _ub, *_shaders.get("shader1"), _cams.get(_activeCam));
 		//rtt1->renderQuad(_shaders.get("shader2"), "TexFramebuffer");
 		rtt2->unbindFramebuffer();
 
