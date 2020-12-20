@@ -181,6 +181,8 @@
     <None Include="Resources\blurVertexshader.shader" />
     <None Include="Resources\convolutedFragmentshader.shader" />
     <None Include="Resources\convolutedVertexshader.shader" />
+    <None Include="Resources\gaussianblurFragmentshader.shader" />
+    <None Include="Resources\gaussianblurVertexshader.shader" />
   </ItemGroup>
   <ItemGroup>
     <Image Include="..\..\..\..\Desktop\t1.png">

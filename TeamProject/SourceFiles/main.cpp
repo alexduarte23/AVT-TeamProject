@@ -28,10 +28,13 @@ private:
 	avt::Manager<avt::Mesh> _meshes;
 	avt::Manager<avt::Camera> _cams;
 	avt::Manager<avt::Shader> _shaders;
-	avt::Bloom* bloom;
+	avt::Bloom* bloom = nullptr;
 
 	avt::SceneNode* _ball_1 = nullptr, * _ball_2 = nullptr, * _ball_3 = nullptr;
 
+
+	avt::SceneNode* _ball_1 = nullptr, *_ball_2 = nullptr, *_ball_3=nullptr;
+		 
 	std::string _activeCam = "ort";
 	
 	const float _duration = 3, _duration2 = 6, _duration3 = 6;
@@ -153,7 +156,6 @@ public:
 
 	void updateCallback(GLFWwindow* win, double dt) override {
 		avt::Mat4 rotMat;
-
 		if (_rotating) {
 			_time2 += dt;
 			if (_time2 > _duration2) {
@@ -190,7 +192,7 @@ public:
 
 		bloom->renderBlur();
 
-		bloom->renderBloomFinal();
+		//bloom->renderBloomFinal();
 
 	}
 
@@ -256,6 +258,5 @@ int main(int argc, char* argv[]) {
 	delete app;
 	engine.shutdown();
 	
-	//exit(EXIT_SUCCESS);
 	return 0;
 }

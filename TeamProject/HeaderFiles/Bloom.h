@@ -41,6 +41,7 @@ namespace avt {
 			_ShaderGaussianBlur.addAttribute("inTexcoord", TEXTURES);
 			_ShaderGaussianBlur.addUniform("TexFramebuffer");
 			_ShaderGaussianBlur.addUniform("horizontal");
+			_ShaderGaussianBlur.addUniform("tex");
 			_ShaderGaussianBlur.create();
 		}
 
@@ -73,6 +74,7 @@ namespace avt {
 			glUniform1f(_ShaderBloomFinal.getUniform("exposure"), exposure);
 			_ShaderBloomFinal.unbind();
 		}
+
 
 		void setTextures()
 		{
