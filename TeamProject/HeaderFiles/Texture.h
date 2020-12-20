@@ -53,6 +53,7 @@ namespace avt {
 		void bindFramebuffer();
 		void unbindFramebuffer();
 		void renderQuad(Shader* shader, std::string textureUniform);
+		void renderQuad(RenderTargetTexture rtt);
 
 	};
 

@@ -105,6 +105,19 @@ void avt::RenderTargetTexture::renderQuad(Shader* shader, std::string textureUni
 	shader->unbind();
 }
 
+void avt::RenderTargetTexture::renderQuad(RenderTargetTexture rtt2) {
+
+	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+	glActiveTexture(GL_TEXTURE0);
+	bind();
+
+	glActiveTexture(GL_TEXTURE1);
+	rtt2.bind();
+
+	_quad.draw();
+}
+
+
 GLfloat data[] = { 1.0f, -1.0f, 1.0f, 0.0f,
 						1.0f, 1.0f, 1.0f, 1.0f,
 						-1.0f, -1.0f, 0.0f, 0.0f,

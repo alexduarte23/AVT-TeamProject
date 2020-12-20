@@ -346,6 +346,10 @@ public:
 	void displayCallback(GLFWwindow* win, double dt) override {
 		_renderer.clear();
 
+		bloom->bindScene();
+		_renderer.draw(_scene, _ub, *_shaders.get("shader1"), _cams.get(_activeCam));
+		bloom->unbindScene();
+
 		bloom->bindHDR();
 		_renderer.draw(_scene, _ub, *_shaders.get("shader1") , _cams.get(_activeCam));
 		bloom->unbindHDR();
@@ -354,7 +358,12 @@ public:
 		bloom->renderHDR();
 		bloom->unbindPingBlur();
 
+		//bloom->bindPongBlur();
 		bloom->renderBlur();
+		//bloom->unbindPongBlur();
+
+		bloom->renderBloomFinal();
+
 	}
 
 	void windowResizeCallback(GLFWwindow* win, int w, int h) override {

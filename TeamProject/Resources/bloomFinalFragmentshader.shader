@@ -1,7 +1,8 @@
 #version 330 core
-out vec4 FragColor;
+
 
 in vec2 exTexcoord;
+out vec4 FragColor;
 
 uniform sampler2D scene;
 uniform sampler2D bloomBlur;

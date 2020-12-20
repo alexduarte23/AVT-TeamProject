@@ -13,14 +13,16 @@ namespace avt {
 		RenderTargetTexture _pingBlur;
 		RenderTargetTexture _pongBlur;
 
+		RenderTargetTexture _scene;
+
 		Shader _ShaderBrightValues;
 		Shader _ShaderGaussianBlur;
-		Shader _BloomFinal;
+		Shader _ShaderBloomFinal;
 
 		void createShaders() {
 			createShaderBrightValues();
 			createShaderGaussianBlur();
-			//createShaderBloomFinal();
+			createShaderBloomFinal();
 		}
 
 		void createShaderBrightValues() {
@@ -43,12 +45,15 @@ namespace avt {
 		}
 
 		void createShaderBloomFinal() {
-			_ShaderGaussianBlur.addShader(GL_VERTEX_SHADER, "./Resources/bloomFinalVertexshader.shader");
-			_ShaderGaussianBlur.addShader(GL_FRAGMENT_SHADER, "./Resources/bloomFinalFragmentshader.shader");
-			_ShaderGaussianBlur.addAttribute("inVertex", VERTICES);
-			_ShaderGaussianBlur.addUniform("TexFramebuffer");
-			_ShaderGaussianBlur.addUniform("horizontal");
-			_ShaderGaussianBlur.create();
+			_ShaderBloomFinal.addShader(GL_VERTEX_SHADER, "./Resources/bloomFinalVertexshader.shader");
+			_ShaderBloomFinal.addShader(GL_FRAGMENT_SHADER, "./Resources/bloomFinalFragmentshader.shader");
+			_ShaderBloomFinal.addAttribute("inVertex", VERTICES);
+			_ShaderBloomFinal.addAttribute("inTexcoord", TEXTURES);
+			_ShaderBloomFinal.addUniform("scene");
+			_ShaderBloomFinal.addUniform("bloomBlur");
+			_ShaderBloomFinal.addUniform("bloom");
+			_ShaderBloomFinal.addUniform("exposure");
+			_ShaderBloomFinal.create();
 		}
 
 		void setDirectionBlur(bool horizontal) {
@@ -57,11 +62,24 @@ namespace avt {
 			_ShaderGaussianBlur.unbind();
 		}
 
+		void setBloom(bool bloom) {
+			_ShaderBloomFinal.bind();
+			glUniform1i(_ShaderBloomFinal.getUniform("bloom"), bloom);
+			_ShaderBloomFinal.unbind();
+		}
+
+		void setExposure(float exposure) {
+			_ShaderBloomFinal.bind();
+			glUniform1f(_ShaderBloomFinal.getUniform("exposure"), exposure);
+			_ShaderBloomFinal.unbind();
+		}
+
 	public:
 		void create(int width, int height) {
 
 			//Framebuffers
 			_HDR.create(width, height);
+			_scene.create(width, height);
 			_pingBlur.create(width, height);
 			_pongBlur.create(width, height);
 			//Shaders
@@ -71,6 +89,11 @@ namespace avt {
 		void renderHDR() {
 			_HDR.renderQuad(&_ShaderBrightValues, "TexFramebuffer");
 		}
+
+		void renderScene() {
+			//_scene.renderQuad(&_ShaderScene, "TexFramebuffer");
+		}
+
 
 		void renderBlur() {
 			bool horizontal = true;
@@ -91,7 +114,19 @@ namespace avt {
 				horizontal = !horizontal;
 
 			}
-			_pingBlur.renderQuad(&_ShaderGaussianBlur, "TexFramebuffer");
+			//_pingBlur.renderQuad(&_ShaderGaussianBlur, "TexFramebuffer");
+		}
+
+		void renderBloomFinal() {
+			bool bloom = true;
+			float exposure = 0.0f;
+			setBloom(bloom);
+			setExposure(exposure);
+			
+			_ShaderBloomFinal.bind();
+			_scene.renderQuad(_pingBlur);
+			_ShaderBloomFinal.unbind();
+
 		}
 
 		void bindHDR() {
@@ -100,6 +135,14 @@ namespace avt {
 
 		void unbindHDR() {
 			_HDR.unbindFramebuffer();
+		}
+
+		void bindScene() {
+			_scene.bindFramebuffer();
+		}
+
+		void unbindScene() {
+			_scene.unbindFramebuffer();
 		}
 
 		void bindPingBlur() {
@@ -117,7 +160,6 @@ namespace avt {
 		void unbindPongBlur() {
 			_pongBlur.unbindFramebuffer();
 		}
-	
 
 	};
 }
