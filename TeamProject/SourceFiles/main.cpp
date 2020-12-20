@@ -32,9 +32,6 @@ private:
 
 	avt::SceneNode* _ball_1 = nullptr, * _ball_2 = nullptr, * _ball_3 = nullptr;
 
-
-	avt::SceneNode* _ball_1 = nullptr, *_ball_2 = nullptr, *_ball_3=nullptr;
-		 
 	std::string _activeCam = "ort";
 	
 	const float _duration = 3, _duration2 = 6, _duration3 = 6;
@@ -192,7 +189,7 @@ public:
 
 		bloom->renderBlur();
 
-		//bloom->renderBloomFinal();
+		bloom->renderBloomFinal();
 
 	}
 

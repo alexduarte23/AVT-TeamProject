@@ -17,7 +17,7 @@ namespace avt {
 		Shader _ShaderGaussianBlur;
 		Shader _ShaderBloomFinal;
 
-		unsigned int amount = 2;
+		unsigned int _amount = 2;
 
 		void createShaders() {
 			createShaderBrightValues();
@@ -103,7 +103,7 @@ namespace avt {
 			bool horizontal = true;
 			
 
-			for (unsigned int i = 0; i < amount; i++)
+			for (unsigned int i = 0; i < _amount; i++)
 			{
 				_pongBlur.bindFramebuffer();
 				setDirectionBlur(horizontal);
@@ -123,7 +123,12 @@ namespace avt {
 		}
 
 		void setBlurTex(int t) {
-			amount += t;
+			if (t < 0)
+				if(_amount > 2)
+					_amount += t;
+			if (t >= 0)
+				if (_amount < 12)
+					_amount += t;
 		}
 
 		void renderBloomFinal() {
