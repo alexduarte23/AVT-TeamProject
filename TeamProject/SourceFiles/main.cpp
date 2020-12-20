@@ -170,9 +170,11 @@ public:
 		}
 		if (_moreblur) {
 			bloom->setBlurTex(1.0);
+			_moreblur = false;
 		}
 		if (_lessblur) {
 			bloom->setBlurTex(-1.0);
+			_lessblur = false;
 		}
 	}
 
