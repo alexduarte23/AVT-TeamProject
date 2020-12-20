@@ -22,7 +22,7 @@ namespace avt {
 		void createShaders() {
 			createShaderBrightValues();
 			createShaderGaussianBlur();
-			createShaderBloomFinal();
+			//createShaderBloomFinal();
 		}
 
 		void createShaderBrightValues() {
@@ -38,7 +38,7 @@ namespace avt {
 			_ShaderGaussianBlur.addShader(GL_VERTEX_SHADER, "./Resources/gaussianblurVertexshader.shader");
 			_ShaderGaussianBlur.addShader(GL_FRAGMENT_SHADER, "./Resources/gaussianblurFragmentshader.shader");
 			_ShaderGaussianBlur.addAttribute("inVertex", VERTICES); 
-			_ShaderBrightValues.addAttribute("inTexcoord", TEXTURES);
+			_ShaderGaussianBlur.addAttribute("inTexcoord", TEXTURES);
 			_ShaderGaussianBlur.addUniform("TexFramebuffer");
 			_ShaderGaussianBlur.addUniform("horizontal");
 			_ShaderGaussianBlur.create();
@@ -79,7 +79,7 @@ namespace avt {
 
 			//Framebuffers
 			_HDR.create(width, height);
-			_scene.create(width, height);
+			//_scene.create(width, height);
 			_pingBlur.create(width, height);
 			_pongBlur.create(width, height);
 			//Shaders
@@ -114,7 +114,7 @@ namespace avt {
 				horizontal = !horizontal;
 
 			}
-			//_pingBlur.renderQuad(&_ShaderGaussianBlur, "TexFramebuffer");
+			_pingBlur.renderQuad(&_ShaderGaussianBlur, "TexFramebuffer");
 		}
 
 		void renderBloomFinal() {
