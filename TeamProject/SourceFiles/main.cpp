@@ -30,91 +30,33 @@ private:
 	avt::Manager<avt::Shader> _shaders;
 	avt::Bloom* bloom;
 
-	avt::SceneNode *_cubeStruct=nullptr, *_frame=nullptr, *_panel=nullptr;
-	avt::SceneNode* _cube1 = nullptr, * _cube2 = nullptr, * _cube3 = nullptr;
-	avt::SceneNode* _cube4 = nullptr, * _cube5 = nullptr, * _cube6 = nullptr;
-	avt::SceneNode* _cube7 = nullptr, * _cube8 = nullptr, * _cube9 = nullptr;
+	avt::SceneNode* _ball_1 = nullptr, * _ball_2 = nullptr, * _ball_3 = nullptr;
 
 	std::string _activeCam = "ort";
 	
-	const float _duration = 3, _duration2 = 6;
-	double _time = 0, _time2 = 0;
-	bool _animating = false, _rotating = false;
+	const float _duration = 3, _duration2 = 6, _duration3 = 6;
+	double _time = 0, _time2 = 0, _time3 = 0;
+	bool _animating = false, _rotating = false, _moreblur = false, _lessblur = false;
 
 	void createScene() {
 
-		//auto cubeM = _meshes.add("cube", new avt::Mesh("./Resources/cube_vtn_flat.obj"));
 
 		auto ball = _meshes.add("ball", new avt::Mesh("./Resources/bloomball.obj"));
-		//auto ball = _meshes.add("ball", new avt::Mesh("./Resources/cube_vtn_flat.obj"));
-
-		//auto frameM = _meshes.add("frame", new avt::Mesh("./Resources/frame.obj"));
-		//auto panelM = _meshes.add("panel", new avt::Mesh("./Resources/backpanel.obj"));
-		//frameM->colorAll(avt::Vector4(0.396f, 0.263f, 0.129f, 1.f));
-		//panelM->colorAll(avt::Vector4(0.1f, 0.1f, 0.1f, 1.f));
-
 		ball->setup();
-		//cubeM->setup();
-		//frameM->setup();
-		//panelM->setup();
+		_ball_1 = _scene.createNode(ball);
+		_ball_2 = _scene.createNode(ball);
+		_ball_3 = _scene.createNode(ball);
+
+		_ball_1->scale({ 2.0f, 2.0f, 2.0f });
+
+		_ball_2->scale({ 2.0f, 2.0f, 2.0f });
+		_ball_1->translate({ 0.0f, 0.0f, 3.0f });
+
+		_ball_3->scale({ 2.0f, 2.0f, 2.0f });
+		_ball_3->translate({ 0.0f, 0.0f, -3.0f });
 
 		_ub.create(2 * 16 * sizeof(GLfloat), 0); // change
 		_ub.unbind();
-
-		//cubeM->setup();
-		//frameM->setup();
-		//panelM->setup();
-		/*auto cloudM = _meshes.add("cloud", new avt::Cloud());
-		cloudM->setup();
-
-		_cloud = _scene.createNode(cloudM);
-		_cloud->scale({ 4.0f, 4.0f, 4.0f });
-		_cloud->translate({ 0.0f, 0.0f, -0.3f });
-		*/
-		//_frame = _scene.createNode(frameM);
-		_frame = _scene.createNode(ball);
-
-		//_panel = _frame->createNode(panelM);
-		//_panel->scale({ 1.9f, 1.9f, 1.9f });
-		//_panel->translate({ 0.0f, 0.0f, -0.3f });
-		
-		/*_cubeStruct = _scene.createNode();
-		
-		_cube9 = _cubeStruct->createNode(cubeM);
-		_cube9->translate({ 9.0f, 6.0f, 9.f });
-
-		_cube8 = _cubeStruct->createNode(cubeM);
-		_cube8->translate({ 9.0f, 6.0f, 6.f });
-
-		_cube1 = _cubeStruct->createNode(cubeM);
-		_cube1->translate({ 0.0f, 0.0f, 0.f });
-		_cube1->setCallback(&nodeCallback);
-
-		_cube2 = _cubeStruct->createNode(cubeM);
-		_cube2->translate({ 0.0f, 3.0f, 0.f });
-
-		_cube3 = _cubeStruct->createNode(cubeM);
-		_cube3->translate({ 0.0f, 6.0f, 0.f });
-
-		_cube4 = _cubeStruct->createNode(cubeM);
-		_cube4->translate({ 3.0f, 6.0f, 0.f });
-
-		_cube5 = _cubeStruct->createNode(cubeM);
-		_cube5->translate({ 6.0f, 6.0f, 0.f });
-
-		_cube6 = _cubeStruct->createNode(cubeM);
-		_cube6->translate({ 9.0f, 6.0f, 0.f });
-
-		_cube7 = _cubeStruct->createNode(cubeM);
-		_cube7->translate({ 9.0f, 6.0f, 3.f });
-
-
-		_cubeStruct->scale({ 0.5f, 0.5f, 0.5f });
-		_cubeStruct->rotate(avt::Quaternion(avt::Vector3(0, 1.f, 0), avt::toRad(-55))
-			* avt::Quaternion(avt::Vector3(0, 0, 1.f), avt::toRad(-45)));
-		_cubeStruct->translate({ 0.1f, -1.4f, 2.15f });*/
-
-		_frame->scale({ 2.0f, 2.0f, 2.0f });
 
 #ifndef ERROR_CALLBACK
 		avt::ErrorManager::checkOpenGLError("ERROR: Could not create VAOs and VBOs.");
@@ -160,22 +102,12 @@ private:
 
 	}
 
-	void createTextures() {
+	void createBloom() {
 		bloom = new avt::Bloom();
 		bloom->create(WIDTH, HEIGHT);
-
-
-		/*Texture2D* texture0 = new Texture2D();
-		texture0->load("./Resources/t1.png");
-		TextureManager::instance()->add("t1", (Texture*)texture0);
-
-		Sampler* sampler = (Sampler*) new NearestSampler();
-		sampler->create();
-		SamplerManager::instance()->add("sampler", sampler);*/
-			
 	}
 
-	void createShader1() {
+	void createShader() {
 		avt::Shader* shader = new avt::Shader();
 		shader->addShader(GL_VERTEX_SHADER, "./Resources/vertexshader3d.shader");
 		shader->addShader(GL_FRAGMENT_SHADER, "./Resources/fragmentshader3d.shader");
@@ -186,89 +118,6 @@ private:
 		shader->addUbo("SharedMatrices", UBO_BP);
 		shader->create();
 		_shaders.add("shader1", shader);
-	}
-
-	void createShader2() {
-		avt::Shader* shader = new avt::Shader();
-		shader->addShader(GL_VERTEX_SHADER, "./Resources/brightVertexshader.shader");
-		shader->addShader(GL_FRAGMENT_SHADER, "./Resources/brightFragmentshader.shader");
-		shader->addAttribute("inVertex", VERTICES); //worng
-		shader->addAttribute("inTexcoord", TEXTURES); //wrong
-		shader->addUniform("TexFramebuffer"); //definir
-		shader->create(); 
-		_shaders.add("shader2", shader);
-	}
-
-	void createShader3() {
-		avt::Shader* shader = new  avt::Shader();
-		shader->addShader(GL_VERTEX_SHADER, "./Resources/blurVertexshader.shader");
-		shader->addShader(GL_FRAGMENT_SHADER, "./Resources/blurFragmentshader.shader");
-		shader->addAttribute("inVertex", VERTICES); //worng
-		shader->addAttribute("inTexcoord", TEXTURES); //wrong
-		shader->addUniform("TexFramebuffer"); //definir
-		shader->create();
-		_shaders.add("shader3", shader);
-	}
-
-	void createShader4() {
-		avt::Shader* shader = new  avt::Shader();
-		shader->addShader(GL_VERTEX_SHADER, "./Resources/convolutedVertexshader.shader");
-		shader->addShader(GL_FRAGMENT_SHADER, "./Resources/convolutedFragmentshader.shader");
-		shader->addAttribute("inVertex", VERTICES); //worng
-		shader->addAttribute("inNormal", NORMALS); //worng
-		shader->addAttribute("inTexcoord", TEXTURES); //wrong
-		shader->addUniform("ModelMatrix");
-		shader->addUbo("SharedMatrices", UBO_BP);
-		//shader->addUniform("BaseImage");
-		shader->addUniform("Mode");
-		shader->addUniform("Scale");
-		shader->addUniform("Kernel");
-		shader->create();
-		_shaders.add("shader4", shader);
-
-		shader->bind();
-		glUniform1i(shader->getUniform("Mode"), 0);
-		glUniform1f(shader->getUniform("Scale"), 0.01f);
-		GLfloat k[9] = { 0, 0.2f, 0, 0.2f, 0.2f, 0.2f, 0, 0.2f, 0 };
-		glUniformMatrix3fv(shader->getUniform("Kernel"), 1, GL_FALSE, k);
-		shader->unbind();
-	}
-
-	void createShaderBrightValues() {
-		avt::Shader* shader = new  avt::Shader();
-		shader->addShader(GL_VERTEX_SHADER, "./Resources/brightVertexshader.shader");
-		shader->addShader(GL_FRAGMENT_SHADER, "./Resources/brightFragmentshader.shader");
-		shader->addAttribute("inVertex", VERTICES); //worng
-		shader->addAttribute("inTexcoord", TEXTURES); //wrong
-		shader->addUniform("TexFramebuffer"); //definir
-		shader->create();
-		_shaders.add("shaderBrightValues", shader);
-	}
-
-	void createShaderGaussianBlur() {
-		avt::Shader* shader = new  avt::Shader();
-		shader->addShader(GL_VERTEX_SHADER, "./Resources/convolutedVertexshader.shader");
-		shader->addShader(GL_FRAGMENT_SHADER, "./Resources/gaussianblurFragmentshader.shader");
-		shader->addAttribute("inVertex", VERTICES); //worng
-		shader->addAttribute("inTexcoord", TEXTURES); //wrong
-		shader->addUniform("ModelMatrix");
-		shader->addUbo("SharedMatrices", UBO_BP);
-		shader->addUniform("TexFramebuffer");
-		shader->addUniform("horizontal");
-		shader->create();
-		_shaders.add("shader3", shader);
-
-		shader->bind();
-		glUniform1i(shader->getUniform("horizontal"), 1);
-		shader->unbind();
-	}
-
-	void createShader() {
-		createShader1();
-		//createShader2();
-		//createShaderGaussianBlur();
-		//createShader3();
-
 	}
 
 	void createCams(GLFWwindow* win) {
@@ -292,7 +141,7 @@ public:
 	void initCallback(GLFWwindow* win) override {
 		createShader();
 		createCams(win);
-		createTextures();
+		createBloom();
 		createScene();
 		
 	}
@@ -304,51 +153,32 @@ public:
 
 	void updateCallback(GLFWwindow* win, double dt) override {
 		avt::Mat4 rotMat;
-		/** /
-		if (_animating) {
-			_time += dt;
-			if (_time > _duration) {
-				_time -= _duration;
 
-				_cube9->setTranslation({ 9.0f, 6.0f, 9.f });
-				_cube8->setTranslation({ 9.0f, 6.0f, 6.f });
-				_cube1->setTranslation({ 0.0f, 0.0f, 0.f });
-				_cube2->setTranslation({ 0.0f, 3.0f, 0.f });
-				_cube3->setTranslation({ 0.0f, 6.0f, 0.f });
-				_cube4->setTranslation({ 3.0f, 6.0f, 0.f });
-				_cube5->setTranslation({ 6.0f, 6.0f, 0.f });
-				_cube6->setTranslation({ 9.0f, 6.0f, 0.f });
-				_cube7->setTranslation({ 9.0f, 6.0f, 3.f });
-			}
-			_cube1->translate({ 0, (float)dt, 0 });
-			_cube2->translate({ 0, (float)dt, 0 });
-			_cube3->translate({ (float)dt, 0, 0 });
-			_cube4->translate({ (float)dt, 0, 0 });
-			_cube5->translate({ (float)dt, 0, 0 });
-			_cube6->translate({ 0, 0, (float)dt });
-			_cube7->translate({ 0, 0, (float)dt });
-			_cube8->translate({ 0, 0, (float)dt });
-			_cube9->translate({ .001f, (float)dt + .001f, 0 });
-		}
-		/**/
 		if (_rotating) {
 			_time2 += dt;
 			if (_time2 > _duration2) {
 				_time2 = 0;
 				_rotating = false;
-				_frame->setRotation(avt::Quaternion({ 1.f,1.f,0 }, 0));
+				_ball_1->setRotation(avt::Quaternion({ 1.f,1.f,0 }, 0));
+				_ball_2->setRotation(avt::Quaternion({ 1.f,1.f,0 }, 0));
+				_ball_3->setRotation(avt::Quaternion({ 1.f,1.f,0 }, 0));
+
 			}
 			float k = (float)_time2 / _duration2;
-			_frame->setRotation(avt::Quaternion({ 0,1.f,0.f }, k * 2 * avt::PI));
+			_ball_1->setRotation(avt::Quaternion({ 0,1.f,0.f }, k * 2 * avt::PI));
+			_ball_2->setRotation(avt::Quaternion({ 0,1.f,0.f }, k * 2 * avt::PI));
+			_ball_3->setRotation(avt::Quaternion({ 0,1.f,0.f }, k * 2 * avt::PI));
+		}
+		if (_moreblur) {
+			bloom->setBlurTex(1.0);
+		}
+		if (_lessblur) {
+			bloom->setBlurTex(-1.0);
 		}
 	}
 
 	void displayCallback(GLFWwindow* win, double dt) override {
 		_renderer.clear();
-
-		bloom->bindScene();
-		_renderer.draw(_scene, _ub, *_shaders.get("shader1"), _cams.get(_activeCam));
-		bloom->unbindScene();
 
 		bloom->bindHDR();
 		_renderer.draw(_scene, _ub, *_shaders.get("shader1") , _cams.get(_activeCam));
@@ -358,9 +188,7 @@ public:
 		bloom->renderHDR();
 		bloom->unbindPingBlur();
 
-		//bloom->bindPongBlur();
 		bloom->renderBlur();
-		//bloom->unbindPongBlur();
 
 		bloom->renderBloomFinal();
 
@@ -401,10 +229,15 @@ public:
 		case GLFW_KEY_F:
 			_rotating = !_rotating;
 			break;
+		case GLFW_KEY_M:
+			_moreblur = !_moreblur;
+			break;
+		case GLFW_KEY_L:
+			_lessblur = !_lessblur;
+			break;
 		}
-
-	}
-
+		
+		}
 };
 
 int main(int argc, char* argv[]) {

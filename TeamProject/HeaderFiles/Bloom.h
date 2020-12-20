@@ -9,15 +9,15 @@ namespace avt {
 
 	class Bloom {
 	private:
-		RenderTargetTexture _HDR;
+		MultipleRenderTarget _HDR;
 		RenderTargetTexture _pingBlur;
 		RenderTargetTexture _pongBlur;
-
-		RenderTargetTexture _scene;
 
 		Shader _ShaderBrightValues;
 		Shader _ShaderGaussianBlur;
 		Shader _ShaderBloomFinal;
+
+		unsigned int amount = 2;
 
 		void createShaders() {
 			createShaderBrightValues();
@@ -87,7 +87,6 @@ namespace avt {
 
 			//Framebuffers
 			_HDR.create(width, height);
-			_scene.create(width, height);
 			_pingBlur.create(width, height);
 			_pongBlur.create(width, height);
 			//Shaders
@@ -98,14 +97,9 @@ namespace avt {
 			_HDR.renderQuad(&_ShaderBrightValues, "TexFramebuffer");
 		}
 
-		void renderScene() {
-			//_scene.renderQuad(&_ShaderScene, "TexFramebuffer");
-		}
-
-
 		void renderBlur() {
 			bool horizontal = true;
-			unsigned int amount = 10;
+			
 
 			for (unsigned int i = 0; i < amount; i++)
 			{
@@ -122,21 +116,25 @@ namespace avt {
 				horizontal = !horizontal;
 
 			}
-			//pingBlur.renderQuad(&_ShaderGaussianBlur, "TexFramebuffer");
+			
+			//_pingBlur.renderQuad(&_ShaderGaussianBlur, "TexFramebuffer");
+		}
+
+		void setBlurTex(int t) {
+			amount += t;
 		}
 
 		void renderBloomFinal() {
 
 			
 			bool bloom = true;
-			GLfloat exposure = 0.0f;
+			GLfloat exposure = 0.7f;
 			setBloom(bloom);
 			setExposure(exposure);
 			setTextures();
 
-			glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 			_ShaderBloomFinal.bind();
-			_scene.renderQuad(_pingBlur);
+			_HDR.renderAll(_pingBlur.getId());
 			_ShaderBloomFinal.unbind();
 
 		}
@@ -148,14 +146,6 @@ namespace avt {
 
 		void unbindHDR() {
 			_HDR.unbindFramebuffer();
-		}
-
-		void bindScene() {
-			_scene.bindFramebuffer();
-		}
-
-		void unbindScene() {
-			_scene.unbindFramebuffer();
 		}
 
 		void bindPingBlur() {

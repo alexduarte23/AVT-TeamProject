@@ -18,9 +18,11 @@ void avt::RenderTargetTexture::createColorTexture(const int width, const int hei
 
 	glGenTextures(1, &id);
 	glBindTexture(GL_TEXTURE_2D, id);
-	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, width, height, 0, GL_RGB, GL_UNSIGNED_BYTE, 0);
+	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA16F, width, height, 0, GL_RGBA, GL_FLOAT, 0);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);  // we clamp to the edge as the blur filter would otherwise sample repeated texture values!
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
 
 	glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, id, 0);
 }
@@ -110,12 +112,12 @@ void avt::RenderTargetTexture::renderQuad(RenderTargetTexture rtt2) {
 	glActiveTexture(GL_TEXTURE0);
 	glBindTexture(GL_TEXTURE_2D, id);
 
-	glActiveTexture(GL_TEXTURE1);
-	rtt2.bind();
+	//glActiveTexture(GL_TEXTURE1);
+	//rtt2.bind();
 
-	//glDisable(GL_DEPTH_TEST);
+	glDisable(GL_DEPTH_TEST);
 	_quad.draw();
-	//glEnable(GL_DEPTH_TEST);
+	glEnable(GL_DEPTH_TEST);
 
 	glBindTexture(GL_TEXTURE_2D, 0);
 }
@@ -184,4 +186,116 @@ void avt::Texture::bind()
 
 void avt::Texture::unbind()
 {
+}
+
+
+
+
+void avt::MultipleRenderTarget::destroy()
+{
+	glBindTexture(GL_TEXTURE_2D, 0);
+	glDeleteTextures(2, colorBuffers);
+	glBindRenderbuffer(GL_RENDERBUFFER, 0);
+	glDeleteRenderbuffers(1, &_rboDepthStencil);
+	//glBindFramebuffer(GL_FRAMEBUFFER, 0);
+	glDeleteFramebuffers(1, &_framebuffer);
+}
+
+void avt::MultipleRenderTarget::createColorTexture(const int width, const int height)
+{
+
+	glGenTextures(2, colorBuffers);
+	for (unsigned int i = 0; i < 2; i++)
+	{
+		glBindTexture(GL_TEXTURE_2D, colorBuffers[i]);
+		glTexImage2D(
+			GL_TEXTURE_2D, 0, GL_RGBA16F, width, height, 0, GL_RGBA, GL_FLOAT, NULL
+		);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+		// attach texture to framebuffer
+		glFramebufferTexture2D(
+			GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0 + i, GL_TEXTURE_2D, colorBuffers[i], 0);
+	}
+	GLenum  attachments[2] = { GL_COLOR_ATTACHMENT0, GL_COLOR_ATTACHMENT1 };
+	glDrawBuffers(2, attachments);
+}
+
+void avt::MultipleRenderTarget::createRenderbufferObject(const int width, const int height)
+{
+	glGenRenderbuffers(1, &_rboDepthStencil);
+	glBindRenderbuffer(GL_RENDERBUFFER, _rboDepthStencil);
+	glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH_STENCIL, width, height);
+	glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_STENCIL_ATTACHMENT, GL_RENDERBUFFER, _rboDepthStencil);
+}
+
+avt::MultipleRenderTarget::MultipleRenderTarget() : 
+	_framebuffer(-1),
+	_rboDepthStencil(-1),
+	_r(0.0f), _g(0.0f), _b(0.0f), _a(1.0f)
+{
+}
+
+avt::MultipleRenderTarget::~MultipleRenderTarget()
+{
+	destroy();
+}
+
+void avt::MultipleRenderTarget::create(const int width, const int height)
+{
+	glGenFramebuffers(1, &_framebuffer);
+	//std::cout << _framebuffer;
+	glBindFramebuffer(GL_FRAMEBUFFER, _framebuffer);
+	createColorTexture(width, height);
+	createRenderbufferObject(width, height);
+	assert(glCheckFramebufferStatus(GL_FRAMEBUFFER) == GL_FRAMEBUFFER_COMPLETE);
+	glBindFramebuffer(GL_FRAMEBUFFER, 0);
+	_quad.create();
+}
+
+
+void avt::MultipleRenderTarget::bindFramebuffer()
+{
+	glBindFramebuffer(GL_FRAMEBUFFER, _framebuffer);
+	glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
+	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+}
+
+void avt::MultipleRenderTarget::unbindFramebuffer()
+{
+	glBindFramebuffer(GL_FRAMEBUFFER, 0);
+}
+
+void avt::MultipleRenderTarget::renderQuad(Shader* shader, std::string textureUniform)
+{
+	shader->bind();
+	glActiveTexture(GL_TEXTURE1);
+	glBindTexture(GL_TEXTURE_2D, colorBuffers[1]);
+	glUniform1i(shader->getUniform(textureUniform), 1); //check, might be wrong
+
+
+	glDisable(GL_DEPTH_TEST);
+	//creates multiple times should create just once
+	_quad.draw();
+	glEnable(GL_DEPTH_TEST);
+
+	glBindTexture(GL_TEXTURE_2D, 0);
+	shader->unbind();
+}
+
+void avt::MultipleRenderTarget::renderAll(GLuint texture)
+{
+	glActiveTexture(GL_TEXTURE0);
+	glBindTexture(GL_TEXTURE_2D, colorBuffers[0]);
+	glActiveTexture(GL_TEXTURE1);
+	glBindTexture(GL_TEXTURE_2D, texture);
+
+	glDisable(GL_DEPTH_TEST);
+	//creates multiple times should create just once
+	_quad.draw();
+	glEnable(GL_DEPTH_TEST);
+
+	glBindTexture(GL_TEXTURE_2D, 0);
 }

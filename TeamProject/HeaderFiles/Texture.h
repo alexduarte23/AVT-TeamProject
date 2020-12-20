@@ -8,6 +8,7 @@ namespace avt {
 
 	class Texture;
 	class RenderTargetTexture;
+	class MultipleRenderTarget;
 	class Quad2D;
 
 	class Texture
@@ -54,6 +55,29 @@ namespace avt {
 		void unbindFramebuffer();
 		void renderQuad(Shader* shader, std::string textureUniform);
 		void renderQuad(RenderTargetTexture rtt);
+		GLuint getId() {
+			return id;
+		}
+	};
+
+	class MultipleRenderTarget : Texture {
+	private:
+		Quad2D _quad;
+		GLuint _framebuffer, _rboDepthStencil;
+		GLfloat _r, _g, _b, _a;
+		GLuint colorBuffers[2];
+		void destroy();
+		void createColorTexture(const int width, const int height);
+		void createRenderbufferObject(const int width, const int height);
+
+	public:
+		MultipleRenderTarget();
+		~MultipleRenderTarget();
+		void create(const int width, const int height);
+		void bindFramebuffer();
+		void unbindFramebuffer();
+		void renderQuad(Shader* shader, std::string textureUniform);
+		void renderAll(GLuint texture);
 		GLuint getId() {
 			return id;
 		}
