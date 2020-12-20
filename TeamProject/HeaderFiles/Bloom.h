@@ -41,6 +41,7 @@ namespace avt {
 			_ShaderGaussianBlur.addAttribute("inTexcoord", TEXTURES);
 			_ShaderGaussianBlur.addUniform("TexFramebuffer");
 			_ShaderGaussianBlur.addUniform("horizontal");
+			_ShaderGaussianBlur.addUniform("tex");
 			_ShaderGaussianBlur.create();
 		}
 
@@ -73,6 +74,7 @@ namespace avt {
 			glUniform1f(_ShaderBloomFinal.getUniform("exposure"), exposure);
 			_ShaderBloomFinal.unbind();
 		}
+
 
 		void setTextures()
 		{
@@ -122,7 +124,13 @@ namespace avt {
 				horizontal = !horizontal;
 
 			}
-			//pingBlur.renderQuad(&_ShaderGaussianBlur, "TexFramebuffer");
+			_pingBlur.renderQuad(&_ShaderGaussianBlur, "TexFramebuffer");
+		}
+		
+		void setBlurTex(float t) {
+			_ShaderGaussianBlur.bind();
+			glUniform1f(_ShaderGaussianBlur.getUniform("tex"), t);
+			_ShaderGaussianBlur.unbind();
 		}
 
 		void renderBloomFinal() {
