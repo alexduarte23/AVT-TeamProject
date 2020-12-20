@@ -4,18 +4,6 @@
 
 #include <vector>
 
-class MyNodeCallback : public avt::SceneNodeCallback {
-public:
-	void beforeDraw() override {
-		//glDisable(GL_CULL_FACE);
-		glDisable(GL_DEPTH_TEST);
-	}
-
-	void afterDraw() override {
-		//glEnable(GL_CULL_FACE);
-		glEnable(GL_DEPTH_TEST);
-	}
-};
 
 class MyApp : public avt::App {
 private:
@@ -23,7 +11,6 @@ private:
 	avt::Renderer _renderer;
 	avt::UniformBuffer _ub;
 	avt::Scene _scene;
-	MyNodeCallback nodeCallback;
 
 	avt::ParticleEmitter *_emitter;
 
@@ -72,50 +59,6 @@ private:
 		//_emitter->scale({0.1,0.1,0.1});
 		_scene.addNode(_emitter); // scene deletes nodes when destroyed
 
-		/*
-		_frame = _scene.createNode(frameM);
-
-		_panel = _frame->createNode(panelM);
-		_panel->scale({ 1.9f, 1.9f, 1.9f });
-		_panel->translate({ 0.0f, 0.0f, -0.3f });
-		
-		_cubeStruct = _frame->createNode();
-		
-		_cube9 = _cubeStruct->createNode(cubeM);
-		_cube9->translate({ 9.0f, 6.0f, 9.f });
-
-		_cube8 = _cubeStruct->createNode(cubeM);
-		_cube8->translate({ 9.0f, 6.0f, 6.f });
-
-		_cube1 = _cubeStruct->createNode(cubeM);
-		_cube1->translate({ 0.0f, 0.0f, 0.f });
-		_cube1->setCallback(&nodeCallback);
-
-		_cube2 = _cubeStruct->createNode(cubeM);
-		_cube2->translate({ 0.0f, 3.0f, 0.f });
-
-		_cube3 = _cubeStruct->createNode(cubeM);
-		_cube3->translate({ 0.0f, 6.0f, 0.f });
-
-		_cube4 = _cubeStruct->createNode(cubeM);
-		_cube4->translate({ 3.0f, 6.0f, 0.f });
-		_cube4->setShader(&_shader2);
-
-		_cube5 = _cubeStruct->createNode(cubeM);
-		_cube5->translate({ 6.0f, 6.0f, 0.f });
-
-		_cube6 = _cubeStruct->createNode(cubeM);
-		_cube6->translate({ 9.0f, 6.0f, 0.f });
-
-		_cube7 = _cubeStruct->createNode(cubeM);
-		_cube7->translate({ 9.0f, 6.0f, 3.f });
-
-
-		_cubeStruct->scale({ 0.5f, 0.5f, 0.5f });
-		_cubeStruct->rotate(avt::Quaternion(avt::Vector3(0, 1.f, 0), avt::toRad(-55))
-			* avt::Quaternion(avt::Vector3(0, 0, 1.f), avt::toRad(-45)));
-		_cubeStruct->translate({ 0.1f, -1.4f, 2.15f });
-		*/
 #ifndef ERROR_CALLBACK
 		avt::ErrorManager::checkOpenGLError("ERROR: Could not create VAOs and VBOs.");
 #endif
@@ -219,44 +162,6 @@ public:
 
 		_emitter->update(dt);
 		
-
-		/*
-		if (_animating) {
-			_time += dt;
-			if (_time > _duration) {
-				_time -= _duration;
-
-				_cube9->setTranslation({ 9.0f, 6.0f, 9.f });
-				_cube8->setTranslation({ 9.0f, 6.0f, 6.f });
-				_cube1->setTranslation({ 0.0f, 0.0f, 0.f });
-				_cube2->setTranslation({ 0.0f, 3.0f, 0.f });
-				_cube3->setTranslation({ 0.0f, 6.0f, 0.f });
-				_cube4->setTranslation({ 3.0f, 6.0f, 0.f });
-				_cube5->setTranslation({ 6.0f, 6.0f, 0.f });
-				_cube6->setTranslation({ 9.0f, 6.0f, 0.f });
-				_cube7->setTranslation({ 9.0f, 6.0f, 3.f });
-			}
-			_cube1->translate({ 0, (float)dt, 0 });
-			_cube2->translate({ 0, (float)dt, 0 });
-			_cube3->translate({ (float)dt, 0, 0 });
-			_cube4->translate({ (float)dt, 0, 0 });
-			_cube5->translate({ (float)dt, 0, 0 });
-			_cube6->translate({ 0, 0, (float)dt });
-			_cube7->translate({ 0, 0, (float)dt });
-			_cube8->translate({ 0, 0, (float)dt });
-			_cube9->translate({ .001f, (float)dt + .001f, 0 });
-		}
-
-		if (_rotating) {
-			_time2 += dt;
-			if (_time2 > _duration2) {
-				_time2 = 0;
-				_rotating = false;
-				_frame->setRotation(avt::Quaternion({ 1.f,0,0 }, 0));
-			}
-			float k = (float)_time2 / _duration2;
-			_frame->setRotation(avt::Quaternion({ 0,0,1.f }, k * 2 * avt::PI));
-		}*/
 	}
 
 	void displayCallback(GLFWwindow* win, double dt) override {
