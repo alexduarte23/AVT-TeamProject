@@ -22,7 +22,7 @@ namespace avt {
 		void createShaders() {
 			createShaderBrightValues();
 			createShaderGaussianBlur();
-			//createShaderBloomFinal();
+			createShaderBloomFinal();
 		}
 
 		void createShaderBrightValues() {
@@ -74,12 +74,20 @@ namespace avt {
 			_ShaderBloomFinal.unbind();
 		}
 
+		void setTextures()
+		{
+			_ShaderBloomFinal.bind();
+			glUniform1i(_ShaderBloomFinal.getUniform("scene"), 0);
+			glUniform1i(_ShaderBloomFinal.getUniform("bloomBlur"), 1);
+			_ShaderBloomFinal.unbind();
+		}
+
 	public:
 		void create(int width, int height) {
 
 			//Framebuffers
 			_HDR.create(width, height);
-			//_scene.create(width, height);
+			_scene.create(width, height);
 			_pingBlur.create(width, height);
 			_pongBlur.create(width, height);
 			//Shaders
@@ -114,20 +122,25 @@ namespace avt {
 				horizontal = !horizontal;
 
 			}
-			_pingBlur.renderQuad(&_ShaderGaussianBlur, "TexFramebuffer");
+			//pingBlur.renderQuad(&_ShaderGaussianBlur, "TexFramebuffer");
 		}
 
 		void renderBloomFinal() {
+
+			
 			bool bloom = true;
-			float exposure = 0.0f;
+			GLfloat exposure = 0.0f;
 			setBloom(bloom);
 			setExposure(exposure);
-			
+			setTextures();
+
+			glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 			_ShaderBloomFinal.bind();
 			_scene.renderQuad(_pingBlur);
 			_ShaderBloomFinal.unbind();
 
 		}
+
 
 		void bindHDR() {
 			_HDR.bindFramebuffer();

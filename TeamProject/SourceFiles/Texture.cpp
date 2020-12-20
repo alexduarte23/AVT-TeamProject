@@ -107,14 +107,17 @@ void avt::RenderTargetTexture::renderQuad(Shader* shader, std::string textureUni
 
 void avt::RenderTargetTexture::renderQuad(RenderTargetTexture rtt2) {
 
-	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 	glActiveTexture(GL_TEXTURE0);
-	bind();
+	glBindTexture(GL_TEXTURE_2D, id);
 
 	glActiveTexture(GL_TEXTURE1);
 	rtt2.bind();
 
+	//glDisable(GL_DEPTH_TEST);
 	_quad.draw();
+	//glEnable(GL_DEPTH_TEST);
+
+	glBindTexture(GL_TEXTURE_2D, 0);
 }
 
 

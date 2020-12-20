@@ -54,7 +54,9 @@ namespace avt {
 		void unbindFramebuffer();
 		void renderQuad(Shader* shader, std::string textureUniform);
 		void renderQuad(RenderTargetTexture rtt);
-
+		GLuint getId() {
+			return id;
+		}
 	};
 
 }
