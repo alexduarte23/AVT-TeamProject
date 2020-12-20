@@ -170,24 +170,11 @@
     <ClInclude Include="HeaderFiles\Texture.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="HeaderFiles\Bloom.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="Resources\brightFragmentshader.shader" />
     <None Include="Resources\brightVertexshader.shader" />
     <None Include="Resources\blurFragmentshader.shader" />
     <None Include="Resources\blurVertexshader.shader" />
-    <None Include="Resources\convolutedFragmentshader.shader" />
-    <None Include="Resources\convolutedVertexshader.shader" />
-  </ItemGroup>
-  <ItemGroup>
-    <Image Include="..\..\..\..\Desktop\t1.png">
-      <Filter>Resource Files</Filter>
-    </Image>
-    <Image Include="Resources\t1.png">
-      <Filter>Resource Files</Filter>
-    </Image>
   </ItemGroup>
 </Project>
