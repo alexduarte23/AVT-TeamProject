@@ -1,7 +1,7 @@
 #version 330 core
 
-in vec2 inVertex;
-in vec2 inTexcoord;
+layout(location = 0) in vec2 inVertex;
+layout(location = 1) in vec2 inTexcoord;
 out vec2 exTexcoord;
 
 void main(void)
