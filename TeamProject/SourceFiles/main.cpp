@@ -28,7 +28,7 @@ private:
 	avt::Manager<avt::Mesh> _meshes;
 	avt::Manager<avt::Camera> _cams;
 	avt::Manager<avt::Shader> _shaders;
-	avt::Bloom* bloom;
+	avt::Manager<avt::RenderTargetTexture> _rtts;
 
 	avt::SceneNode *_cubeStruct=nullptr, *_frame=nullptr, *_panel=nullptr;
 	avt::SceneNode* _cube1 = nullptr, * _cube2 = nullptr, * _cube3 = nullptr;
@@ -162,10 +162,13 @@ private:
 	}
 
 	void createTextures() {
-		bloom = new avt::Bloom();
-		bloom->create(WIDTH, HEIGHT);
+		avt::RenderTargetTexture* rtt1 = new avt::RenderTargetTexture();
+		rtt1->create(WIDTH, HEIGHT);
+		_rtts.add("rtt1", rtt1);
 
-
+		avt::RenderTargetTexture* rtt2 = new avt::RenderTargetTexture();
+		rtt2->create(WIDTH, HEIGHT);
+		_rtts.add("rtt2", rtt2);
 		/*Texture2D* texture0 = new Texture2D();
 		texture0->load("./Resources/t1.png");
 		TextureManager::instance()->add("t1", (Texture*)texture0);
@@ -235,41 +238,35 @@ private:
 		shader->unbind();
 	}
 
-	void createShaderBrightValues() {
-		avt::Shader* shader = new  avt::Shader();
-		shader->addShader(GL_VERTEX_SHADER, "./Resources/brightVertexshader.shader");
-		shader->addShader(GL_FRAGMENT_SHADER, "./Resources/brightFragmentshader.shader");
-		shader->addAttribute("inVertex", VERTICES); //worng
-		shader->addAttribute("inTexcoord", TEXTURES); //wrong
-		shader->addUniform("TexFramebuffer"); //definir
-		shader->create();
-		_shaders.add("shaderBrightValues", shader);
-	}
-
-	void createShaderGaussianBlur() {
+	void createShader5() {
 		avt::Shader* shader = new  avt::Shader();
 		shader->addShader(GL_VERTEX_SHADER, "./Resources/convolutedVertexshader.shader");
 		shader->addShader(GL_FRAGMENT_SHADER, "./Resources/gaussianblurFragmentshader.shader");
 		shader->addAttribute("inVertex", VERTICES); //worng
+		shader->addAttribute("inNormal", NORMALS); //worng
 		shader->addAttribute("inTexcoord", TEXTURES); //wrong
 		shader->addUniform("ModelMatrix");
 		shader->addUbo("SharedMatrices", UBO_BP);
-		shader->addUniform("TexFramebuffer");
-		shader->addUniform("horizontal");
+		//shader->addUniform("BaseImage");
+		shader->addUniform("Mode");
+		shader->addUniform("Scale");
+		shader->addUniform("Kernel");
 		shader->create();
-		_shaders.add("shader3", shader);
+		_shaders.add("shader4", shader);
 
 		shader->bind();
-		glUniform1i(shader->getUniform("horizontal"), 1);
+		glUniform1i(shader->getUniform("Mode"), 0);
+		glUniform1f(shader->getUniform("Scale"), 0.01f);
+		GLfloat k[9] = { 0, 0.2f, 0, 0.2f, 0.2f, 0.2f, 0, 0.2f, 0 };
+		glUniformMatrix3fv(shader->getUniform("Kernel"), 1, GL_FALSE, k);
 		shader->unbind();
 	}
 
 	void createShader() {
 		createShader1();
-		//createShader2();
-		//createShaderGaussianBlur();
-		//createShader3();
-
+		createShader2();
+		createShader3();
+		createShader4();
 	}
 
 	void createCams(GLFWwindow* win) {
@@ -331,31 +328,41 @@ public:
 			_cube8->translate({ 0, 0, (float)dt });
 			_cube9->translate({ .001f, (float)dt + .001f, 0 });
 		}
-		/**/
+
 		if (_rotating) {
 			_time2 += dt;
 			if (_time2 > _duration2) {
 				_time2 = 0;
 				_rotating = false;
-				_frame->setRotation(avt::Quaternion({ 1.f,1.f,0 }, 0));
+				_frame->setRotation(avt::Quaternion({ 1.f,0,0 }, 0));
 			}
 			float k = (float)_time2 / _duration2;
-			_frame->setRotation(avt::Quaternion({ 0,1.f,0.f }, k * 2 * avt::PI));
-		}
+			_frame->setRotation(avt::Quaternion({ 0,0,1.f }, k * 2 * avt::PI));
+		}/**/
 	}
 
 	void displayCallback(GLFWwindow* win, double dt) override {
 		_renderer.clear();
 
-		bloom->bindHDR();
-		_renderer.draw(_scene, _ub, *_shaders.get("shader1") , _cams.get(_activeCam));
-		bloom->unbindHDR();
-		
-		bloom->bindPingBlur();
-		bloom->renderHDR();
-		bloom->unbindPingBlur();
+		avt::RenderTargetTexture* rtt1 = _rtts.get("rtt1");
+		avt::RenderTargetTexture* rtt2 = _rtts.get("rtt2");
 
-		bloom->renderBlur();
+		//rtt1->setFramebufferClearColor(0.1f, 0.1f, 0.2f, 1.0f);
+		//rtt1->bindFramebuffer();
+		//_renderer.draw(_scene, _ub, *_shaders.get("shader1") , _cams.get(_activeCam));
+		//rtt1->unbindFramebuffer();
+		//rtt2->bindFramebuffer();
+		_renderer.draw(_scene, _ub, *_shaders.get("shader1") , _cams.get(_activeCam), *rtt1);
+		//rtt2->unbindFramebuffer();
+
+		//rtt2->setFramebufferClearColor(0.1f, 0.1f, 0.2f, 1.0f);
+		rtt2->bindFramebuffer();
+		rtt1->renderQuad(_shaders.get("shader2"), "TexFramebuffer");
+		rtt2->unbindFramebuffer();
+
+		rtt2->renderQuad(_shaders.get("shader3"), "TexFramebuffer");
+		//glClearColor(0.9f, 0.9f, 0.9f, 1.0f);
+		//_renderer.draw(_scene, _ub, *_shaders.get("shader1"), _cams.get(_activeCam));
 	}
 
 	void windowResizeCallback(GLFWwindow* win, int w, int h) override {

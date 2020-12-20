@@ -24,7 +24,6 @@
 
 #include "Scene.h"
 #include "SceneNode.h"
-#include "Bloom.h"
 
 #include "Manager.h"
 

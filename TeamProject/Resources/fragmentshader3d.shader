@@ -23,8 +23,8 @@ void main(void)
 	vec3 C = normalize(exNormal);
 	vec3 color;
 	color.r = C.x - C.y - C.z + 0.5;
-	color.g = C.y - C.x - C.z + 0.7;
-	color.b = C.z - C.x - C.y + 0.2;
+	color.g = C.y - C.x - C.z + 0.5;
+	color.b = C.z - C.x - C.y +0.5;
 	color = normalize(color);
 
 	FragmentColor = vec4(color, 1.0);
