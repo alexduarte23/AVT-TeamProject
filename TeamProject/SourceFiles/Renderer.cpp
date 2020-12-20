@@ -37,23 +37,10 @@ namespace avt {
 		shader.bind();
 		ub.bind();
 
-		ub.fill({ camera->viewMatrix(), camera->projMatrix() });
-		drawNode(scene.getRoot(), shader, Mat4::identity());
-
-		ub.unbind();
-		shader.unbind();
-	}
-
-	void Renderer::draw(const Scene& scene, UniformBuffer& ub, Shader& shader, Camera* camera, RenderTargetTexture& rtt) {
-		shader.bind();
-		ub.bind();
-
 		//glUniform3f(shader.getUniform("LightPosition"), light->getPosition().x(), light->getPosition().y(), light->getPosition().z());
 		//glUniform3f(shader.getUniform("LightColor"), light->getColor().x(), light->getColor().y(), light->getColor().z());
 		ub.fill({ camera->viewMatrix(), camera->projMatrix() });
-		rtt.bindFramebuffer();
 		drawNode(scene.getRoot(), shader, Mat4::identity());
-		rtt.unbindFramebuffer();
 		ub.unbind();
 		shader.unbind();
 	}
