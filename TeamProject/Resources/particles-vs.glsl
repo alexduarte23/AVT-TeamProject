@@ -38,7 +38,7 @@ void main(void)
 
 	mat4 rot = mat4(cos(in_rot),sin(in_rot),0,0, -sin(in_rot),cos(in_rot),0,0, 0,0,1,0, 0,0,0,1);
 
-	gl_Position = ProjectionMatrix * modelView * rot * vec4(in_vertex*in_size,1);// * in_size + in_pos, 1);
+	gl_Position = ProjectionMatrix * modelView * rot * vec4(in_vertex*in_size,1);
 	
 	ex_color = in_color;
 	texCoord = in_texCoord;

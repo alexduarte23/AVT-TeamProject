@@ -17,17 +17,8 @@ private:
 	avt::Manager<avt::Mesh> _meshes;
 	avt::Manager<avt::Camera> _cams;
 
-	avt::SceneNode *_cubeStruct=nullptr, *_frame=nullptr, *_panel=nullptr;
-	avt::SceneNode* _cube1 = nullptr, * _cube2 = nullptr, * _cube3 = nullptr;
-	avt::SceneNode* _cube4 = nullptr, * _cube5 = nullptr, * _cube6 = nullptr;
-	avt::SceneNode* _cube7 = nullptr, * _cube8 = nullptr, * _cube9 = nullptr;
-
 	std::string _activeCam = "per";
 	
-	const float _duration = 3, _duration2 = 6;
-	double _time = 0, _time2 = 0;
-	bool _animating = false, _rotating = false;
-
 	const GLuint UBO_BP = 0;
 	const GLuint VERTICES = 0;
 	const GLuint COLORS = 1;
@@ -38,25 +29,16 @@ private:
 
 		auto cubeM = _meshes.add("cube", new avt::Cube());
 		cubeM->colorAll({ 1.f,1.f,1.f,1.f });
-		auto frameM = _meshes.add("frame", new avt::Mesh("./Resources/frame.obj"));
-		auto panelM = _meshes.add("panel", new avt::Mesh("./Resources/backpanel.obj"));
-		frameM->colorAll(avt::Vector4(0.396f, 0.263f, 0.129f, 1.f));
-		panelM->colorAll(avt::Vector4(0.1f, 0.1f, 0.1f, 1.f));
-
 		cubeM->setup();
-		frameM->setup();
-		panelM->setup();
 
 		_ub.create(2 * 16 * sizeof(GLfloat), 0); // change
 		_ub.unbind();
 
 		auto plane = _scene.createNode(cubeM);
 		plane->translate({ 0,20.f,0 });
-		//plane->scale({10.f,0.1f,10.f});
 
 		_emitter = new avt::ParticleEmitter();
 		_emitter->setShader(&_shaderP);
-		//_emitter->scale({0.1,0.1,0.1});
 		_scene.addNode(_emitter); // scene deletes nodes when destroyed
 
 #ifndef ERROR_CALLBACK
@@ -114,8 +96,6 @@ private:
 
 		_shaderP.addShader(GL_VERTEX_SHADER, "./Resources/particles-vs.glsl");
 		_shaderP.addShader(GL_FRAGMENT_SHADER, "./Resources/particles-fs.glsl");
-		//_shaderP.addAttribute("in_Position", VERTICES);
-		//_shaderP.addAttribute("in_Color", COLORS);
 		_shaderP.addAttribute("in_vertex", 0);
 		_shaderP.addAttribute("in_texCoord", 1);
 		_shaderP.addAttribute("in_pos", 2);
@@ -198,12 +178,6 @@ public:
 				_cams.get("ort")->lookAt(avt::Vector3());
 				_cams.get("per")->lookAt(avt::Vector3());
 			}
-			break;
-		case GLFW_KEY_C:
-			_animating = !_animating;
-			break;
-		case GLFW_KEY_F:
-			_rotating = !_rotating;
 			break;
 		case GLFW_KEY_R:
 			_emitter->toggle();
