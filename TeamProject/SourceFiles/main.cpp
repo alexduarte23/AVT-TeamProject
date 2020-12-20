@@ -137,71 +137,6 @@ private:
 		_shader.create();
 	}
 
-	void createBloom() {
-		GLint previousTextureObject = 0;
-		GLint previousFramebufferObject = 0;
-
-		// Save previous GL state that we will change in order to put it back after
-		glGetIntegerv(GL_TEXTURE_BINDING_2D, &previousTextureObject);
-		glGetIntegerv(GL_DRAW_FRAMEBUFFER_BINDING, &previousFramebufferObject);
-
-		GLuint textureObject = 0;
-
-		glGenTextures(1, &textureObject);
-
-		glBindTexture(GL_TEXTURE_2D, textureObject);
-
-		const auto w = GLsizei(640);
-		const auto h = GLsizei(480);
-		glTexStorage2D(GL_TEXTURE_2D, 1, GL_RGBA32F, w, h);
-
-		GLuint depthTexture;
-		glGenTextures(1, &depthTexture);
-
-		glBindTexture(GL_TEXTURE_2D, depthTexture);
-
-		glTexStorage2D(GL_TEXTURE_2D, 1, GL_DEPTH_COMPONENT32F, w, h);
-
-		GLuint framebufferObject = 0;
-		glGenFramebuffers(1, &framebufferObject);
-		glBindFramebuffer(GL_DRAW_FRAMEBUFFER, framebufferObject);
-
-		glFramebufferTexture(
-			GL_DRAW_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, textureObject, 0);
-		glFramebufferTexture(
-			GL_DRAW_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, depthTexture, 0);
-
-		GLenum drawBuffers[1] = { GL_COLOR_ATTACHMENT0 };
-		glDrawBuffers(1, drawBuffers);
-
-		const auto framebufferStatus = glCheckFramebufferStatus(GL_DRAW_FRAMEBUFFER);
-		assert(framebufferStatus == GL_FRAMEBUFFER_COMPLETE);
-
-		//_renderer.draw(_scene, _ub, _shader, _cams.get(_activeCam));
-
-		GLint currentlyBoundFBO = 0;
-		glGetIntegerv(GL_DRAW_FRAMEBUFFER_BINDING, &currentlyBoundFBO);
-		if (currentlyBoundFBO != framebufferObject) {
-			// Display a warning on clog
-			// It may not be an error because the drawScene() function might have render
-			// to the framebuffer but unbound it after.
-			std::clog
-				<< "Warning: renderToImage - GL_DRAW_FRAMEBUFFER_BINDING has "
-				"changed during drawScene. It might lead to unexpected behavior."
-				<< std::endl;
-		}
-
-		glBindTexture(GL_TEXTURE_2D, textureObject);
-		//glGetTexImage(GL_TEXTURE_2D, 0, numComponents == 3 ? GL_RGB : GL_RGBA,
-			//GL_UNSIGNED_BYTE, outPixels);
-
-		glBindTexture(GL_TEXTURE_2D, previousTextureObject);
-		glBindFramebuffer(GL_DRAW_FRAMEBUFFER, previousFramebufferObject);
-	}
-
-	void afterBloom() {
-	}
-
 	void createCams(GLFWwindow* win) {
 		int winx, winy;
 		glfwGetWindowSize(win, &winx, &winy);
@@ -264,6 +199,7 @@ public:
 	}
 
 	void drawScene() {
+
 		for (int i = 0; i < 3; i++) {
 			_shader.bind();
 			if (selected == i)
@@ -274,12 +210,15 @@ public:
 			glEnable(GL_STENCIL_TEST);
 			glStencilFunc(GL_ALWAYS, i + 1, 0xFF);
 			glStencilOp(GL_KEEP, GL_KEEP, GL_REPLACE);
+
 			_shader.bind();
 			_ub.bind();
-
 			_ub.fill({ _cams.get(_activeCam)->viewMatrix(), _cams.get(_activeCam)->projMatrix() });
+
 			_renderer.drawNode(_scene.getRoot()->children()[0]->children()[i], _shader, avt::Mat4::identity());
+
 			_ub.unbind(); _shader.unbind();
+
 			glDisable(GL_STENCIL_TEST);
 		}
 	}
@@ -287,7 +226,6 @@ public:
 	void displayCallback(GLFWwindow* win, double dt) override {
 
 		_renderer.clear();
-		//_renderer.draw(_scene, _ub, _shader, _cams.get(_activeCam));
 		drawScene();
 	}
 

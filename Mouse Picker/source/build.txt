@@ -1,0 +1,2 @@
+To build the application open the TeamProject folder with Visual Studio 2019 and build the solution inside the application.
+The complete release folder is composed of the build generated in the x64 folder plus the Resources folder.
