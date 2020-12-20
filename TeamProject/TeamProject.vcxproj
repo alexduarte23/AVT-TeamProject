@@ -170,6 +170,7 @@
   <ItemGroup>
     <ClInclude Include="HeaderFiles\App.h" />
     <ClInclude Include="HeaderFiles\avt_math.h" />
+    <ClInclude Include="HeaderFiles\Bloom.h" />
     <ClInclude Include="HeaderFiles\Camera.h" />
     <ClInclude Include="HeaderFiles\Cube.h" />
     <ClInclude Include="HeaderFiles\Engine.h" />

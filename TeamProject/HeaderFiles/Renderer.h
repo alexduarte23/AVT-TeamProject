@@ -23,7 +23,6 @@ namespace avt {
 		~Renderer() {}
 
 		void draw(const VertexArray& va, const IndexBuffer& ib, UniformBuffer& ub, Shader& shader, Camera* camera) const;
-
 		void draw(const Scene& scene, UniformBuffer& ub, Shader& shader, Camera* camera);
 		void draw(SceneNode* node, UniformBuffer& ub, Shader& shader, Camera* camera);
 
