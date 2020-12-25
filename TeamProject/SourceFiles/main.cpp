@@ -12,7 +12,7 @@ private:
 	avt::UniformBuffer _ub;
 	avt::Scene _scene;
 
-	avt::ParticleEmitter *_emitter;
+	avt::ParticleEmitter *_emitter = nullptr;
 
 	avt::Manager<avt::Mesh> _meshes;
 	avt::Manager<avt::Camera> _cams;

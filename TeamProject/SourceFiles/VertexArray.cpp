@@ -33,7 +33,7 @@ namespace avt {
 			}
 			offset += (long long)el.count * el.typeSize;
 		}
-		_num += layout.elements().size();
+		_num += (unsigned int) layout.elements().size();
 
 #ifndef ERROR_CALLBACK
 		ErrorManager::checkOpenGLError("ERROR: Could not destroy Vertex Array.");
