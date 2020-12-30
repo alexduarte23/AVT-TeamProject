@@ -41,8 +41,8 @@ namespace avt {
 		}
 
 		void createDepthShader() {
-			_depthShader.addShader(GL_VERTEX_SHADER, "./Resources/vertexDepthShader.glsl");
-			_depthShader.addShader(GL_FRAGMENT_SHADER, "./Resources/fragmentDepthShader.glsl");
+			_depthShader.addShader(GL_VERTEX_SHADER, "./Resources/shadowShaders/vertexDepthShader.glsl");
+			_depthShader.addShader(GL_FRAGMENT_SHADER, "./Resources/shadowShaders/fragmentDepthShader.glsl");
 			_depthShader.addAttribute("inPosition", VERTICES);
 			_depthShader.addAttribute("inTexcoord", TEXTURES);
 			_depthShader.addAttribute("inNormal", NORMALS);

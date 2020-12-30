@@ -29,7 +29,7 @@ namespace avt {
 		void draw(SceneNode* node, UniformBuffer& ub, Shader& shader, Camera* camera);
 		void draw(const Scene& scene, UniformBuffer& ub, Shader& shader, Camera* camera, Light* light);
 		void draw(const Scene& scene, Shader& shader);
-		void disableStencilBuffer();
+		void disableStencilBuffer(); 
 		void enableStencilBuffer(avt::SceneNode* node);
 
 		void clear() const;

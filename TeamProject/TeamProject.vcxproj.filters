@@ -75,6 +75,9 @@
     <ClCompile Include="SourceFiles\VertexBufferLayout.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="SourceFiles\Texture.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="HeaderFiles\App.h">
@@ -179,9 +182,15 @@
     <ClInclude Include="HeaderFiles\Cloud.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="HeaderFiles\Bloom.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="HeaderFiles\Texture.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
-    <None Include="Resources\vertexDepthShader.glsl" />
-    <None Include="Resources\fragmentDepthShader.glsl" />
+    <None Include="Resources\shadowShaders\fragmentDepthShader.glsl" />
+    <None Include="Resources\shadowShaders\vertexDepthShader.glsl" />
   </ItemGroup>
 </Project>

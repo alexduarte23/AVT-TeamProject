@@ -19,7 +19,7 @@ namespace avt {
 
 		SceneNodeCallback* _callback;
 
-		//Stencil buffer mouse picking
+		//mouse picking
 		unsigned int _stencilIndex = 0; //0 = not selectable
 		bool _selected = false;
 		//
@@ -151,24 +151,22 @@ namespace avt {
 			return _parent->getTransform()* getTransform() * avt::Vector4(0.0f, 0.0f, 0.0f, 1.f);
 		}
 
-		//Stencil Buffer mouse picking
-		void setStencilIndex(unsigned int index) {
+		void setStencilIndex(unsigned int index) { //mouse picking
 			_stencilIndex = index;
 		}
 
-		unsigned int getStencilIndex() {
+		unsigned int getStencilIndex() { //mouse picking
 			return _stencilIndex;
 		}
 
-		void selected(bool b) {
+		void selected(bool b) { //mouse picking
 			_selected = b;
 		}
 
 		//return if node has been selected by mouse picker
-		bool isSelected() {
+		bool isSelected() { //mouse picking
 			return _selected;
 		}
-		//
 
 	};
 

@@ -18,6 +18,8 @@
 #include "avt_math.h"
 #include "ErrorManager.h"
 #include "Light.h"
+#include "Bloom.h"
+#include "Texture.h"
 #include "PerspectiveCamera.h"
 #include "OrthographicCamera.h"
 

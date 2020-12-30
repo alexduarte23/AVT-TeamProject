@@ -31,6 +31,7 @@ private:
 	MyNodeCallback nodeCallback;
 
 	avt::Shadow _shadow;
+	avt::Bloom* _bloom = nullptr;
 
 	avt::Manager<avt::Mesh> _meshes;
 	avt::Manager<avt::Camera> _cams;
@@ -42,15 +43,13 @@ private:
 	
 	const float _duration = 3, _duration2 = 6;
 	double _time = 0, _time2 = 0;
-	bool _animating = false, _rotating = false, _selecting = false;
+	bool _animating = false, _rotating = false, _selecting = false, _morebloom = false, _lessbloom = false, _turnOffOnBloom = false;
 
-	//Stencil buffer mouse pcking
-	unsigned int _selected = -1; //stencil index of the currently selected scene node 
-	//
+	unsigned int _selected = -1; //stencil index of the currently selected scene node - mouse picking
 
 	void createScene() {
 
-		auto treeM = _meshes.add("tree", new avt::Mesh("./Resources/treeNormal.obj"));
+		auto treeM = _meshes.add("tree", new avt::Mesh("./Resources/Objects/treeNormal.obj"));
 		treeM->colorAll({0.2f, 0.6f, 0.2f});
 		treeM->setup();
 
@@ -62,7 +61,7 @@ private:
 		cloudM->setup();
 
 		
-		auto lightM = _meshes.add("cube", new avt::Mesh("./Resources/cube_vtn_flat.obj"));
+		auto lightM = _meshes.add("cube", new avt::Mesh("./Resources/Objects/cube_vtn_flat.obj"));
 		lightM->applyTransform(avt::Mat4::scale({ 0.25f, 0.25f, 0.25f }));
 		lightM->setup();
 
@@ -86,7 +85,7 @@ private:
 		//_cloud = _scene.createNode(cloudM);
 		//_cloud->translate({ -2.5f, 4.f, -2.5f });
 
-		setStencilIndex();
+		setStencilIndex(); //mouse picking
 		
 
 #ifndef ERROR_CALLBACK
@@ -94,8 +93,8 @@ private:
 #endif
 	}
 
-	//set Stencil Index of selectable scene nodes
-	void setStencilIndex()
+	//set Stencil Index of selectable nodes
+	void setStencilIndex() //mouse picking
 	{
 		//example
 		//scenenode->setStencilIndex(index);
@@ -136,9 +135,8 @@ private:
 		} else if (glfwGetMouseButton(win, GLFW_MOUSE_BUTTON_LEFT) == GLFW_PRESS) { // drag move
 			_cams.get("ort")->processMouse(offset, dt);
 			_cams.get("per")->processMouse(offset, dt);
-		}
-		//Stencil buffer mouse picking
-		else if (glfwGetMouseButton(win, GLFW_MOUSE_BUTTON_RIGHT) == GLFW_PRESS) {
+
+		}else if (glfwGetMouseButton(win, GLFW_MOUSE_BUTTON_RIGHT) == GLFW_PRESS) { //mouse picking
 			int x = static_cast<int>(newCursor.x());
 			int y = 480 - static_cast<int>(newCursor.y());
 
@@ -154,17 +152,15 @@ private:
 
 				_selecting = true;
 			}
-		}
-		else if (glfwGetMouseButton(win, GLFW_MOUSE_BUTTON_RIGHT) == GLFW_RELEASE) {
+		} else if (glfwGetMouseButton(win, GLFW_MOUSE_BUTTON_RIGHT) == GLFW_RELEASE) {
 			_selecting = false;
 		}
-		//
 
 	}
 
 	void createShader() {
-		_shader.addShader(GL_VERTEX_SHADER, "./Resources/vertexShadowShader.glsl");
-		_shader.addShader(GL_FRAGMENT_SHADER, "./Resources/fragmentShadowShader.glsl");
+		_shader.addShader(GL_VERTEX_SHADER, "./Resources/shadowShaders/vertexShadowShader.glsl");
+		_shader.addShader(GL_FRAGMENT_SHADER, "./Resources/shadowShaders/fragmentShadowShader.glsl");
 		_shader.addAttribute("inPosition", VERTICES);
 		_shader.addAttribute("inTexcoord", TEXTURES);
 		_shader.addAttribute("inNormal", NORMALS);
@@ -177,6 +173,7 @@ private:
 		_shader.addUbo("CameraMatrices", UBO_BP);
 		_shader.create();
 	}
+
 
 	void createCams(GLFWwindow* win) {
 		int winx, winy;
@@ -206,6 +203,14 @@ private:
 		_lights.add("sun", new avt::Light({ 8.0f, 0.0f, 0.0f }, { 1.f, 1.f, 1.f }));
 	}
 
+	void createBloom(GLFWwindow* win) {
+		int winx, winy;
+		glfwGetWindowSize(win, &winx, &winy);
+
+		_bloom = new avt::Bloom();
+		_bloom->create(winx, winy);
+	}
+
 public:
 
 	MyApp() : avt::App() {}
@@ -215,6 +220,7 @@ public:
 	void initCallback(GLFWwindow* win) override {
 		createCams(win);
 		createShadows(win);
+		createBloom(win);
 		createShader();
 		createLights();
 		createScene();
@@ -248,6 +254,20 @@ public:
 			_lightStruct->rotateZ(avt::PI/4);
 		}
 
+		if (_morebloom) { //bloom
+			_bloom->setBlurTex(1);
+			_morebloom = false;
+		}
+
+		if (_lessbloom) { //bloom
+			_bloom->setBlurTex(-1);
+			_lessbloom = false;
+		}
+		if (_turnOffOnBloom) {
+			_bloom->turnOffOnBloom();
+			_turnOffOnBloom = false;
+		}
+
 		_lights.get("sun")->setPosition(_light->pos().to3D());
 		_shadow.setPosition(_light->pos().to3D());
 		_shadow.lookAt({ 0.0f, 0.0f, 0.0f });
@@ -258,7 +278,7 @@ public:
 		
 	}
 
-	void checkMousePicking()
+	void checkSelected() //mouse picking
 	{
 		/** /
 		for (auto childNode : _cubeStruct->children()) {
@@ -274,11 +294,32 @@ public:
 		int winx, winy;
 		glfwGetWindowSize(win, &winx, &winy);
 		_renderer.clear();
-
-		checkMousePicking();
+		checkSelected(); //mouse picking
 
 		_shadow.renderToDepthMap(_renderer, _scene, (unsigned int)winx, (unsigned int)winy);
 		glBindTexture(GL_TEXTURE_2D, _shadow.depthMap());
+
+		//renderWithBloom();
+		renderWithoutBloom();
+	}
+
+	void renderWithBloom()
+	{
+		_bloom->bindHDR();
+		_renderer.draw(_scene, _ub, _shader, _cams.get(_activeCam), _lights.get("sun"));
+		_bloom->unbindHDR();
+
+		_bloom->bindPingBlur();
+		_bloom->renderHDR();
+		_bloom->unbindPingBlur();
+
+		_bloom->renderBlur();
+
+		_bloom->renderBloomFinal();
+	}
+
+	void renderWithoutBloom()
+	{
 		_renderer.draw(_scene, _ub, _shader, _cams.get(_activeCam), _lights.get("sun"));
 	}
 
@@ -316,6 +357,15 @@ public:
 			break;
 		case GLFW_KEY_F:
 			_rotating = !_rotating;
+			break;
+		case GLFW_KEY_M:
+			_morebloom = !_morebloom;
+			break;
+		case GLFW_KEY_L:
+			_lessbloom = !_lessbloom;
+			break;
+		case GLFW_KEY_B:
+			_turnOffOnBloom = !_turnOffOnBloom;
 			break;
 		}
 

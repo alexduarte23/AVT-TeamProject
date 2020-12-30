@@ -6,7 +6,8 @@ in vec3 exNormal;
 in vec3 exColor;
 in vec3 FragPos;
 
-out vec4 FragmentColor;
+layout(location = 0) out vec4 FragmentColor;
+layout(location = 1) out vec4 BrightColor;
 
 uniform vec3 LightPosition;
 uniform vec3 LightColor;
@@ -33,4 +34,10 @@ void main(void)
 
 	vec3 result = (ambient + diffuse) * objectColor;
 	FragmentColor = vec4(result, 1.0);
+
+	float brightness = dot(FragmentColor.rgb, vec3(0.2126, 0.7152, 0.0722));
+	if (brightness > 1.0) //1.0
+		BrightColor = vec4(FragmentColor.rgb, 1.0);
+	else
+		BrightColor = vec4(0.0, 0.0, 0.0, 1.0);
 }

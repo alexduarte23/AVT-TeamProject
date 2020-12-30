@@ -13,7 +13,7 @@ namespace avt {
 			//Vertex field with squares in order
 			for (int i = 0; i < 10; i++) {
 				for (int j = 0; j < 10; j++) {
-					Mesh m = Mesh("./Resources/cube_vtn_flat.obj");
+					Mesh m = Mesh("./Resources/Objects/cube_vtn_flat.obj");
 					m.colorAll({ 1.0f, 1.0f, 1.0f });
 					m.applyTransform(Mat4::translation({(float)i, 0.0f, (float)j}));
 					float perlin = Perlin::perlin(i, j);

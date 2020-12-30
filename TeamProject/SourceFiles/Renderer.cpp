@@ -69,7 +69,7 @@ namespace avt {
 	void Renderer::drawNode(SceneNode* node, Shader& shader, const Mat4& worldMatrix) {
 		auto newWorldMat = worldMatrix * node->getTransform();
 
-		enableStencilBuffer(node);
+		enableStencilBuffer(node); //mouse picking
 		
 		if (node->getMesh()) {
 			Mesh* mesh = node->getMesh();
@@ -89,22 +89,20 @@ namespace avt {
 			drawNode(childNode, shader, newWorldMat);
 		}
 
-		disableStencilBuffer();
+		disableStencilBuffer(); //mouse picking
 	}
 
-	//Stencil buffer Mouse picking
-	void Renderer::disableStencilBuffer()
+	void Renderer::disableStencilBuffer() //mouse picking
 	{
 		glDisable(GL_STENCIL_TEST);
 	}
 
-	void Renderer::enableStencilBuffer(avt::SceneNode* node)
+	void Renderer::enableStencilBuffer(avt::SceneNode* node) //mouse picking
 	{
 		glEnable(GL_STENCIL_TEST);
 		glStencilFunc(GL_ALWAYS, node->getStencilIndex(), 0xFF);
 		glStencilOp(GL_KEEP, GL_KEEP, GL_REPLACE);
 	}
-	//
 
 	void Renderer::clear() const {
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);

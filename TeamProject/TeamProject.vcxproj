@@ -158,6 +158,7 @@
     <ClCompile Include="SourceFiles\Quaternion.cpp" />
     <ClCompile Include="SourceFiles\Renderer.cpp" />
     <ClCompile Include="SourceFiles\Shader.cpp" />
+    <ClCompile Include="SourceFiles\Texture.cpp" />
     <ClCompile Include="SourceFiles\UniformBuffer.cpp" />
     <ClCompile Include="SourceFiles\Vector2.cpp" />
     <ClCompile Include="SourceFiles\Vector3.cpp" />
@@ -169,6 +170,7 @@
   <ItemGroup>
     <ClInclude Include="HeaderFiles\App.h" />
     <ClInclude Include="HeaderFiles\avt_math.h" />
+    <ClInclude Include="HeaderFiles\Bloom.h" />
     <ClInclude Include="HeaderFiles\Camera.h" />
     <ClInclude Include="HeaderFiles\Cloud.h" />
     <ClInclude Include="HeaderFiles\Cube.h" />
@@ -194,6 +196,7 @@
     <ClInclude Include="HeaderFiles\Shader.h" />
     <ClInclude Include="HeaderFiles\Shadow.h" />
     <ClInclude Include="HeaderFiles\TerrainPlane.h" />
+    <ClInclude Include="HeaderFiles\Texture.h" />
     <ClInclude Include="HeaderFiles\UniformBuffer.h" />
     <ClInclude Include="HeaderFiles\Vector2.h" />
     <ClInclude Include="HeaderFiles\Vector3.h" />
@@ -203,8 +206,8 @@
     <ClInclude Include="HeaderFiles\VertexBufferLayout.h" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="Resources\fragmentDepthShader.glsl" />
-    <None Include="Resources\vertexDepthShader.glsl" />
+    <None Include="Resources\shadowShaders\fragmentDepthShader.glsl" />
+    <None Include="Resources\shadowShaders\vertexDepthShader.glsl" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
