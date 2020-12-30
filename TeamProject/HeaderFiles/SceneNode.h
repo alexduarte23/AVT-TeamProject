@@ -19,6 +19,11 @@ namespace avt {
 
 		SceneNodeCallback* _callback;
 
+		//Stencil buffer mouse picking
+		unsigned int _stencilIndex = 0; //0 = not selectable
+		bool _selected = false;
+		//
+
 	public:
 		SceneNode(Mesh* mesh = nullptr) : _callback(nullptr), _parent(nullptr), _mesh(mesh), _translation(0,0,0), _scale(1.f, 1.f, 1.f), _rot({1.f,0,0}, 0) /*, _matrix(Mat4::identity())*/ {}
 
@@ -141,6 +146,24 @@ namespace avt {
 		void afterDraw() {
 			if (_callback) _callback->afterDraw();
 		}
+
+		//Stencil Buffer mouse picking
+		void setStencilIndex(unsigned int index) {
+			_stencilIndex = index;
+		}
+
+		unsigned int getStencilIndex() {
+			return _stencilIndex;
+		}
+
+		void selected(bool b) {
+			_selected = b;
+		}
+
+		bool isSelected() {
+			return _selected;
+		}
+		//
 
 	};
 

@@ -46,11 +46,20 @@ namespace avt {
 
 	void Renderer::drawNode(SceneNode* node, Shader& shader, const Mat4& worldMatrix) {
 		auto newWorldMat = worldMatrix * node->getTransform();
+
+		enableStencilBuffer(node);
+
 		if (node->getMesh()) {
 			Mesh* mesh = node->getMesh();
 
 			mesh->va().bind();
 			mesh->ib().bind();
+
+			if (node->isSelected())
+				glUniform4f(shader.getUniform("Color"), 0.9f, 0.9f, 0.9f, 1.0f);
+			else
+				glUniform4f(shader.getUniform("Color"), (mesh->getVertices()[0].color).x(), (mesh->getVertices()[0].color).y(), (mesh->getVertices()[0].color).z(), (mesh->getVertices()[0].color).w());
+			
 			
 			//node->beforeDraw();
 			glUniformMatrix4fv(shader.getUniform(MODEL_MATRIX), 1 ,GL_FALSE, node->getTransform().data());
@@ -58,14 +67,32 @@ namespace avt {
 			glDrawElements(GL_TRIANGLES, mesh->ib().count(), GL_UNSIGNED_BYTE, (GLvoid*)0);
 			//node->afterDraw();
 
+
 			mesh->va().unbind();
 			mesh->ib().unbind();
 		}
+
+		disableStencilBuffer();
 
 		for (auto childNode : node->children()) {
 			drawNode(childNode, shader, newWorldMat);
 		}
 	}
+
+	//Stencil buffer Mouse picking
+	void Renderer::disableStencilBuffer()
+	{
+		glDisable(GL_STENCIL_TEST);
+	}
+
+	void Renderer::enableStencilBuffer(avt::SceneNode* node)
+	{
+		glEnable(GL_STENCIL_TEST);
+		glStencilFunc(GL_ALWAYS, node->getStencilIndex(), 0xFF);
+		glStencilOp(GL_KEEP, GL_KEEP, GL_REPLACE);
+	}
+	//
+
 
 	void Renderer::clear() const {
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);

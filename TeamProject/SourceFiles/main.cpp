@@ -24,7 +24,6 @@ private:
 	avt::Renderer _renderer;
 	avt::UniformBuffer _ub;
 	avt::Scene _scene;
-	avt::MousePicker _mousePicker;
 	MyNodeCallback nodeCallback;
 
 	avt::Manager<avt::Mesh> _meshes;
@@ -37,10 +36,11 @@ private:
 	
 	const float _duration = 3, _duration2 = 6;
 	double _time = 0, _time2 = 0;
-	bool _animating = false, _rotating = false;
+	bool _animating = false, _rotating = false, _selecting = false;
 
-	std::vector<avt::Vector4> Colors;
+	//Stencil buffer mouse pcking
 	unsigned int selected = -1;
+	//
 
 	const GLuint UBO_BP = 0;
 	const GLuint VERTICES = 0;
@@ -52,13 +52,11 @@ private:
 		auto cubeM2 = _meshes.add("cube2", new avt::Cube());
 		auto cubeM3 = _meshes.add("cube3", new avt::Cube());
 
-		Colors.push_back(avt::Vector4(0.9f, 0.1f, 0.1f, 1.0f));
-		Colors.push_back(avt::Vector4(0.1f, 0.9f, 0.1f, 1.0f));
-		Colors.push_back(avt::Vector4(0.1f, 0.1f, 0.9f, 1.0f));
+		// if object is selectable set Stencil Index
 
-		cubeM1->colorAll(Colors[0]);
-		cubeM2->colorAll(Colors[1]);
-		cubeM3->colorAll(Colors[2]);
+		cubeM1->colorAll(avt::Vector4(0.9f, 0.1f, 0.1f, 1.0f));
+		cubeM2->colorAll(avt::Vector4(0.1f, 0.9f, 0.1f, 1.0f));
+		cubeM3->colorAll(avt::Vector4(0.1f, 0.1f, 0.9f, 1.0f));
 
 		cubeM1->setup();
 		cubeM2->setup();
@@ -74,11 +72,16 @@ private:
 		_cube2 = _cubeStruct->createNode(cubeM2);
 		_cube2->rotate(avt::Quaternion(avt::Vector3(0.0f, 1.f, 0.0f), avt::toRad(55)));
 		_cube2->translate({ 4.0f,0.0f,0.0f });
-
 		
 		_cube3 = _cubeStruct->createNode(cubeM3);
 		_cube3->rotate(avt::Quaternion(avt::Vector3(0, 1.f, 0), avt::toRad(-55)));
 		_cube3->translate({ -4.0f,0.0f,0.0f});
+
+		//Stencil buffer mouse pcking
+		_cube1->setStencilIndex(2);
+		_cube2->setStencilIndex(3);
+		_cube3->setStencilIndex(1);
+		//
 
 
 #ifndef ERROR_CALLBACK
@@ -121,7 +124,30 @@ private:
 		} else if (glfwGetMouseButton(win, GLFW_MOUSE_BUTTON_LEFT) == GLFW_PRESS) { // drag move
 			_cams.get("ort")->processMouse(offset, dt);
 			_cams.get("per")->processMouse(offset, dt);
+
+		} 
+		//Stencil buffer mouse picking
+		else if (glfwGetMouseButton(win, GLFW_MOUSE_BUTTON_RIGHT) == GLFW_PRESS) {
+			int x = static_cast<int>(newCursor.x());
+			int y = 480 - static_cast<int>(newCursor.y());
+
+			if (!_selecting) {
+				//GLfloat color[4];
+				//glReadPixels(x, y, 1, 1, GL_RGBA, GL_FLOAT, color);
+				//GLfloat depth;
+				//glReadPixels(x, y, 1, 1, GL_DEPTH_COMPONENT, GL_FLOAT, &depth);
+				GLuint index;
+				glReadPixels(x, y, 1, 1, GL_STENCIL_INDEX, GL_UNSIGNED_INT, &index);
+				std::cout << "cube number =" << index << std::endl;
+				selected = index;
+
+				_selecting = true;
+			}
 		}
+		else if (glfwGetMouseButton(win, GLFW_MOUSE_BUTTON_RIGHT) == GLFW_RELEASE) {
+			_selecting = false;
+		}
+		//
 
 	}
 
@@ -200,26 +226,18 @@ public:
 
 	void drawScene() {
 
-		for (int i = 0; i < 3; i++) {
-			_shader.bind();
-			if (selected == i)
-				glUniform4f(_shader.getUniform("Color"), 0.9f, 0.9f, 0.9f, 1.0f);
+		checkMousePicking();
+
+		_renderer.draw(_scene, _ub, _shader, _cams.get(_activeCam));
+	}
+
+	void checkMousePicking()
+	{
+		for (auto childNode : _cubeStruct->children()) {
+			if (childNode->getStencilIndex() == selected)
+				childNode->selected(true);
 			else
-				glUniform4f(_shader.getUniform("Color"), Colors[i].x(), Colors[i].y(), Colors[i].z(), Colors[i].w());
-			_shader.unbind();
-			glEnable(GL_STENCIL_TEST);
-			glStencilFunc(GL_ALWAYS, i + 1, 0xFF);
-			glStencilOp(GL_KEEP, GL_KEEP, GL_REPLACE);
-
-			_shader.bind();
-			_ub.bind();
-			_ub.fill({ _cams.get(_activeCam)->viewMatrix(), _cams.get(_activeCam)->projMatrix() });
-
-			_renderer.drawNode(_scene.getRoot()->children()[0]->children()[i], _shader, avt::Mat4::identity());
-
-			_ub.unbind(); _shader.unbind();
-
-			glDisable(GL_STENCIL_TEST);
+				childNode->selected(false);
 		}
 	}
 
@@ -227,10 +245,6 @@ public:
 
 		_renderer.clear();
 		drawScene();
-	}
-
-	void updateMousePicker(double xcursor, double ycursor) override {
-		_mousePicker.update(_cams.get(_activeCam), xcursor, ycursor);
 	}
 
 	void windowResizeCallback(GLFWwindow* win, int w, int h) override {
@@ -270,24 +284,6 @@ public:
 			break;
 		}
 
-	}
-
-	void mouseButtonCallback(GLFWwindow* win, int button, int actions, int mods) override {
-
-		if (button == GLFW_MOUSE_BUTTON_RIGHT && actions == GLFW_PRESS) {
-			double xpos, ypos;
-			glfwGetCursorPos(win, &xpos, &ypos);
-			int x = static_cast<int>(xpos);
-			int y = 480 - static_cast<int>(ypos);
-			GLfloat color[4];
-			glReadPixels(x, y, 1, 1, GL_RGBA, GL_FLOAT, color);
-			GLfloat depth;
-			glReadPixels(x, y, 1, 1, GL_DEPTH_COMPONENT, GL_FLOAT, &depth);
-			GLuint index;
-			glReadPixels(x, y, 1, 1, GL_STENCIL_INDEX, GL_UNSIGNED_INT, &index);
-			std::cout << "cube number =" << index << std::endl;
-			selected = index - 1;
-		}
 	}
 
 }; 

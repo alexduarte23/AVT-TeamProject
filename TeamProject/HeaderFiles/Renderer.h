@@ -24,6 +24,8 @@ namespace avt {
 
 		void draw(const VertexArray& va, const IndexBuffer& ib, UniformBuffer& ub, Shader& shader, Camera* camera) const;
 		void drawNode(SceneNode* node, Shader& shader, const Mat4& worldMatrix);
+		void disableStencilBuffer();
+		void enableStencilBuffer(avt::SceneNode* node);
 		void draw(const Scene& scene, UniformBuffer& ub, Shader& shader, Camera* camera);
 		void draw(SceneNode* node, UniformBuffer& ub, Shader& shader, Camera* camera);
 

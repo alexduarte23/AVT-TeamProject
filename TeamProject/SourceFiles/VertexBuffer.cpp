@@ -32,5 +32,6 @@ namespace avt {
 	void VertexBuffer::fill(const void* data, GLsizeiptr size) {
 		glBindBuffer(GL_ARRAY_BUFFER, _vboID);
 		glBufferSubData(GL_ARRAY_BUFFER, 0, size, data);
+		glBindBuffer(GL_ARRAY_BUFFER, 0);
 	}
 }

@@ -25,11 +25,6 @@ namespace avt {
 		engine->app()->keyCallback(win, key, scancode, action, mods);
 	}
 
-	void Engine::mouse_button_callback(GLFWwindow* win, int button, int actions, int mods) {
-		Engine* engine = (Engine*)glfwGetWindowUserPointer(win);
-		engine->app()->mouseButtonCallback(win, button, actions, mods);
-	}
-
 
 	////////////////////////////////////////////////////////////////////////////////// SETUP
 
@@ -58,11 +53,10 @@ namespace avt {
 
 		glfwSetWindowCloseCallback(_win, Engine::window_close_callback);
 		glfwSetWindowSizeCallback(_win, Engine::window_size_callback);
-		//glfwSetInputMode(_win, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
+		glfwSetInputMode(_win, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
 
 		glfwSetWindowUserPointer(_win, this);
-		//glfwSetKeyCallback(_win, Engine::window_key_callback);
-		glfwSetMouseButtonCallback(_win, Engine::mouse_button_callback);
+		glfwSetKeyCallback(_win, Engine::window_key_callback);
 
 #if _DEBUG
 		std::cout << "GLFW " << glfwGetVersionString() << std::endl;
@@ -147,7 +141,6 @@ namespace avt {
 
 			_app->updateCallback(_win, elapsed_time);
 			_app->displayCallback(_win, elapsed_time);
-			//_app->updateMousePicker(xcursor, ycursor);
 
 #ifndef ERROR_CALLBACK
 			ErrorManager::checkOpenGLError("ERROR: Could not draw scene.");

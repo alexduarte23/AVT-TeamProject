@@ -36,6 +36,8 @@ namespace avt {
 		VertexBuffer _vb;
 		IndexBuffer _ib;
 
+		
+
 		Mesh(){}
 
 		Mesh(const std::string& filename) {
@@ -81,6 +83,7 @@ namespace avt {
 		IndexBuffer& ib() {
 			return _ib;
 		}
+
 
 	private:
 
