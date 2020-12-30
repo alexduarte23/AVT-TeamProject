@@ -42,7 +42,11 @@ private:
 	
 	const float _duration = 3, _duration2 = 6;
 	double _time = 0, _time2 = 0;
-	bool _animating = false, _rotating = false;
+	bool _animating = false, _rotating = false, _selecting = false;
+
+	//Stencil buffer mouse pcking
+	unsigned int _selected = -1; //stencil index of the currently selected scene node 
+	//
 
 	void createScene() {
 
@@ -81,12 +85,20 @@ private:
 
 		//_cloud = _scene.createNode(cloudM);
 		//_cloud->translate({ -2.5f, 4.f, -2.5f });
-		
 
+		setStencilIndex();
+		
 
 #ifndef ERROR_CALLBACK
 		avt::ErrorManager::checkOpenGLError("ERROR: Could not create VAOs and VBOs.");
 #endif
+	}
+
+	//set Stencil Index of selectable scene nodes
+	void setStencilIndex()
+	{
+		//example
+		//scenenode->setStencilIndex(index);
 	}
 		
 
@@ -125,6 +137,28 @@ private:
 			_cams.get("ort")->processMouse(offset, dt);
 			_cams.get("per")->processMouse(offset, dt);
 		}
+		//Stencil buffer mouse picking
+		else if (glfwGetMouseButton(win, GLFW_MOUSE_BUTTON_RIGHT) == GLFW_PRESS) {
+			int x = static_cast<int>(newCursor.x());
+			int y = 480 - static_cast<int>(newCursor.y());
+
+			if (!_selecting) {
+				//GLfloat color[4];
+				//glReadPixels(x, y, 1, 1, GL_RGBA, GL_FLOAT, color);
+				//GLfloat depth;
+				//glReadPixels(x, y, 1, 1, GL_DEPTH_COMPONENT, GL_FLOAT, &depth);
+				GLuint index;
+				glReadPixels(x, y, 1, 1, GL_STENCIL_INDEX, GL_UNSIGNED_INT, &index);
+				std::cout << "stencil index = " << index << std::endl;
+				_selected = index;
+
+				_selecting = true;
+			}
+		}
+		else if (glfwGetMouseButton(win, GLFW_MOUSE_BUTTON_RIGHT) == GLFW_RELEASE) {
+			_selecting = false;
+		}
+		//
 
 	}
 
@@ -224,10 +258,25 @@ public:
 		
 	}
 
+	void checkMousePicking()
+	{
+		/** /
+		for (auto childNode : _cubeStruct->children()) {
+			if (childNode->getStencilIndex() == selected)
+				childNode->selected(true);
+			else
+				childNode->selected(false);
+		}
+		/**/
+	}
+
 	void displayCallback(GLFWwindow* win, double dt) override {
 		int winx, winy;
 		glfwGetWindowSize(win, &winx, &winy);
 		_renderer.clear();
+
+		checkMousePicking();
+
 		_shadow.renderToDepthMap(_renderer, _scene, (unsigned int)winx, (unsigned int)winy);
 		glBindTexture(GL_TEXTURE_2D, _shadow.depthMap());
 		_renderer.draw(_scene, _ub, _shader, _cams.get(_activeCam), _lights.get("sun"));
