@@ -137,8 +137,10 @@ private:
 			_cams.get("per")->processMouse(offset, dt);
 
 		}else if (glfwGetMouseButton(win, GLFW_MOUSE_BUTTON_RIGHT) == GLFW_PRESS) { //mouse picking
+			int winx, winy;
+			glfwGetWindowSize(win, &winx, &winy);
 			int x = static_cast<int>(newCursor.x());
-			int y = 480 - static_cast<int>(newCursor.y());
+			int y = winy - static_cast<int>(newCursor.y());
 
 			if (!_selecting) {
 				//GLfloat color[4];
