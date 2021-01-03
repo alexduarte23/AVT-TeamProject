@@ -26,13 +26,15 @@ namespace avt {
 		long long offset = 0;
 		for (int i = 0; i < layout.elements().size(); i++) {
 			const auto& el = layout.elements()[i];
-			glEnableVertexAttribArray(i);
-			glVertexAttribPointer(i, el.count, el.type, el.norm, layout.stride(), (const void*)offset); // buffer index, num items, type, norm, stride to next, offset
+			glEnableVertexAttribArray(_num + i);
+			glVertexAttribPointer(_num + i, el.count, el.type, el.norm, layout.stride(), (const void*)offset); // buffer index, num items, type, norm, stride to next, offset
 			offset += (long long)el.count * el.typeSize;
 		}
 
+		_num = layout.elements().size();
+
 #ifndef ERROR_CALLBACK
-		ErrorManager::checkOpenGLError("ERROR: Could not destroy Vertex Array.");
+		ErrorManager::checkOpenGLError("ERROR: Could not add buffer to Vertex Array.");
 #endif
 	}
 

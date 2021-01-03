@@ -70,6 +70,7 @@ private:
 		_ub.unbind();
 		
 		_tree = _scene.createNode(treeM);
+		_tree->setStencilIndex(1);
 
 		_lightStruct = _scene.createNode();
 
@@ -136,7 +137,9 @@ private:
 			_cams.get("ort")->processMouse(offset, dt);
 			_cams.get("per")->processMouse(offset, dt);
 
-		}else if (glfwGetMouseButton(win, GLFW_MOUSE_BUTTON_RIGHT) == GLFW_PRESS) { //mouse picking
+		}
+		
+		if (glfwGetMouseButton(win, GLFW_MOUSE_BUTTON_RIGHT) == GLFW_PRESS) { //mouse picking
 			int winx, winy;
 			glfwGetWindowSize(win, &winx, &winy);
 			int x = static_cast<int>(newCursor.x());
@@ -151,6 +154,11 @@ private:
 				glReadPixels(x, y, 1, 1, GL_STENCIL_INDEX, GL_UNSIGNED_INT, &index);
 				std::cout << "stencil index = " << index << std::endl;
 				_selected = index;
+				
+				if (index == 1) {
+					_meshes.get("tree")->colorAll({ avt::random(), avt::random(), avt::random() });
+					_meshes.get("tree")->updateBufferData();
+				}
 
 				_selecting = true;
 			}

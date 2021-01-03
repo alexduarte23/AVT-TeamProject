@@ -22,69 +22,42 @@
 namespace avt {
 
 	struct Vertex{
-		Vector4 position;
-		Vector4 color;
+		Vector3 position;
+		Vector2 tex;
+		Vector3 normal;
+		Vector3 color;
 	};
 
 	class Mesh {
 	public:
 
-		std::vector<Vertex> _vertexes;
-		
-		std::vector<GLubyte> _indices;
-		std::vector<Vector3> _vertices, _verticesData;
-		std::vector<Vector3> _colors;
-		std::vector<Vector2> _textures, _texturesData;
-		std::vector<Vector3> _normals, _normalsData;
+		std::vector<Vertex> _meshData;
 
-		std::vector <unsigned int> _verticesIdx, _texturesIdx, _normalsIdx;
-
+		VertexBuffer _vb;
 		VertexArray _va;
-		VertexBuffer _vb, _tb, _nb, _cb;
-		IndexBuffer _ib;
 
-		bool _texturesLoaded = false, _normalsLoaded = false;
 
-		Mesh(){}
+		Mesh() {}
 
 		Mesh(const std::string& filename) {
-			loadMeshData(filename);
-			processMeshData();
-			freeMeshData();
-
-			for (int i = 0; i < _vertices.size(); i++) {
-				_colors.push_back({ 1.f, 1.f, 1.f });
-			}
+			loadOBJ(filename);
 		}
 
-		void loadOBJ(const std::string& filename) {
-			loadMeshData(filename);
-			processMeshData();
-			freeMeshData();
-		}
+		void loadOBJ(const std::string& filename);
 
-		void addVertex(const Vector3& v, const Vector4& color) {
-			_vertexes.push_back({ v.to4D(), color });
-		}
+		void addFace(const Vertex& v1, const Vertex& v2, const Vertex& v3, bool computeFaceNormal = false);
 
-		void addVertex(const Vertex& v) {
-			_vertexes.push_back(v);
-		}
-		
-		void addFace(GLubyte i1, GLubyte i2, GLubyte i3) {
-			_indices.push_back(i1);
-			_indices.push_back(i2);
-			_indices.push_back(i3);
-		}
+		void updateBufferData();
+
 
 		void colorAll(Vector3 color);
-
 		void applyTransform(Mat4 mat);
-		void setup();
-		void setold();
 
-		std::vector<Vector3>& getVertices() {
-			return _vertices;
+		void setup();
+
+
+		std::vector<Vertex>& getMeshData() {
+			return _meshData;
 		}
 
 		VertexArray& va() {
@@ -95,35 +68,20 @@ namespace avt {
 			return _vb;
 		}
 
-		IndexBuffer& ib() {
-			return _ib;
+		void computeFaceNormals();
+
+		void clearLocalData() {
+			_meshData.clear();
 		}
 
-		void computeNormals();
-
-		void update(float time);
 
 	private:
 
-		void parseVertex(std::stringstream& sin);
-
-		void parseTexture(std::stringstream& sin);
-
-		void parseNormal(std::stringstream& sin);
-
-		void parseFace(std::stringstream& sin);
-
-		void parseLine(const std::string& line);
-
-		void loadMeshData(const std::string& filename);
-
-		void processMeshData();
-		
-		void freeMeshData();
-		
-		void setTexturesLoaded(bool b);
-		
-		void setNormalsLoaded(bool b);
+		void parseLine(const std::string& line, std::vector<Vector3>& vertices, std::vector<Vector2>& textures, std::vector<Vector3>& normals);
+		void parseVertex(std::stringstream& sin, std::vector<Vector3>& vertices);
+		void parseTexture(std::stringstream& sin, std::vector<Vector2>& textures);
+		void parseNormal(std::stringstream& sin, std::vector<Vector3>& normals);
+		void parseFace(std::stringstream& sin, const std::vector<Vector3>& vertices, const std::vector<Vector2>& textures, const std::vector<Vector3>& normals);
 
 	};
 }
