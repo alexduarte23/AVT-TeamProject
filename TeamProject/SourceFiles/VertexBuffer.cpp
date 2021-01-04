@@ -10,7 +10,7 @@ namespace avt {
 		glBindBuffer(GL_ARRAY_BUFFER, _vboID);
 		glBufferData(GL_ARRAY_BUFFER, size, data, GL_STATIC_DRAW);
 
-		_size = size;
+		_size = (GLsizei)size;
 	}
 
 	VertexBuffer::~VertexBuffer() {

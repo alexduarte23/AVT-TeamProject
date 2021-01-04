@@ -17,8 +17,9 @@ namespace avt {
 	private:
 		std::vector<LayoutEl> _elements;
 		GLsizei _stride;
+		GLuint _divisor;
 	public:
-		VertexBufferLayout() : _stride(0) {}
+		VertexBufferLayout() : _stride(0), _divisor(0) {}
 		~VertexBufferLayout() {}
 
 		template<typename T>
@@ -32,17 +33,20 @@ namespace avt {
 			_stride += count * sizeof(GLfloat);
 		}
 
+		void setDivisor(GLuint d) {
+			_divisor = d;
+		}
+
 		GLsizei stride() const {
 			return _stride;
 		}
 
+		GLuint divisor() const {
+			return _divisor;
+		}
+
 		const std::vector<LayoutEl>& elements() const {
 			return _elements;
-		}
-		
-		void clear() {
-			_elements.clear();
-			_stride = 0;
 		}
 	};
 

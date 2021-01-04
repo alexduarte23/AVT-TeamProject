@@ -28,10 +28,13 @@ namespace avt {
 			const auto& el = layout.elements()[i];
 			glEnableVertexAttribArray(_num + i);
 			glVertexAttribPointer(_num + i, el.count, el.type, el.norm, layout.stride(), (const void*)offset); // buffer index, num items, type, norm, stride to next, offset
+			if (layout.divisor() > 0) {
+				glVertexAttribDivisor(_num + i, layout.divisor());
+			}
 			offset += (long long)el.count * el.typeSize;
 		}
 
-		_num = layout.elements().size();
+		_num += (unsigned int)layout.elements().size();
 
 #ifndef ERROR_CALLBACK
 		ErrorManager::checkOpenGLError("ERROR: Could not add buffer to Vertex Array.");
