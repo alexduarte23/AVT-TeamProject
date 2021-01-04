@@ -29,59 +29,66 @@ namespace avt {
 	};
 
 	class Mesh {
-	public:
-
-		std::vector<Vertex> _meshData;
+	private:
 
 		VertexBuffer _vb;
 		VertexArray _va;
 
+	protected:
+
+
+	public:
+		std::vector<Vertex> _meshData;
 
 		Mesh() {}
 
-		Mesh(const std::string& filename) {
-			loadOBJ(filename);
+		Mesh(const std::string& filename, const Vector3& color = Vector3(1.f, 1.f, 1.f)) {
+			loadOBJ(filename, color);
 		}
 
-		void loadOBJ(const std::string& filename);
+		void loadOBJ(const std::string& filename, const Vector3& color = Vector3(1.f,1.f,1.f));
 
 		void addFace(const Vertex& v1, const Vertex& v2, const Vertex& v3, bool computeFaceNormal = false);
 
-		void updateBufferData();
-
-
-		void colorAll(Vector3 color);
-		void applyTransform(Mat4 mat);
-
+		//  must be called before the first draw
 		void setup();
 
+		// call only after setup
+		void updateBufferData();
 
-		std::vector<Vertex>& getMeshData() {
-			return _meshData;
-		}
-
-		VertexArray& va() {
-			return _va;
-		}
-
-		VertexBuffer& vb() {
-			return _vb;
-		}
-
-		void computeFaceNormals();
-
+		// saves memory if the mesh won't be modified again
 		void clearLocalData() {
 			_meshData.clear();
 		}
 
 
+		void colorAll(Vector3 color);
+		void applyTransform(Mat4 mat);
+
+
+		const VertexArray& va() const {
+			return _va;
+		}
+
+		const VertexBuffer& vb() const {
+			return _vb;
+		}
+
+		// produces sharp meshes
+		void computeFaceNormals();
+		// produces smooth meshes
+		void computeVertexNormals(bool weighted = true);
+		// produces smooth transitions only when the angle between the face normals is below the threshold
+		void computeMixedNormals(float threshold, bool weighted = true);
+
+
 	private:
 
-		void parseLine(const std::string& line, std::vector<Vector3>& vertices, std::vector<Vector2>& textures, std::vector<Vector3>& normals);
+		void parseLine(const std::string& line, std::vector<Vector3>& vertices, std::vector<Vector2>& textures, std::vector<Vector3>& normals, const Vector3& color);
 		void parseVertex(std::stringstream& sin, std::vector<Vector3>& vertices);
 		void parseTexture(std::stringstream& sin, std::vector<Vector2>& textures);
 		void parseNormal(std::stringstream& sin, std::vector<Vector3>& normals);
-		void parseFace(std::stringstream& sin, const std::vector<Vector3>& vertices, const std::vector<Vector2>& textures, const std::vector<Vector3>& normals);
+		void parseFace(std::stringstream& sin, const std::vector<Vector3>& vertices, const std::vector<Vector2>& textures, const std::vector<Vector3>& normals, const Vector3& color);
 
 	};
 }

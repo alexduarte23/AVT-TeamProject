@@ -37,6 +37,7 @@ namespace avt {
 				v.position.setY(Perlin::perlin(v.position.x() + t, v.position.z() + t)-0.5f);
 			}
 			computeFaceNormals();
+			updateBufferData();
 		}
 	};
 

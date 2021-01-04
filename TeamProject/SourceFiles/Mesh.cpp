@@ -1,6 +1,8 @@
 #include "../HeaderFiles/Mesh.h"
 #include "../HeaderFiles//Globals.h"
 
+#include <set>
+
 namespace avt {
 	void Mesh::colorAll(Vector3 color) {
 		for (auto& v : _meshData) {
@@ -63,9 +65,88 @@ namespace avt {
 		}
 	}
 
+	void Mesh::computeVertexNormals(bool weighted) {
+		std::vector<Vertex*> current;
+		const Vector3 zero;
+
+		for (auto& v : _meshData) {
+			v.normal = Vector3();
+		}
+
+		for (size_t i = 0; i < _meshData.size(); i++) {
+			if (_meshData[i].normal != zero) continue;
+
+			Vector3 normal;
+			for (size_t j = i; j < _meshData.size(); j++) {
+				if (_meshData[i].position != _meshData[j].position) continue;
+
+				Vertex& v1 = _meshData[j - j%3];
+				Vertex& v2 = _meshData[j - j%3 + 1];
+				Vertex& v3 = _meshData[j - j%3 + 2];
+
+				Vector3 fn = (v1.position - v2.position).cross(v2.position - v3.position);
+				if (!weighted) fn.normalize();
+				normal += fn;
+
+				current.push_back(&_meshData[j]);
+			}
+			normal.normalize();
+			for (auto v : current) {
+				v->normal = normal;
+			}
+
+			current.clear();
+		}
+	}
+
+	void Mesh::computeMixedNormals(float threshold, bool weighted) {
+		std::vector<Vertex*> current;
+		const Vector3 zero;
+
+		for (auto& v : _meshData) {
+			v.normal = Vector3();
+		}
+
+		for (size_t i = 0; i < _meshData.size(); i++) {
+			if (_meshData[i].normal != zero) continue;
+
+			Vertex& v1 = _meshData[i - i % 3];
+			Vertex& v2 = _meshData[i - i % 3 + 1];
+			Vertex& v3 = _meshData[i - i % 3 + 2];
+
+			Vector3 baseNormal = (v1.position - v2.position).cross(v2.position - v3.position);
+			Vector3 normal = baseNormal;
+			if (!weighted) normal.normalize();
+			current.push_back(&_meshData[i]);
+
+			for (size_t j = i - i%3 + 3; j < _meshData.size(); j++) {
+				if (_meshData[i].position != _meshData[j].position || _meshData[j].normal != zero) continue;
+
+				Vertex& v1 = _meshData[j - j % 3];
+				Vertex& v2 = _meshData[j - j % 3 + 1];
+				Vertex& v3 = _meshData[j - j % 3 + 2];
+
+				Vector3 fn = (v1.position - v2.position).cross(v2.position - v3.position);
+
+				if (fn.angleTo(baseNormal) > threshold) continue;
+
+				if (!weighted) fn.normalize();
+				normal += fn;
+
+				current.push_back(&_meshData[j]);
+			}
+			normal.normalize();
+			for (auto v : current) {
+				v->normal = normal;
+			}
+
+			current.clear();
+		}
+	}
+
 	// OBJ LOADING
 
-	void Mesh::loadOBJ(const std::string& filename) {
+	void Mesh::loadOBJ(const std::string& filename, const Vector3& color) {
 		std::vector<Vector3> vertices;
 		std::vector<Vector3> normals;
 		std::vector<Vector2> textures;
@@ -73,11 +154,11 @@ namespace avt {
 		std::ifstream ifile(filename);
 		std::string line;
 		while (std::getline(ifile, line)) {
-			parseLine(line, vertices, textures, normals);
+			parseLine(line, vertices, textures, normals, color);
 		}
 	}
 
-	void Mesh::parseLine(const std::string& line, std::vector<Vector3>& vertices, std::vector<Vector2>& textures, std::vector<Vector3>& normals) {
+	void Mesh::parseLine(const std::string& line, std::vector<Vector3>& vertices, std::vector<Vector2>& textures, std::vector<Vector3>& normals, const Vector3& color) {
 		std::stringstream sline(line);
 		std::string s;
 
@@ -85,7 +166,7 @@ namespace avt {
 		if (s.compare("v") == 0) parseVertex(sline, vertices);
 		else if (s.compare("vt") == 0) parseTexture(sline, textures);
 		else if (s.compare("vn") == 0) parseNormal(sline, normals);
-		else if (s.compare("f") == 0) parseFace(sline, vertices, textures, normals);
+		else if (s.compare("f") == 0) parseFace(sline, vertices, textures, normals, color);
 	}
 
 	void Mesh::parseVertex(std::stringstream& sin, std::vector<Vector3>& vertices) {
@@ -106,7 +187,7 @@ namespace avt {
 		normals.push_back(n);
 	}
 
-	void Mesh::parseFace(std::stringstream& sin, const std::vector<Vector3>& vertices, const std::vector<Vector2>& textures, const std::vector<Vector3>& normals) {
+	void Mesh::parseFace(std::stringstream& sin, const std::vector<Vector3>& vertices, const std::vector<Vector2>& textures, const std::vector<Vector3>& normals, const Vector3& color) {
 		std::string vertexString, token;
 		
 		for (size_t i = 0; i < 3; i++) {
@@ -123,7 +204,7 @@ namespace avt {
 			std::getline(sinV, token, '/');
 			v.normal = token.size() ? normals[std::stoll(token) - 1] : Vector3(0, 0, 0);
 
-			v.color = Vector3(1.f, 1.f, 1.f);
+			v.color = color;
 
 			_meshData.push_back(v);
 			

@@ -25,6 +25,11 @@ namespace avt {
 		engine->app()->keyCallback(win, key, scancode, action, mods);
 	}
 
+	void Engine::window_mouse_button_callback(GLFWwindow* win, int button, int action, int mods) {
+		Engine* engine = (Engine*)glfwGetWindowUserPointer(win);
+		engine->app()->mouseButtonCallback(win, button, action, mods);
+	}
+
 
 	////////////////////////////////////////////////////////////////////////////////// SETUP
 
@@ -61,6 +66,7 @@ namespace avt {
 
 		glfwSetWindowUserPointer(_win, this);
 		glfwSetKeyCallback(_win, Engine::window_key_callback);
+		glfwSetMouseButtonCallback(_win, Engine::window_mouse_button_callback);
 
 #if _DEBUG
 		std::cout << "GLFW " << glfwGetVersionString() << std::endl;

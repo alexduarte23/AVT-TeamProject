@@ -138,33 +138,6 @@ private:
 			_cams.get("per")->processMouse(offset, dt);
 
 		}
-		
-		if (glfwGetMouseButton(win, GLFW_MOUSE_BUTTON_RIGHT) == GLFW_PRESS) { //mouse picking
-			int winx, winy;
-			glfwGetWindowSize(win, &winx, &winy);
-			int x = static_cast<int>(newCursor.x());
-			int y = winy - static_cast<int>(newCursor.y());
-
-			if (!_selecting) {
-				//GLfloat color[4];
-				//glReadPixels(x, y, 1, 1, GL_RGBA, GL_FLOAT, color);
-				//GLfloat depth;
-				//glReadPixels(x, y, 1, 1, GL_DEPTH_COMPONENT, GL_FLOAT, &depth);
-				GLuint index;
-				glReadPixels(x, y, 1, 1, GL_STENCIL_INDEX, GL_UNSIGNED_INT, &index);
-				std::cout << "stencil index = " << index << std::endl;
-				_selected = index;
-				
-				if (index == 1) {
-					_meshes.get("tree")->colorAll({ avt::random(), avt::random(), avt::random() });
-					_meshes.get("tree")->updateBufferData();
-				}
-
-				_selecting = true;
-			}
-		} else if (glfwGetMouseButton(win, GLFW_MOUSE_BUTTON_RIGHT) == GLFW_RELEASE) {
-			_selecting = false;
-		}
 
 	}
 
@@ -381,7 +354,29 @@ public:
 
 	}
 
+	void mouseButtonCallback(GLFWwindow* win, int button, int action, int mods) override {
+		if (button == GLFW_MOUSE_BUTTON_RIGHT && action == GLFW_PRESS) {
+			double cursorX, cursorY;
+			glfwGetCursorPos(win, &cursorX, &cursorY);
+
+			int winx, winy;
+			glfwGetWindowSize(win, &winx, &winy);
+			int x = static_cast<int>(cursorX);
+			int y = winy - static_cast<int>(cursorY);
+
+			GLuint index;
+			glReadPixels(x, y, 1, 1, GL_STENCIL_INDEX, GL_UNSIGNED_INT, &index);
+
+			if (index == 1) {
+				_meshes.get("tree")->colorAll({ avt::random(), avt::random(), avt::random() });
+				_meshes.get("tree")->updateBufferData();
+			}
+
+		}
+	}
+
 };
+
 
 int main(int argc, char* argv[]) {
 	int gl_major = 4, gl_minor = 3;

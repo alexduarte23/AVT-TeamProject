@@ -78,7 +78,7 @@ namespace avt {
 			
 			node->beforeDraw();
 			glUniformMatrix4fv(shader.getUniform(MODEL_MATRIX), 1, GL_FALSE, newWorldMat.data());
-			glDrawArrays(GL_TRIANGLES, 0, (GLsizei)mesh->getMeshData().size());
+			glDrawArrays(GL_TRIANGLES, 0, mesh->vb().size());
 			//glDrawArrays(GL_TRIANGLES, 0, (GLsizei)mesh->getVertices().size());
 			//glDrawElements(GL_TRIANGLES, mesh->ib().count(), GL_UNSIGNED_BYTE, (GLvoid*)0);
 			node->afterDraw();

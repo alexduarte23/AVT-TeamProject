@@ -8,7 +8,9 @@ namespace avt {
 	void VertexBuffer::create(const void* data, GLsizeiptr size) {
 		glGenBuffers(1, &_vboID);
 		glBindBuffer(GL_ARRAY_BUFFER, _vboID);
-		glBufferData(GL_ARRAY_BUFFER, size, data, GL_DYNAMIC_DRAW);
+		glBufferData(GL_ARRAY_BUFFER, size, data, GL_STATIC_DRAW);
+
+		_size = size;
 	}
 
 	VertexBuffer::~VertexBuffer() {
