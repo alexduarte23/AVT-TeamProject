@@ -3,9 +3,12 @@
 #include <vector>
 #include "avt_math.h"
 #include "SceneNodeCallback.h"
+#include "Light.h"
+
+#include "Mesh.h"
 
 namespace avt {
-	class Mesh;
+	//class Mesh;
 
 	class SceneNode {
 	private:
@@ -13,6 +16,8 @@ namespace avt {
 		SceneNode* _parent;
 		std::vector<SceneNode*> _nodes;
 		//Mat4 _matrix;
+
+		Shader* _shader;
 
 		Vector3 _translation, _scale;
 		Quaternion _rot;
@@ -25,7 +30,9 @@ namespace avt {
 		//
 
 	public:
-		SceneNode(Mesh* mesh = nullptr) : _callback(nullptr), _parent(nullptr), _mesh(mesh), _translation(0,0,0), _scale(1.f, 1.f, 1.f), _rot({1.f,0,0}, 0) /*, _matrix(Mat4::identity())*/ {}
+		SceneNode(Mesh* mesh = nullptr)
+			: _callback(nullptr), _parent(nullptr), _mesh(mesh), _translation(0, 0, 0), _scale(1.f, 1.f, 1.f), _rot({ 1.f,0,0 }, 0) /*, _matrix(Mat4::identity())*/,
+			_shader(nullptr) {}
 
 		virtual ~SceneNode() {
 			for (auto node : _nodes) {
@@ -40,9 +47,10 @@ namespace avt {
 			return node;
 		}
 
-		void add(SceneNode* node) {
+		SceneNode* addNode(SceneNode* node) {
 			_nodes.push_back(node);
 			node->setParent(this);
+			return node;
 		}
 
 		void setMesh(Mesh* mesh) {
@@ -55,6 +63,49 @@ namespace avt {
 
 		const std::vector<SceneNode*>& children() const {
 			return _nodes;
+		}
+
+		void setShader(Shader* shader) {
+			_shader = shader;
+		}
+
+		Shader* getShader() {
+			return _shader;
+		}
+
+		virtual void draw(const Mat4& worldMatrix, Light* light) {
+			if (_shader) draw(_shader, worldMatrix, light);
+		}
+
+		virtual void draw(Shader* shader, const Mat4& worldMatrix, Light* light) {
+			auto newWorldMat = worldMatrix * getTransform();
+			Shader* curr_shader = _shader ? _shader : shader;
+
+			if (_mesh) {
+				curr_shader->bind();
+				_mesh->va().bind();
+
+				glEnable(GL_STENCIL_TEST);
+				glStencilFunc(GL_ALWAYS, getStencilIndex(), 0xFF);
+				glStencilOp(GL_KEEP, GL_KEEP, GL_REPLACE);
+
+				glUniform3f(curr_shader->getUniform("LightPosition"), light->getPosition().x(), light->getPosition().y(), light->getPosition().z());
+				glUniform3f(curr_shader->getUniform("LightColor"), light->getColor().x(), light->getColor().y(), light->getColor().z());
+
+				beforeDraw();
+				glUniformMatrix4fv(curr_shader->getUniform(MODEL_MATRIX), 1, GL_FALSE, newWorldMat.data());
+				glDrawArrays(GL_TRIANGLES, 0, _mesh->vb().size());
+				afterDraw();
+
+				glDisable(GL_STENCIL_TEST);
+
+				_mesh->va().unbind();
+				curr_shader->unbind();
+			}
+
+			for (auto childNode : _nodes) {
+				childNode->draw(curr_shader, newWorldMat, light);
+			}
 		}
 
 		/*void setMatrix(const Mat4& matrix) {

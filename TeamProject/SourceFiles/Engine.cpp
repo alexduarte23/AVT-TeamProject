@@ -54,9 +54,7 @@ namespace avt {
 		glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, _glMinor);
 		glfwWindowHint(GLFW_OPENGL_DEBUG_CONTEXT, GLFW_TRUE);
 
-		//AA
 		glfwWindowHint(GLFW_SAMPLES, 4);
-		glEnable(GL_MULTISAMPLE);
 
 		setupWindow();
 
@@ -110,6 +108,13 @@ namespace avt {
 		glDepthMask(GL_TRUE);
 		glDepthRange(0.0, 1.0);
 		glClearDepth(1.0);
+
+		glEnable(GL_BLEND);
+		glBlendEquation(GL_FUNC_ADD);
+		glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+
+		glEnable(GL_MULTISAMPLE);
+
 		glEnable(GL_CULL_FACE);
 		glCullFace(GL_BACK);
 		glFrontFace(GL_CCW);

@@ -68,7 +68,7 @@ private:
 		//CAMS
 		_ub.create(2 * 16 * sizeof(GLfloat), 0); // change
 		_ub.unbind();
-		
+
 		_tree = _scene.createNode(treeM);
 		_tree->setStencilIndex(1);
 
@@ -155,6 +155,8 @@ private:
 		_shader.addUniform("LightColor");
 		_shader.addUbo("CameraMatrices", UBO_BP);
 		_shader.create();
+
+		_scene.setShader(&_shader);
 	}
 
 
@@ -303,7 +305,8 @@ public:
 
 	void renderWithoutBloom()
 	{
-		_renderer.draw(_scene, _ub, _shader, _cams.get(_activeCam), _lights.get("sun"));
+		//_renderer.draw(_scene, _ub, _shader, _cams.get(_activeCam), _lights.get("sun"));
+		_scene.draw(_ub, _cams.get(_activeCam), _lights.get("sun"));
 	}
 
 	void windowResizeCallback(GLFWwindow* win, int w, int h) override {

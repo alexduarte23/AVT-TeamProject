@@ -14,9 +14,9 @@
 #include "VertexBuffer.h"
 #include "IndexBuffer.h"
 #include "VertexArray.h"
-#include "UniformBuffer.h"
-#include "Shader.h"
-#include "Renderer.h"
+//#include "UniformBuffer.h"
+//#include "Shader.h"
+//#include "Renderer.h"
 #include "Camera.h"
 
 namespace avt {

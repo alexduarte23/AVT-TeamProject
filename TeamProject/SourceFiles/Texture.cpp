@@ -6,7 +6,7 @@ void avt::RenderTargetTexture::destroy()
 {
 
 	glBindTexture(GL_TEXTURE_2D, 0);
-	glDeleteTextures(1, &id);
+	glDeleteTextures(1, &_texId);
 	glBindRenderbuffer(GL_RENDERBUFFER, 0);
 	glDeleteRenderbuffers(1, &_rboDepthStencil);
 	//glBindFramebuffer(GL_FRAMEBUFFER, 0);
@@ -16,15 +16,15 @@ void avt::RenderTargetTexture::destroy()
 void avt::RenderTargetTexture::createColorTexture(const int width, const int height)
 {
 
-	glGenTextures(1, &id);
-	glBindTexture(GL_TEXTURE_2D, id);
+	glGenTextures(1, &_texId);
+	glBindTexture(GL_TEXTURE_2D, _texId);
 	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA16F, width, height, 0, GL_RGBA, GL_FLOAT, 0);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);  // we clamp to the edge as the blur filter would otherwise sample repeated texture values!
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
 
-	glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, id, 0);
+	glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, _texId, 0);
 }
 
 void avt::RenderTargetTexture::createRenderbufferObject(const int width, const int height)
@@ -50,7 +50,7 @@ avt::RenderTargetTexture::~RenderTargetTexture()
 
 void avt::RenderTargetTexture::bind()
 {
-	glBindTexture(GL_TEXTURE_2D, id);
+	glBindTexture(GL_TEXTURE_2D, _texId);
 }
 
 void avt::RenderTargetTexture::unbind()
@@ -94,7 +94,7 @@ void avt::RenderTargetTexture::renderQuad(Shader* shader, std::string textureUni
 
 	shader->bind();
 	glActiveTexture(GL_TEXTURE0);
-	glBindTexture(GL_TEXTURE_2D, id);
+	glBindTexture(GL_TEXTURE_2D, _texId);
 	glUniform1i(shader->getUniform(textureUniform), 0); //check, might be wrong
 
 
@@ -110,7 +110,7 @@ void avt::RenderTargetTexture::renderQuad(Shader* shader, std::string textureUni
 void avt::RenderTargetTexture::renderQuad(RenderTargetTexture rtt2) {
 
 	glActiveTexture(GL_TEXTURE0);
-	glBindTexture(GL_TEXTURE_2D, id);
+	glBindTexture(GL_TEXTURE_2D, _texId);
 
 	//glActiveTexture(GL_TEXTURE1);
 	//rtt2.bind();
@@ -180,13 +180,6 @@ void avt::Quad2D::draw() {
 	glBindVertexArray(0);
 }
 
-void avt::Texture::bind()
-{
-}
-
-void avt::Texture::unbind()
-{
-}
 
 
 
