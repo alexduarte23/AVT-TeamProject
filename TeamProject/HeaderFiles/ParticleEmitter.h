@@ -18,6 +18,13 @@ namespace avt {
 		float lifetime = 0;
 	};
 
+	struct ParticleBody {
+		Vector3 s;
+		Vector4 color;
+		float size = 0;
+		float rot = 0;
+	};
+
 
 	class ParticleEmitter : public SceneNode {
 	private:

@@ -2,6 +2,7 @@
 
 #include "../HeaderFiles/Mat4.h"
 #include "../HeaderFiles/Mesh.h"
+#include "../HeaderFiles/StencilPicker.h"
 
 namespace avt {
 
@@ -69,12 +70,14 @@ namespace avt {
 	void Renderer::drawNode(SceneNode* node, Shader& shader, const Mat4& worldMatrix) {
 		auto newWorldMat = worldMatrix * node->getTransform();
 
-		enableStencilBuffer(node); //mouse picking
+		//enableStencilBuffer(node); //mouse picking
 		
 		if (node->getMesh()) {
 			Mesh* mesh = node->getMesh();
 
 			mesh->va().bind();
+
+			StencilPicker::prepareStencil(node->getStencilIndex());
 			
 			node->beforeDraw();
 			glUniformMatrix4fv(shader.getUniform(MODEL_MATRIX), 1, GL_FALSE, newWorldMat.data());
@@ -90,12 +93,12 @@ namespace avt {
 			drawNode(childNode, shader, newWorldMat);
 		}
 
-		disableStencilBuffer(); //mouse picking
+		//disableStencilBuffer(); //mouse picking
 	}
 
 	void Renderer::disableStencilBuffer() //mouse picking
 	{
-		glDisable(GL_STENCIL_TEST);
+		//glDisable(GL_STENCIL_TEST);
 	}
 
 	void Renderer::enableStencilBuffer(avt::SceneNode* node) //mouse picking

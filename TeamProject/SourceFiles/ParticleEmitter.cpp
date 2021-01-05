@@ -1,4 +1,5 @@
 #include "../HeaderFiles/ParticleEmitter.h"
+#include "../HeaderFiles/StencilPicker.h"
 
 
 namespace avt {
@@ -92,20 +93,14 @@ namespace avt {
 
 		_va.bind();
 
-		std::vector<float> data;
+		StencilPicker::prepareStencil(getStencilIndex());
+
+		std::vector<ParticleBody> data;
 		for (auto p : _particles) {
 			if (p->age < 0) continue;
-			data.push_back(p->s.x());
-			data.push_back(p->s.y());
-			data.push_back(p->s.z());
-			data.push_back(p->color.x());
-			data.push_back(p->color.y());
-			data.push_back(p->color.z());
-			data.push_back(p->color.w());
-			data.push_back(p->size);
-			data.push_back(p->rot);
+			data.push_back({ p->s, p->color, p->size, p->rot });
 		}
-		_instance_vb.fill(data.data(), (GLsizei)data.size() * sizeof(float));
+		_instance_vb.fill(data.data(), (GLsizei)data.size() * sizeof(ParticleBody));
 		_instance_vb.unbind();
 
 		_smokeTexture.bind();
@@ -113,7 +108,7 @@ namespace avt {
 		beforeDraw();
 		glDepthMask(GL_FALSE);
 		glUniformMatrix4fv(curr_shader->getUniform(MODEL_MATRIX), 1, GL_FALSE, newWorldMat.data());
-		glDrawArraysInstanced(GL_TRIANGLE_STRIP, 0, 4, (GLsizei)data.size() / 9);
+		glDrawArraysInstanced(GL_TRIANGLE_STRIP, 0, 4, (GLsizei)data.size());
 		glDepthMask(GL_TRUE);
 		afterDraw();
 

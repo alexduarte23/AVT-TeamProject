@@ -3,6 +3,7 @@
 #include "../HeaderFiles/Mesh.h"
 #include "../HeaderFiles/Light.h"
 #include "../HeaderFiles/Shader.h"
+#include "../HeaderFiles/StencilPicker.h"
 
 namespace avt {
 
@@ -14,9 +15,10 @@ namespace avt {
 			curr_shader->bind();
 			_mesh->va().bind();
 
-			glEnable(GL_STENCIL_TEST);
-			glStencilFunc(GL_ALWAYS, getStencilIndex(), 0xFF);
-			glStencilOp(GL_KEEP, GL_KEEP, GL_REPLACE);
+			//glEnable(GL_STENCIL_TEST);
+			//glStencilFunc(GL_ALWAYS, getStencilIndex(), 0xFF);
+			//glStencilOp(GL_KEEP, GL_KEEP, GL_REPLACE);
+			StencilPicker::prepareStencil(_stencilIndex);
 
 			glUniform3f(curr_shader->getUniform("LightPosition"), light->getPosition().x(), light->getPosition().y(), light->getPosition().z());
 			glUniform3f(curr_shader->getUniform("LightColor"), light->getColor().x(), light->getColor().y(), light->getColor().z());
@@ -26,7 +28,7 @@ namespace avt {
 			glDrawArrays(GL_TRIANGLES, 0, _mesh->vb().size());
 			afterDraw();
 
-			glDisable(GL_STENCIL_TEST);
+			//glDisable(GL_STENCIL_TEST);
 
 			_mesh->va().unbind();
 			curr_shader->unbind();

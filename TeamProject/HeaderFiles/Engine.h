@@ -32,6 +32,7 @@
 #include "Cube.h"
 
 #include "ParticleEmitter.h"
+#include "StencilPicker.h"
 
 
 #define ERROR_CALLBACK
