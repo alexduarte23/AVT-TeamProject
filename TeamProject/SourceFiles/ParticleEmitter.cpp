@@ -8,7 +8,7 @@ namespace avt {
 		_smokeTexture.setWrap(GL_REPEAT, GL_REPEAT);
 		_smokeTexture.setFilter(GL_LINEAR_MIPMAP_LINEAR, GL_LINEAR);
 		_smokeTexture.useMipmap();
-		_smokeTexture.create("Resources/particleSmoke.png");
+		_smokeTexture.create("Resources/textures/particleSmoke.png");
 
 		_va.create();
 

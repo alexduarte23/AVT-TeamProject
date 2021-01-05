@@ -156,8 +156,10 @@
     <ClCompile Include="SourceFiles\Mat4.cpp" />
     <ClCompile Include="SourceFiles\Matrix.cpp" />
     <ClCompile Include="SourceFiles\Mesh.cpp" />
+    <ClCompile Include="SourceFiles\ParticleEmitter.cpp" />
     <ClCompile Include="SourceFiles\Quaternion.cpp" />
     <ClCompile Include="SourceFiles\Renderer.cpp" />
+    <ClCompile Include="SourceFiles\SceneNode.cpp" />
     <ClCompile Include="SourceFiles\Shader.cpp" />
     <ClCompile Include="SourceFiles\Texture.cpp" />
     <ClCompile Include="SourceFiles\UniformBuffer.cpp" />
@@ -188,6 +190,7 @@
     <ClInclude Include="HeaderFiles\Matrix.h" />
     <ClInclude Include="HeaderFiles\Mesh.h" />
     <ClInclude Include="HeaderFiles\OrthographicCamera.h" />
+    <ClInclude Include="HeaderFiles\ParticleEmitter.h" />
     <ClInclude Include="HeaderFiles\Perlin.h" />
     <ClInclude Include="HeaderFiles\PerspectiveCamera.h" />
     <ClInclude Include="HeaderFiles\Quaternion.h" />

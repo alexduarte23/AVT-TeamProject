@@ -1,6 +1,7 @@
 #pragma once
 
 #include <vector>
+#include "avt_math.h"
 #include "SceneNode.h"
 #include "Texture.h"
 
@@ -31,10 +32,10 @@ namespace avt {
 		int _maxParticles = 700;
 
 		float vertices[5*4] = {
-				-.1f, -.1f, 0,      0,   0, // bottom left
-				 .1f, -.1f, 0,    1.f,   0, // bottomm right
-				-.1f,  .1f, 0,      0, 1.f, // top left
-				 .1f,  .1f, 0,    1.f, 1.f  // top right
+			-.1f, -.1f, 0,      0,   0, // bottom left
+			 .1f, -.1f, 0,    1.f,   0, // bottomm right
+			-.1f,  .1f, 0,      0, 1.f, // top left
+			 .1f,  .1f, 0,    1.f, 1.f  // top right
 		};
 
 
