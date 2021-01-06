@@ -17,7 +17,8 @@ namespace avt {
 		Mesh* _mesh;
 		SceneNode* _parent;
 		std::vector<SceneNode*> _nodes;
-		//Mat4 _matrix;
+
+		//Mat4 _transform;
 
 		Shader* _shader;
 
@@ -28,12 +29,10 @@ namespace avt {
 
 		//mouse picking
 		unsigned int _stencilIndex = 0; //0 = not selectable
-		bool _selected = false;
-		//
 
 	public:
 		SceneNode(Mesh* mesh = nullptr)
-			: _callback(nullptr), _parent(nullptr), _mesh(mesh), _translation(0, 0, 0), _scale(1.f, 1.f, 1.f), _rot({ 1.f,0,0 }, 0) /*, _matrix(Mat4::identity())*/,
+			: _callback(nullptr), _parent(nullptr), _mesh(mesh), _translation(0, 0, 0), _scale(1.f, 1.f, 1.f), _rot({ 1.f,0,0 }, 0) , /*_transform(Mat4::identity()),*/
 			_shader(nullptr) {}
 
 		virtual ~SceneNode() {
@@ -81,16 +80,17 @@ namespace avt {
 
 		virtual void draw(Shader* shader, const Mat4& worldMatrix, Light* light);
 
-		/*void setMatrix(const Mat4& matrix) {
-			_matrix = matrix;
+
+		/*void setTransform(const Mat4& transform) {
+			_transform = transform;
 		}
 
-		const Mat4& getMatrix() const {
-			return _matrix;
+		const Mat4& getTransform() const {
+			return _transform;
 		}
 		
-		void applyMatrix(const Mat4& matrix) {
-			_matrix *= matrix;
+		void applyTransform(const Mat4& transform) {
+			_transform *= transform;
 		}*/
 
 		Mat4 getTransform() const {
@@ -181,15 +181,6 @@ namespace avt {
 
 		unsigned int getStencilIndex() { //mouse picking
 			return _stencilIndex;
-		}
-
-		void selected(bool b) { //mouse picking
-			_selected = b;
-		}
-
-		//return if node has been selected by mouse picker
-		bool isSelected() { //mouse picking
-			return _selected;
 		}
 
 	};
