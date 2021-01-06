@@ -39,7 +39,7 @@ namespace avt {
 			ub.fill({ camera->viewMatrix(), camera->projMatrix() });
 			_root->draw(Mat4::identity(), light);
 
-			ub.unbind();ub.bind();
+			ub.unbind();
 		}
 	};
 

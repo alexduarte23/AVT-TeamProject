@@ -50,8 +50,8 @@ namespace avt {
 		}
 
 		for (auto& el : _ubos) { // UBOS
-			el.second.i = glGetUniformBlockIndex(_program, el.first.c_str());
-			glUniformBlockBinding(_program, el.second.i, el.second.binding_point);
+			el.second.block_index = glGetUniformBlockIndex(_program, el.first.c_str());
+			glUniformBlockBinding(_program, el.second.block_index, el.second.binding_point);
 		}
 
 		for (auto& el : _shaders) { // Shader Delete

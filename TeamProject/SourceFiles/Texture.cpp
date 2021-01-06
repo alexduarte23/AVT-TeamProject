@@ -48,12 +48,12 @@ avt::RenderTargetTexture::~RenderTargetTexture()
 	destroy();
 }
 
-void avt::RenderTargetTexture::bind()
+void avt::RenderTargetTexture::bind() const
 {
 	glBindTexture(GL_TEXTURE_2D, _texId);
 }
 
-void avt::RenderTargetTexture::unbind()
+void avt::RenderTargetTexture::unbind() const
 {
 	glBindTexture(GL_TEXTURE_2D, 0);
 }
@@ -181,6 +181,7 @@ void avt::Quad2D::draw() {
 }
 
 
+std::unique_ptr<avt::Texture> avt::Texture::_default(nullptr);
 
 
 

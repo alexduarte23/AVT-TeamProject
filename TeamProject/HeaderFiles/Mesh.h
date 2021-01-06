@@ -7,7 +7,7 @@
 #include <vector>
 
 #include <GL/glew.h>
-#include <GLFW/glfw3.h>
+//#include <GLFW/glfw3.h>
 
 #include "avt_math.h"
 
@@ -18,6 +18,8 @@
 //#include "Shader.h"
 //#include "Renderer.h"
 #include "Camera.h"
+
+#include "Texture.h"
 
 namespace avt {
 
@@ -33,6 +35,8 @@ namespace avt {
 
 		VertexBuffer _vb;
 		VertexArray _va;
+
+		Texture* _texture = nullptr;
 
 	protected:
 
@@ -61,6 +65,13 @@ namespace avt {
 			_meshData.clear();
 		}
 
+		void setTexture(Texture* texture) {
+			_texture = texture;
+		}
+
+		const Texture* texture() const {
+			return _texture;
+		}
 
 		void colorAll(Vector3 color);
 		void applyTransform(Mat4 mat);

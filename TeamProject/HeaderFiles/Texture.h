@@ -26,6 +26,9 @@ namespace avt {
 	};*/
 
 	class Texture {
+	private:
+		static std::unique_ptr<Texture> _default;
+
 	protected:
 		GLuint _texId;
 		//unsigned int _texId;
@@ -86,12 +89,22 @@ namespace avt {
 			stbi_image_free(data);
 		}
 
-		virtual void bind() {
+		virtual void bind() const {
 			glBindTexture(GL_TEXTURE_2D, _texId);
 		}
 
-		virtual void unbind() {
+		virtual void unbind() const {
 			glBindTexture(GL_TEXTURE_2D, 0);
+		}
+
+		static const Texture* getDefault() {
+			if (!_default.get()) {
+				_default.reset(new Texture());
+				_default->setWrap(GL_REPEAT, GL_REPEAT);
+				_default->setFilter(GL_LINEAR, GL_LINEAR);
+				_default->create("Resources/textures/default.png");
+			}
+			return _default.get();
 		}
 	};
 
@@ -122,8 +135,8 @@ namespace avt {
 	public:
 		RenderTargetTexture();
 		~RenderTargetTexture();
-		void bind() override;
-		void unbind() override;
+		void bind() const override;
+		void unbind() const override;
 		void create(const int width, const int height);
 		void setFramebufferClearColor(const GLfloat e, const GLfloat g, const GLfloat b, const GLfloat a);
 		void bindFramebuffer();

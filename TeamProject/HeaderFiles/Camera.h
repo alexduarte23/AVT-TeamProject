@@ -3,10 +3,10 @@
 #include <GL/glew.h>
 
 #include "avt_math.h"
+#include "UniformBuffer.h"
 
 
 namespace avt {
-
 
 	class Camera {
 	protected:

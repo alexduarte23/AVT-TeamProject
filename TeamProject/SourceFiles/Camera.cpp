@@ -1,5 +1,7 @@
 #include "../HeaderFiles/Camera.h"
 
+#include "../HeaderFiles/UniformBuffer.h"
+
 namespace avt {
 
 	void Camera::updateView() {

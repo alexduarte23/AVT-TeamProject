@@ -189,11 +189,15 @@ private:
 		glfwGetWindowSize(win, &winx, &winy);
 
 		float aspect = winx / (float)winy;
-		_cams.add("per", new avt::PerspectiveCamera(45.f, aspect, 0.1f, 100.0f, avt::Vector3(0, 0, 10.f)));
-		_cams.add("ort", new avt::OrthographicCamera(-10.0f, 10.0f, -10.0f / aspect, 10.0f / aspect, 0.1f, 100.0f, avt::Vector3(0, 0, 20.f)));
 
-		_cams.get("ort")->setSpeed(12.f);
-		_cams.get("per")->setSpeed(12.f);
+		auto camP = new avt::PerspectiveCamera(45.f, aspect, 0.1f, 100.0f, avt::Vector3(0, 0, 10.f));
+		auto camO = new avt::OrthographicCamera(-10.0f, 10.0f, -10.0f / aspect, 10.0f / aspect, 0.1f, 100.0f, avt::Vector3(0, 0, 20.f));
+		camP->setSpeed(12.f);
+		camO->setSpeed(12.f);
+
+		_cams.add("per", camP);
+		_cams.add("ort", camO);
+
 	}
 
 	void createShadows(GLFWwindow* win) {
