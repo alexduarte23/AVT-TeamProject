@@ -124,7 +124,7 @@ namespace avt {
 
 			}
 			
-			//_pingBlur.renderQuad(&_ShaderGaussianBlur, "TexFramebuffer");
+			_pingBlur.renderQuad(&_ShaderGaussianBlur, "TexFramebuffer");
 		}
 
 		void setBlurTex(int t) {
@@ -138,7 +138,7 @@ namespace avt {
 
 		void renderBloomFinal() {
 
-			GLfloat exposure = 1.f;
+			GLfloat exposure = .7f;
 			setBloom(_bloom);
 			setExposure(exposure);
 			setTextures();

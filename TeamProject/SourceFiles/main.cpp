@@ -301,8 +301,8 @@ public:
 		_shadow.renderToDepthMap(_renderer, _scene, (unsigned int)winx, (unsigned int)winy);
 		glBindTexture(GL_TEXTURE_2D, _shadow.depthMap());
 
-		//renderWithBloom();
-		renderWithoutBloom();
+		renderWithBloom();
+		//renderWithoutBloom();
 	}
 
 	void renderWithBloom()
