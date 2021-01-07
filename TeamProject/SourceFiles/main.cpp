@@ -69,6 +69,9 @@ private:
 		lightM->applyTransform(avt::Mat4::scale({ 0.25f, 0.25f, 0.25f }));
 		lightM->setup();
 
+		auto colorCubeM = _meshes.add("colorCube", new avt::Mesh("./Resources/Objects/colourscube.obj"));
+		colorCubeM->setup();
+
 		//CAMS
 		_ub.create(2 * 16 * sizeof(GLfloat), 0); // change
 		_ub.unbind();
@@ -93,6 +96,11 @@ private:
 
 		//_cloud = _scene.createNode(cloudM);
 		//_cloud->translate({ -2.5f, 4.f, -2.5f });
+
+		auto colorCube = _scene.createNode(colorCubeM);
+		colorCube->translate({ 0,0,5.f });
+		//colorCube->rotateY(-avt::PI/2);
+		colorCube->scale({ .3f,.3f,.3f });
 
 		_emitter = new avt::ParticleEmitter();
 		_emitter->setShader(&_shaderP);
@@ -314,8 +322,8 @@ public:
 		_shadow.renderToDepthMap(_renderer, _scene, (unsigned int)winx, (unsigned int)winy);
 		glBindTexture(GL_TEXTURE_2D, _shadow.depthMap());
 
-		renderWithBloom();
-		//renderWithoutBloom();
+		//renderWithBloom();
+		renderWithoutBloom();
 	}
 
 	void renderWithBloom()

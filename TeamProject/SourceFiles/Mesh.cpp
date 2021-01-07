@@ -146,19 +146,21 @@ namespace avt {
 
 	// OBJ LOADING
 
-	void Mesh::loadOBJ(const std::string& filename, const Vector3& color) {
+	void Mesh::loadOBJ(const std::string& filename, const Vector3& baseColor) {
 		std::vector<Vector3> vertices;
 		std::vector<Vector3> normals;
 		std::vector<Vector2> textures;
 
+		Vector3 color = baseColor;
+
 		std::ifstream ifile(filename);
 		std::string line;
 		while (std::getline(ifile, line)) {
-			parseLine(line, vertices, textures, normals, color);
+			parseLine(line, vertices, textures, normals, baseColor, color);
 		}
 	}
 
-	void Mesh::parseLine(const std::string& line, std::vector<Vector3>& vertices, std::vector<Vector2>& textures, std::vector<Vector3>& normals, const Vector3& color) {
+	void Mesh::parseLine(const std::string& line, std::vector<Vector3>& vertices, std::vector<Vector2>& textures, std::vector<Vector3>& normals, const Vector3& baseColor, Vector3& color) {
 		std::stringstream sline(line);
 		std::string s;
 
@@ -167,6 +169,7 @@ namespace avt {
 		else if (s.compare("vt") == 0) parseTexture(sline, textures);
 		else if (s.compare("vn") == 0) parseNormal(sline, normals);
 		else if (s.compare("f") == 0) parseFace(sline, vertices, textures, normals, color);
+		else if (s.compare("usemtl") == 0) color = parseMaterial(sline, baseColor);
 	}
 
 	void Mesh::parseVertex(std::stringstream& sin, std::vector<Vector3>& vertices) {
@@ -208,6 +211,27 @@ namespace avt {
 
 			_meshData.push_back(v);
 			
+		}
+	}
+
+	Vector3 Mesh::parseMaterial(std::stringstream& sin, const Vector3& baseColor) {
+		std::string token;
+		Vector3 color;
+
+		try {
+			std::getline(sin, token, ',');
+			color.setX(std::stof(token));
+
+			std::getline(sin, token, ',');
+			color.setY(std::stof(token));
+
+			std::getline(sin, token, ',');
+			color.setZ(std::stof(token));
+
+			return color;
+		}
+		catch (...) {
+			return baseColor;
 		}
 	}
 
