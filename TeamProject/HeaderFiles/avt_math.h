@@ -23,6 +23,14 @@ namespace avt {
 		return rad * 180 / PI;
 	}
 
+	inline float random() {
+		return std::rand() % 10000 / 10000.0f;
+	}
+
+	inline float randrange(float lower, float upper) {
+		return random() * (upper - lower) + lower;
+	}
+
 	// Vectors
 
 	class Vector2;

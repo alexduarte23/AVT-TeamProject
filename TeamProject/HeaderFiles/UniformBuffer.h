@@ -13,7 +13,7 @@ namespace avt{
 		UniformBuffer() : _uboID(0) {}
 		~UniformBuffer();
 
-		void create(GLsizeiptr size, const GLuint ubBinding);
+		void create(GLsizeiptr size, GLuint ubBinding);
 
 		void fill(std::initializer_list<Mat4> mList);
 

@@ -20,26 +20,24 @@ namespace avt {
 					if (perlin-0.4f> 0) {
 						m.applyTransform(Mat4::scale({perlin - 0.4f, perlin-0.4f, perlin - 0.4f}));
 
-						for (auto v : m._vertices) {
-							_vertices.push_back(v);
-						}
-						for (auto c : m._colors) {
-							_colors.push_back(c);
+						for (auto v : m._meshData) {
+							_meshData.push_back(v);
 						}
 					}
 				}
 			}
 			
-			computeNormals();
+			computeFaceNormals();
 			applyTransform(Mat4::scale({ 0.25f, 0.25f, 0.25f }));
 
 		}
 
 		void update(float t) {
-			for (auto v : _vertices) {
-				v.setY(Perlin::perlin(v.x() + t, v.z() + t)-0.5f);
+			for (auto& v : _meshData) {
+				v.position.setY(Perlin::perlin(v.position.x() + t, v.position.z() + t)-0.5f);
 			}
-			computeNormals();
+			computeFaceNormals();
+			updateBufferData();
 		}
 	};
 

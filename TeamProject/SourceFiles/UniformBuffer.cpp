@@ -5,7 +5,7 @@
 
 namespace avt {
 
-	void UniformBuffer::create(GLsizeiptr size, const GLuint ubBinding) {
+	void UniformBuffer::create(GLsizeiptr size, GLuint ubBinding) {
 		glGenBuffers(1, &_uboID);
 		glBindBuffer(GL_UNIFORM_BUFFER, _uboID);
 		glBufferData(GL_UNIFORM_BUFFER, size, nullptr, GL_STREAM_DRAW);

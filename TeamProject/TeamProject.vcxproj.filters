@@ -78,6 +78,18 @@
     <ClCompile Include="SourceFiles\Texture.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="Dependencies\stb_image.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="SourceFiles\ParticleEmitter.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="SourceFiles\SceneNode.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="SourceFiles\StencilPicker.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="HeaderFiles\App.h">
@@ -87,9 +99,6 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="HeaderFiles\Camera.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="HeaderFiles\Cube.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="HeaderFiles\Engine.h">
@@ -186,6 +195,18 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="HeaderFiles\Texture.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="HeaderFiles\Cube.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Dependencies\stb_image.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="HeaderFiles\ParticleEmitter.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="HeaderFiles\StencilPicker.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

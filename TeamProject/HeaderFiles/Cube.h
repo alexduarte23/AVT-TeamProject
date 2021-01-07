@@ -17,7 +17,7 @@ namespace avt {
 	class Cube : public Mesh{
 
 	public:
-		Cube() {
+		Cube() {/*
 			//FACE1
 			int i = 0;
 			Vector4 color = Vector4(1.f, 0, 0, 1.f);
@@ -77,6 +77,6 @@ namespace avt {
 			addVertex({ -1.f, -1.f, -1.f }, color);
 			addFace(i, i + 1, i + 2);
 			addFace(i + 3, i + 2, i + 1);
-		}
+		*/}
 	};
 }

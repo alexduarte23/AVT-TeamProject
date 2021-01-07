@@ -145,6 +145,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="Dependencies\stb_image.cpp" />
     <ClCompile Include="SourceFiles\Camera.cpp" />
     <ClCompile Include="SourceFiles\Engine.cpp" />
     <ClCompile Include="SourceFiles\ErrorManager.cpp" />
@@ -155,9 +156,12 @@
     <ClCompile Include="SourceFiles\Mat4.cpp" />
     <ClCompile Include="SourceFiles\Matrix.cpp" />
     <ClCompile Include="SourceFiles\Mesh.cpp" />
+    <ClCompile Include="SourceFiles\ParticleEmitter.cpp" />
     <ClCompile Include="SourceFiles\Quaternion.cpp" />
     <ClCompile Include="SourceFiles\Renderer.cpp" />
+    <ClCompile Include="SourceFiles\SceneNode.cpp" />
     <ClCompile Include="SourceFiles\Shader.cpp" />
+    <ClCompile Include="SourceFiles\StencilPicker.cpp" />
     <ClCompile Include="SourceFiles\Texture.cpp" />
     <ClCompile Include="SourceFiles\UniformBuffer.cpp" />
     <ClCompile Include="SourceFiles\Vector2.cpp" />
@@ -168,6 +172,7 @@
     <ClCompile Include="SourceFiles\VertexBufferLayout.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="Dependencies\stb_image.h" />
     <ClInclude Include="HeaderFiles\App.h" />
     <ClInclude Include="HeaderFiles\avt_math.h" />
     <ClInclude Include="HeaderFiles\Bloom.h" />
@@ -186,6 +191,7 @@
     <ClInclude Include="HeaderFiles\Matrix.h" />
     <ClInclude Include="HeaderFiles\Mesh.h" />
     <ClInclude Include="HeaderFiles\OrthographicCamera.h" />
+    <ClInclude Include="HeaderFiles\ParticleEmitter.h" />
     <ClInclude Include="HeaderFiles\Perlin.h" />
     <ClInclude Include="HeaderFiles\PerspectiveCamera.h" />
     <ClInclude Include="HeaderFiles\Quaternion.h" />
@@ -195,6 +201,7 @@
     <ClInclude Include="HeaderFiles\SceneNodeCallback.h" />
     <ClInclude Include="HeaderFiles\Shader.h" />
     <ClInclude Include="HeaderFiles\Shadow.h" />
+    <ClInclude Include="HeaderFiles\StencilPicker.h" />
     <ClInclude Include="HeaderFiles\TerrainPlane.h" />
     <ClInclude Include="HeaderFiles\Texture.h" />
     <ClInclude Include="HeaderFiles\UniformBuffer.h" />

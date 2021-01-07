@@ -7,123 +7,99 @@
 #include <vector>
 
 #include <GL/glew.h>
-#include <GLFW/glfw3.h>
+//#include <GLFW/glfw3.h>
 
 #include "avt_math.h"
 
 #include "VertexBuffer.h"
 #include "IndexBuffer.h"
 #include "VertexArray.h"
-#include "UniformBuffer.h"
-#include "Shader.h"
-#include "Renderer.h"
+//#include "UniformBuffer.h"
+//#include "Shader.h"
+//#include "Renderer.h"
 #include "Camera.h"
+
+#include "Texture.h"
 
 namespace avt {
 
 	struct Vertex{
-		Vector4 position;
-		Vector4 color;
+		Vector3 position;
+		Vector2 tex;
+		Vector3 normal;
+		Vector3 color;
 	};
 
 	class Mesh {
-	public:
+	private:
 
-		std::vector<Vertex> _vertexes;
-		
-		std::vector<GLubyte> _indices;
-		std::vector<Vector3> _vertices, _verticesData;
-		std::vector<Vector3> _colors;
-		std::vector<Vector2> _textures, _texturesData;
-		std::vector<Vector3> _normals, _normalsData;
-
-		std::vector <unsigned int> _verticesIdx, _texturesIdx, _normalsIdx;
-
+		VertexBuffer _vb;
 		VertexArray _va;
-		VertexBuffer _vb, _tb, _nb, _cb;
-		IndexBuffer _ib;
 
-		bool _texturesLoaded = false, _normalsLoaded = false;
+		Texture* _texture = nullptr;
 
-		Mesh(){}
+	protected:
 
-		Mesh(const std::string& filename) {
-			loadMeshData(filename);
-			processMeshData();
-			freeMeshData();
 
-			for (int i = 0; i < _vertices.size(); i++) {
-				_colors.push_back({ 1.f, 1.f, 1.f });
-			}
+	public:
+		std::vector<Vertex> _meshData;
+
+		Mesh() {}
+
+		Mesh(const std::string& filename, const Vector3& color = Vector3(1.f, 1.f, 1.f)) {
+			loadOBJ(filename, color);
 		}
 
-		void loadOBJ(const std::string& filename) {
-			loadMeshData(filename);
-			processMeshData();
-			freeMeshData();
+		void loadOBJ(const std::string& filename, const Vector3& color = Vector3(1.f,1.f,1.f));
+
+		void addFace(const Vertex& v1, const Vertex& v2, const Vertex& v3, bool computeFaceNormal = false);
+
+		//  must be called before the first draw
+		void setup();
+
+		// call only after setup
+		void updateBufferData();
+
+		// saves memory if the mesh won't be modified again
+		void clearLocalData() {
+			_meshData.clear();
 		}
 
-		void addVertex(const Vector3& v, const Vector4& color) {
-			_vertexes.push_back({ v.to4D(), color });
+		void setTexture(Texture* texture) {
+			_texture = texture;
 		}
 
-		void addVertex(const Vertex& v) {
-			_vertexes.push_back(v);
-		}
-		
-		void addFace(GLubyte i1, GLubyte i2, GLubyte i3) {
-			_indices.push_back(i1);
-			_indices.push_back(i2);
-			_indices.push_back(i3);
+		const Texture* texture() const {
+			return _texture;
 		}
 
 		void colorAll(Vector3 color);
-
 		void applyTransform(Mat4 mat);
-		void setup();
-		void setold();
 
-		std::vector<Vector3>& getVertices() {
-			return _vertices;
-		}
 
-		VertexArray& va() {
+		const VertexArray& va() const {
 			return _va;
 		}
 
-		VertexBuffer& vb() {
+		const VertexBuffer& vb() const {
 			return _vb;
 		}
 
-		IndexBuffer& ib() {
-			return _ib;
-		}
+		// produces sharp meshes
+		void computeFaceNormals();
+		// produces smooth meshes
+		void computeVertexNormals(bool weighted = true);
+		// produces smooth transitions only when the angle between the face normals is below the threshold
+		void computeMixedNormals(float threshold, bool weighted = true);
 
-		void computeNormals();
-
-		void update(float time);
 
 	private:
 
-		void parseVertex(std::stringstream& sin);
-
-		void parseTexture(std::stringstream& sin);
-
-		void parseNormal(std::stringstream& sin);
-
-		void parseFace(std::stringstream& sin);
-
-		void parseLine(const std::string& line);
-
-		void loadMeshData(const std::string& filename);
-
-		void processMeshData();
-		
-		void freeMeshData();
-		
-		void setTexturesLoaded(bool b);
-		
-		void setNormalsLoaded(bool b);
+		void parseLine(const std::string& line, std::vector<Vector3>& vertices, std::vector<Vector2>& textures, std::vector<Vector3>& normals, const Vector3& color);
+		void parseVertex(std::stringstream& sin, std::vector<Vector3>& vertices);
+		void parseTexture(std::stringstream& sin, std::vector<Vector2>& textures);
+		void parseNormal(std::stringstream& sin, std::vector<Vector3>& normals);
+		void parseFace(std::stringstream& sin, const std::vector<Vector3>& vertices, const std::vector<Vector2>& textures, const std::vector<Vector3>& normals, const Vector3& color);
 
 	};
 }

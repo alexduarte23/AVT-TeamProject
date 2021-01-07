@@ -24,11 +24,13 @@ public:
 
 class MyApp : public avt::App {
 private:
-	avt::Shader _shader;
+	avt::Shader _shader, _shaderP;
 	avt::Renderer _renderer;
 	avt::UniformBuffer _ub;
 	avt::Scene _scene;
 	MyNodeCallback nodeCallback;
+
+	avt::ParticleEmitter* _emitter = nullptr;
 
 	avt::Shadow _shadow;
 	avt::Bloom* _bloom = nullptr;
@@ -49,6 +51,8 @@ private:
 
 	void createScene() {
 
+		avt::StencilPicker::enable();
+
 		auto treeM = _meshes.add("tree", new avt::Mesh("./Resources/Objects/treeNormal.obj"));
 		treeM->colorAll({0.2f, 0.6f, 0.2f});
 		treeM->setup();
@@ -68,8 +72,13 @@ private:
 		//CAMS
 		_ub.create(2 * 16 * sizeof(GLfloat), 0); // change
 		_ub.unbind();
-		
+
+		_scene.setShader(&_shader);
+
+
 		_tree = _scene.createNode(treeM);
+		avt::StencilPicker::addTarget(_tree, "tree");
+		//_tree->setStencilIndex(1);
 
 		_lightStruct = _scene.createNode();
 
@@ -84,6 +93,12 @@ private:
 
 		//_cloud = _scene.createNode(cloudM);
 		//_cloud->translate({ -2.5f, 4.f, -2.5f });
+
+		_emitter = new avt::ParticleEmitter();
+		_emitter->setShader(&_shaderP);
+		_emitter->scale({ .2f, .2f, .2f });
+		_emitter->translate({ 10.f,-3.f,0 });
+		_scene.addNode(_emitter); // scene deletes nodes when destroyed
 
 		setStencilIndex(); //mouse picking
 		
@@ -136,26 +151,6 @@ private:
 			_cams.get("ort")->processMouse(offset, dt);
 			_cams.get("per")->processMouse(offset, dt);
 
-		}else if (glfwGetMouseButton(win, GLFW_MOUSE_BUTTON_RIGHT) == GLFW_PRESS) { //mouse picking
-			int winx, winy;
-			glfwGetWindowSize(win, &winx, &winy);
-			int x = static_cast<int>(newCursor.x());
-			int y = winy - static_cast<int>(newCursor.y());
-
-			if (!_selecting) {
-				//GLfloat color[4];
-				//glReadPixels(x, y, 1, 1, GL_RGBA, GL_FLOAT, color);
-				//GLfloat depth;
-				//glReadPixels(x, y, 1, 1, GL_DEPTH_COMPONENT, GL_FLOAT, &depth);
-				GLuint index;
-				glReadPixels(x, y, 1, 1, GL_STENCIL_INDEX, GL_UNSIGNED_INT, &index);
-				std::cout << "stencil index = " << index << std::endl;
-				_selected = index;
-
-				_selecting = true;
-			}
-		} else if (glfwGetMouseButton(win, GLFW_MOUSE_BUTTON_RIGHT) == GLFW_RELEASE) {
-			_selecting = false;
 		}
 
 	}
@@ -174,6 +169,18 @@ private:
 		_shader.addUniform("LightColor");
 		_shader.addUbo("CameraMatrices", UBO_BP);
 		_shader.create();
+
+		_shaderP.addShader(GL_VERTEX_SHADER, "./Resources/particleShaders/particles-vs.glsl");
+		_shaderP.addShader(GL_FRAGMENT_SHADER, "./Resources/particleShaders/particles-fs.glsl");
+		_shaderP.addAttribute("in_vertex", 0);
+		_shaderP.addAttribute("in_texCoord", 1);
+		_shaderP.addAttribute("in_pos", 2);
+		_shaderP.addAttribute("in_color", 3);
+		_shaderP.addAttribute("in_size", 4);
+		_shaderP.addAttribute("in_rot", 5);
+		_shaderP.addUniform("ModelMatrix");
+		_shaderP.addUbo("SharedMatrices", UBO_BP);
+		_shaderP.create();
 	}
 
 
@@ -182,11 +189,15 @@ private:
 		glfwGetWindowSize(win, &winx, &winy);
 
 		float aspect = winx / (float)winy;
-		_cams.add("per", new avt::PerspectiveCamera(45.f, aspect, 0.1f, 100.0f, avt::Vector3(0, 0, 10.f)));
-		_cams.add("ort", new avt::OrthographicCamera(-10.0f, 10.0f, -10.0f / aspect, 10.0f / aspect, 0.1f, 100.0f, avt::Vector3(0, 0, 20.f)));
 
-		_cams.get("ort")->setSpeed(12.f);
-		_cams.get("per")->setSpeed(12.f);
+		auto camP = new avt::PerspectiveCamera(45.f, aspect, 0.1f, 100.0f, avt::Vector3(0, 0, 10.f));
+		auto camO = new avt::OrthographicCamera(-10.0f, 10.0f, -10.0f / aspect, 10.0f / aspect, 0.1f, 100.0f, avt::Vector3(0, 0, 20.f));
+		camP->setSpeed(12.f);
+		camO->setSpeed(12.f);
+
+		_cams.add("per", camP);
+		_cams.add("ort", camO);
+
 	}
 
 	void createShadows(GLFWwindow* win) {
@@ -236,6 +247,8 @@ public:
 	void updateCallback(GLFWwindow* win, double dt) override {
 		
 		avt::Mat4 rotMat;
+
+		_emitter->update(dt);
 		
 		if (_animating) {
 			_time += dt;
@@ -308,7 +321,8 @@ public:
 	void renderWithBloom()
 	{
 		_bloom->bindHDR();
-		_renderer.draw(_scene, _ub, _shader, _cams.get(_activeCam), _lights.get("sun"));
+		//_renderer.draw(_scene, _ub, _shader, _cams.get(_activeCam), _lights.get("sun"));
+		_scene.draw(_ub, _cams.get(_activeCam), _lights.get("sun"));
 		_bloom->unbindHDR();
 
 		_bloom->bindPingBlur();
@@ -322,7 +336,8 @@ public:
 
 	void renderWithoutBloom()
 	{
-		_renderer.draw(_scene, _ub, _shader, _cams.get(_activeCam), _lights.get("sun"));
+		//_renderer.draw(_scene, _ub, _shader, _cams.get(_activeCam), _lights.get("sun"));
+		_scene.draw(_ub, _cams.get(_activeCam), _lights.get("sun"));
 	}
 
 	void windowResizeCallback(GLFWwindow* win, int w, int h) override {
@@ -373,7 +388,35 @@ public:
 
 	}
 
+	void mouseButtonCallback(GLFWwindow* win, int button, int action, int mods) override {
+		if (button == GLFW_MOUSE_BUTTON_RIGHT && action == GLFW_PRESS) {
+			double cursorX, cursorY;
+			glfwGetCursorPos(win, &cursorX, &cursorY);
+
+			int winx, winy;
+			glfwGetWindowSize(win, &winx, &winy);
+			int x = static_cast<int>(cursorX);
+			int y = winy - static_cast<int>(cursorY);
+
+			/*GLuint index;
+			glReadPixels(x, y, 1, 1, GL_STENCIL_INDEX, GL_UNSIGNED_INT, &index);
+
+			if (index == 1) {
+				_meshes.get("tree")->colorAll({ avt::random(), avt::random(), avt::random() });
+				_meshes.get("tree")->updateBufferData();
+			}*/
+
+			auto target = avt::StencilPicker::getTargetOn(x, y);
+			if (target.second == "tree") {
+				_meshes.get("tree")->colorAll({ avt::random(), avt::random(), avt::random() });
+				_meshes.get("tree")->updateBufferData();
+			}
+
+		}
+	}
+
 };
+
 
 int main(int argc, char* argv[]) {
 	int gl_major = 4, gl_minor = 3;
