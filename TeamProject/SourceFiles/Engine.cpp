@@ -102,7 +102,7 @@ namespace avt {
 #if _DEBUG
 		checkOpenGLInfo();
 #endif
-		glClearColor(0.6f, 0.6f, 0.6f, 1.0f);
+		glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
 		glEnable(GL_DEPTH_TEST);
 		glDepthFunc(GL_LEQUAL);
 		glDepthMask(GL_TRUE);

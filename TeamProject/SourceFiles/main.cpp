@@ -320,7 +320,12 @@ public:
 		checkSelected(); //mouse picking
 
 		_shadow.renderToDepthMap(_renderer, _scene, (unsigned int)winx, (unsigned int)winy);
+		//glUniform1i(_shader.getUniform("shadowMap"), 8);
+		_shader.bind();
+		glActiveTexture(GL_TEXTURE0);
 		glBindTexture(GL_TEXTURE_2D, _shadow.depthMap());
+		glUniform1i(_shader.getUniform("shadowMap"), 0);
+		_shader.unbind();
 
 		//renderWithBloom();
 		renderWithoutBloom();
