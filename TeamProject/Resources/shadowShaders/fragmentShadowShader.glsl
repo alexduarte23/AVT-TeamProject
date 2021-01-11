@@ -13,6 +13,7 @@ layout(location = 1) out vec4 BrightColor;
 
 uniform vec3 LightPosition;
 uniform vec3 LightColor;
+uniform vec3 EyePosition;
 
 uniform sampler2D shadowMap;
 
@@ -59,23 +60,28 @@ void main(void)
 
 	vec3 objectColor = exColor;
 
-	vec3 lightPos = vec3(3.0, 3.0, 3.0);
-	vec3 lightColor = vec3(1.0, 0.3, 0.0);
 	vec3 ambientColor = vec3(1.0, 1.0, 1.0);
 
-	float ambientStrength = 0.3;
+    float shininess = 100;
+
+	float ambientStrength = 0.05;
 	vec3 ambient = ambientStrength * ambientColor;
 
 	vec3 norm = normalize(exNormal);
 	vec3 lightDir = normalize(LightPosition - FragPos);
+    vec3 viewDir = normalize(EyePosition - FragPos);
+    vec3 halfwayDir = normalize(lightDir + viewDir);
 
 	float diff = max(dot(norm, lightDir), 0.0);
 	vec3 diffuse = diff * LightColor;
 
-	//vec3 result = (ambient + diffuse) * objectColor;
+    float spec = pow(max(dot(norm, halfwayDir), 0.0), shininess);
+    vec3 specular = LightColor * spec;
+
+    float strength = 3/pow(length(FragPos - LightPosition), 2);
 
 	float shadow = ShadowCalculation(FragPosLightSpace, lightDir);       
-    vec3 lighting = (ambient + (0.8 - shadow) * diffuse) * objectColor;    
+    vec3 lighting = (ambient + (0.8 - shadow) * (diffuse + specular))* strength * objectColor;  
     
     FragmentColor = vec4(lighting, 1.0);
 

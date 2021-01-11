@@ -67,6 +67,7 @@ private:
 		
 		auto lightM = _meshes.add("cube", new avt::Mesh("./Resources/Objects/cube_vtn_flat.obj"));
 		lightM->applyTransform(avt::Mat4::scale({ 0.25f, 0.25f, 0.25f }));
+		lightM->colorAll({ 1.f, 0.5f, 0.f });
 		lightM->setup();
 
 		auto colorCubeM = _meshes.add("colorCube", new avt::Mesh("./Resources/Objects/colourscube.obj"));
@@ -87,7 +88,7 @@ private:
 
 		_light = _lightStruct->createNode(lightM);
 		_light->setTranslation(_lights.get("sun")->getPosition());
-		_lightStruct->setRotation(avt::Quaternion({ 0,0,1.f }, avt::PI/4));
+		_lightStruct->setRotation(avt::Quaternion({ 0,0,1.f }, avt::PI/10));
 
 		_floor = _scene.createNode(floorM);
 		//_floor->scale({6.f, 1.0f, 6.f});
@@ -161,11 +162,13 @@ private:
 		_shader.addAttribute("inTexcoord", TEXTURES);
 		_shader.addAttribute("inNormal", NORMALS);
 		_shader.addAttribute("inColor", COLORS);
+		_shader.addAttribute("inShininess", 4);
 		_shader.addUniform("ModelMatrix");
 		_shader.addUniform("lightSpaceMatrix");
 		_shader.addUniform("shadowMap");
 		_shader.addUniform("LightPosition");
 		_shader.addUniform("LightColor");
+		_shader.addUniform("EyePosition");
 		_shader.addUbo("CameraMatrices", UBO_BP);
 		_shader.create();
 
@@ -206,13 +209,13 @@ private:
 		float aspect = winx / (float)winy;
 
 		_shadow = avt::Shadow((unsigned int)1024, (unsigned int)1024, avt::OrthographicCamera(-10.0f, 10.0f, -10.0f / aspect, 10.0f / aspect, 0.1f, 100.0f, avt::Vector3(0, 0, 20.f)));
-		_shadow.setPosition({ 6.0f, 0.0f, 0.0f });
+		_shadow.setPosition({ 4.0f, 0.0f, 0.0f });
 		_shadow.lookAt({ 0.0f, 0.0f, 0.0f });
 		_shadow.setup();
 	}
 
 	void createLights() {
-		_lights.add("sun", new avt::Light({ 8.0f, 0.0f, 0.0f }, { 1.f, 1.f, 1.f }));
+		_lights.add("sun", new avt::Light({ 3.0f, 0.0f, 0.0f }, { 1.f, 0.5f, 0.f }));
 	}
 
 	void createBloom(GLFWwindow* win) {
@@ -261,11 +264,11 @@ public:
 			if (_time2 > _duration2) {
 				_time2 = 0;
 				_rotating = false;
-				_lightStruct->setRotation(avt::Quaternion({ 1.f,0,0 }, avt::PI/4));
+				_lightStruct->setRotation(avt::Quaternion({ 1.f,0,0 }, avt::PI/10));
 			}
 			float k = (float)_time2 / _duration2;
 			_lightStruct->setRotation(avt::Quaternion({ 0,1.f,0.f }, k * 2 * avt::PI));
-			_lightStruct->rotateZ(avt::PI/4);
+			_lightStruct->rotateZ(avt::PI/10);
 		}
 
 		if (_morebloom) { //bloom
@@ -283,10 +286,15 @@ public:
 		}
 
 		_lights.get("sun")->setPosition(_light->pos().to3D());
+
 		_shadow.setPosition(_light->pos().to3D());
 		_shadow.lookAt({ 0.0f, 0.0f, 0.0f });
+
+		//Update Shader uniforms
 		_shader.bind();
 		glUniformMatrix4fv(_shader.getUniform("lightSpaceMatrix"), 1, GL_FALSE, (_shadow._lightView.projMatrix() * _shadow._lightView.viewMatrix()).GLdata()); //TODO private stuff here
+		avt::Vector3 camPos = _cams.get(_activeCam)->position();
+		glUniform3f(_shader.getUniform("EyePosition"), camPos.x(), camPos.y(), camPos.z());
 		_shader.unbind();
 		
 		
@@ -298,15 +306,15 @@ public:
 		_renderer.clear();
 
 		_shadow.renderToDepthMap(_renderer, _scene, (unsigned int)winx, (unsigned int)winy);
-		//glUniform1i(_shader.getUniform("shadowMap"), 8);
+
 		_shader.bind();
 		glActiveTexture(GL_TEXTURE0);
 		glBindTexture(GL_TEXTURE_2D, _shadow.depthMap());
 		glUniform1i(_shader.getUniform("shadowMap"), 0);
 		_shader.unbind();
 
-		//renderWithBloom();
-		renderWithoutBloom();
+		renderWithBloom();
+		//renderWithoutBloom();
 	}
 
 	void renderWithBloom()
