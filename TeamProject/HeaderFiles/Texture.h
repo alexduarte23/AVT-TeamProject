@@ -65,12 +65,12 @@ namespace avt {
 
 		void create(const std::string& filename) {
 			if (_texId) {
-				glBindTexture(GL_TEXTURE_2D, 0);
+				unbind();
 				glDeleteTextures(1, &_texId);
 			}
 
 			glGenTextures(1, &_texId);
-			glBindTexture(GL_TEXTURE_2D, _texId);
+			bind();
 
 			if (_wrap[0]) glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, _wrap[0]);
 			if (_wrap[1]) glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
@@ -89,11 +89,13 @@ namespace avt {
 			stbi_image_free(data);
 		}
 
-		virtual void bind() const {
+		virtual void bind(unsigned int slot = 0) const {
+			glActiveTexture(GL_TEXTURE0 + slot);
 			glBindTexture(GL_TEXTURE_2D, _texId);
 		}
 
-		virtual void unbind() const {
+		virtual void unbind(unsigned int slot = 0) const {
+			glActiveTexture(GL_TEXTURE0 + slot);
 			glBindTexture(GL_TEXTURE_2D, 0);
 		}
 
@@ -135,8 +137,8 @@ namespace avt {
 	public:
 		RenderTargetTexture();
 		~RenderTargetTexture();
-		void bind() const override;
-		void unbind() const override;
+		//void bind() const override;
+		//void unbind() const override;
 		void create(const int width, const int height);
 		void setFramebufferClearColor(const GLfloat e, const GLfloat g, const GLfloat b, const GLfloat a);
 		void bindFramebuffer();

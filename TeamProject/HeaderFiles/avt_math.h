@@ -31,6 +31,14 @@ namespace avt {
 		return random() * (upper - lower) + lower;
 	}
 
+	inline Vector3 randVector() {
+		return { random(), random(), random() };
+	}
+
+	inline Vector3 randVector(float lower, float upper) {
+		return { randrange(lower, upper), randrange(lower, upper), randrange(lower, upper) };
+	}
+
 	// Vectors
 
 	class Vector2;

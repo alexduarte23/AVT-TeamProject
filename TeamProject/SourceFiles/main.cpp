@@ -102,25 +102,16 @@ private:
 		//colorCube->rotateY(-avt::PI/2);
 		colorCube->scale({ .3f,.3f,.3f });
 
-		_emitter = new avt::ParticleEmitter();
+		_emitter = new avt::DustEmitter({ 4, 1, 4 });
 		_emitter->setShader(&_shaderP);
-		_emitter->scale({ .2f, .2f, .2f });
-		_emitter->translate({ 10.f,-3.f,0 });
+		//_emitter->scale({ .2f, .2f, .2f });
+		_emitter->translate({ 0,-1.f,0 });
 		_scene.addNode(_emitter); // scene deletes nodes when destroyed
 
-		setStencilIndex(); //mouse picking
-		
 
 #ifndef ERROR_CALLBACK
 		avt::ErrorManager::checkOpenGLError("ERROR: Could not create VAOs and VBOs.");
 #endif
-	}
-
-	//set Stencil Index of selectable nodes
-	void setStencilIndex() //mouse picking
-	{
-		//example
-		//scenenode->setStencilIndex(index);
 	}
 		
 
@@ -301,23 +292,10 @@ public:
 		
 	}
 
-	void checkSelected() //mouse picking
-	{
-		/** /
-		for (auto childNode : _cubeStruct->children()) {
-			if (childNode->getStencilIndex() == selected)
-				childNode->selected(true);
-			else
-				childNode->selected(false);
-		}
-		/**/
-	}
-
 	void displayCallback(GLFWwindow* win, double dt) override {
 		int winx, winy;
 		glfwGetWindowSize(win, &winx, &winy);
 		_renderer.clear();
-		checkSelected(); //mouse picking
 
 		_shadow.renderToDepthMap(_renderer, _scene, (unsigned int)winx, (unsigned int)winy);
 		//glUniform1i(_shader.getUniform("shadowMap"), 8);
@@ -410,14 +388,6 @@ public:
 			glfwGetWindowSize(win, &winx, &winy);
 			int x = static_cast<int>(cursorX);
 			int y = winy - static_cast<int>(cursorY);
-
-			/*GLuint index;
-			glReadPixels(x, y, 1, 1, GL_STENCIL_INDEX, GL_UNSIGNED_INT, &index);
-
-			if (index == 1) {
-				_meshes.get("tree")->colorAll({ avt::random(), avt::random(), avt::random() });
-				_meshes.get("tree")->updateBufferData();
-			}*/
 
 			auto target = avt::StencilPicker::getTargetOn(x, y);
 			if (target.second == "tree") {

@@ -4,12 +4,18 @@
 
 namespace avt {
 
-	void ParticleEmitter::create() {
+	const float ParticleEmitter::QUAD_STRIP[5 * 4] = {
+			-1.f, -1.f, 0,      0,   0, // bottom left
+			 1.f, -1.f, 0,    1.f,   0, // bottomm right
+			-1.f,  1.f, 0,      0, 1.f, // top left
+			 1.f,  1.f, 0,    1.f, 1.f  // top right
+	};
 
-		_smokeTexture.setWrap(GL_REPEAT, GL_REPEAT);
-		_smokeTexture.setFilter(GL_LINEAR_MIPMAP_LINEAR, GL_LINEAR);
-		_smokeTexture.useMipmap();
-		_smokeTexture.create("Resources/textures/particleSmoke.png");
+	void ParticleEmitter::create(const std::string& texture_filename) {
+		_texture.setWrap(GL_REPEAT, GL_REPEAT);
+		_texture.setFilter(GL_LINEAR_MIPMAP_LINEAR, GL_LINEAR);
+		_texture.useMipmap();
+		_texture.create(texture_filename);
 
 		_va.create();
 
@@ -17,7 +23,7 @@ namespace avt {
 		quad_layout.add<GLfloat>(3); // VERTICES
 		quad_layout.add<GLfloat>(2); // TEXTURE COORDS
 
-		_quad_vb.create(vertices, 4 * 5 * sizeof(float));
+		_quad_vb.create(QUAD_STRIP, sizeof(QUAD_STRIP));
 		_va.addBuffer(_quad_vb, quad_layout);
 		_quad_vb.unbind();
 
@@ -28,63 +34,36 @@ namespace avt {
 		instance_layout.add<GLfloat>(1); // SIZE
 		instance_layout.add<GLfloat>(1); // ROT
 
-		_instance_vb.create(nullptr, (long long int)_maxParticles * 9 * sizeof(float));
+		_instance_vb.create(nullptr, (long long int)_maxParticles * sizeof(ParticleBody));
 		_va.addBuffer(_instance_vb, instance_layout);
 		_instance_vb.unbind();
 
 		_va.unbind();
 	}
 
-	void ParticleEmitter::spawn(float dt) {
-		if (_time <= 0.01) return;
+	bool ParticleEmitter::addParticle(const Particle& particle) {
+		Particle* unused = getUnused();
 
-		_time = 0;
+		if (!unused && _particles.size() >= _maxParticles) return false;
 
-		for (int i = 0; i < 1; i++) {
-			Particle* unused = getUnused();
+		if (unused) {
+			unused->s = particle.s;
+			unused->v = particle.v;
+			unused->a = particle.a;
+			unused->color = particle.color;
+			unused->size = particle.size;
+			unused->rot = particle.rot;
+			unused->age = particle.age;
+			unused->lifetime = particle.lifetime;
+		}
+		else {
+			Particle* p = new Particle(particle);
+			_particles.push_back(p);
 
-			if (!unused && _particles.size() >= _maxParticles) return;
-
-			if (unused) {
-				unused->s = {};
-				unused->v = Vector3(randrange(-.3f, .3f), 1.f, randrange(-.3f, .3f)).normalized() * 3;
-				unused->size = randrange(25.f, 60.f);
-				unused->rot = randrange(0, PI / 2);
-				unused->color = { randrange(.4f,.6f),1,1,0 };
-				unused->age = 0;
-				unused->lifetime = randrange(6.f, 12.f);;
-			}
-			else {
-				Particle* p = new Particle;// { randrange(.2f, .9f), randrange(0, .1f), randrange(0, .1f), .5f });
-				p->s = {};
-				p->color = { randrange(.4f,.6f),1,1,0 };
-				p->v = Vector3(randrange(-.3f, .3f), 1.f, randrange(-.3f, .3f)).normalized() * 3;
-				p->lifetime = randrange(7.f, 15.f);
-				p->rot = randrange(0, PI / 2);
-				p->size = randrange(25.f, 60.f);
-				_particles.push_back(p);
-
-			}
 		}
 
+		return true;
 	}
-
-	void ParticleEmitter::updateParticles(float dt) {
-		for (auto p : _particles) {
-			if (p->age < 0) continue;
-			p->s += p->v * dt;
-			p->age += dt;
-			if (p->age < p->lifetime / 4.0) p->color.setW(p->age / p->lifetime / .25f);
-			if (p->age > p->lifetime / 2) p->color.setW(2 - 2 * p->age / p->lifetime);
-		}
-	}
-
-	void ParticleEmitter::kill(double dt) {
-		for (auto p : _particles) {
-			if (p->age > p->lifetime) p->age = -1;
-		}
-	}
-
 
 	void ParticleEmitter::draw(Shader* shader, const Mat4& worldMatrix, Light* light) {
 		auto newWorldMat = worldMatrix * getTransform();
@@ -103,7 +82,7 @@ namespace avt {
 		_instance_vb.fill(data.data(), (GLsizei)data.size() * sizeof(ParticleBody));
 		_instance_vb.unbind();
 
-		_smokeTexture.bind();
+		_texture.bind();
 
 		beforeDraw();
 		glDepthMask(GL_FALSE);
@@ -112,11 +91,84 @@ namespace avt {
 		glDepthMask(GL_TRUE);
 		afterDraw();
 
-		_smokeTexture.unbind();
+		_texture.unbind();
 
 		_va.unbind();
 		curr_shader->unbind();
 
+	}
+
+
+	// SMOKE EMITTER
+
+	void SmokeEmitter::spawn(float dt) {
+		//if (_time <= 0.01) return;
+
+		//_time = 0;
+
+		//for (int i = 0; i < 1; i++) {
+			Particle p;
+			p.s = {};
+			p.v = Vector3(randrange(-.3f, .3f), 1.f, randrange(-.3f, .3f)).normalized() * 3;
+			p.size = randrange(2.f, 6.f);
+			p.rot = randrange(0, PI / 2);
+			p.color = { randrange(.4f,.6f),1,1,0 };
+			p.age = 0;
+			p.lifetime = randrange(6.f, 12.f);
+
+			addParticle(p);
+		//}
+
+	}
+
+	void SmokeEmitter::updateParticles(float dt) {
+		for (auto p : _particles) {
+			if (p->age < 0) continue;
+			p->s += p->v * dt;
+			p->age += dt;
+			if (p->age < p->lifetime / 4.0) p->color.setW(p->age / p->lifetime / .25f);
+			if (p->age > p->lifetime / 2) p->color.setW(2 - 2 * p->age / p->lifetime);
+		}
+	}
+
+	void SmokeEmitter::kill(float dt) {
+		for (auto p : _particles) {
+			if (p->age > p->lifetime) p->age = -1;
+		}
+	}
+
+
+	// DUST EMITTER
+
+	void DustEmitter::spawn(float dt) {
+		createParticle();
+		/*Particle p;
+		p.s = {};
+		p.v = Vector3(randrange(-.3f, .3f), 1.f, randrange(-.3f, .3f)).normalized() * 3;
+		p.size = randrange(25.f, 60.f);
+		p.rot = randrange(0, PI / 2);
+		p.color = { randrange(.4f,.6f),1,1,0 };
+		p.age = 0;
+		p.lifetime = randrange(6.f, 12.f);
+
+		addParticle(p);*/
+	}
+
+	void DustEmitter::updateParticles(float dt) {
+		for (auto p : _particles) {
+			if (p->age < 0) continue;
+			p->s += p->v * dt;
+			p->age += dt;
+			if (p->age < 2.f) p->color.setW(p->initialColor.w() / 2.f * p->age);
+			else if (p->age > p->lifetime - 2.f) p->color.setW(-p->initialColor.w()/2.f*p->age + p->initialColor.w() + p->initialColor.w()/2.f*(p->lifetime-2.f));
+			else p->color.setW(p->initialColor.w());
+		}
+	}
+
+	void DustEmitter::kill(float dt) {
+		for (auto p : _particles) {
+			if (p->age > p->lifetime) p->age = -1;
+		}
 	}
 
 }

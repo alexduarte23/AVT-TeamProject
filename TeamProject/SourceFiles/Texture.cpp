@@ -48,7 +48,7 @@ avt::RenderTargetTexture::~RenderTargetTexture()
 	destroy();
 }
 
-void avt::RenderTargetTexture::bind() const
+/*void avt::RenderTargetTexture::bind() const
 {
 	glBindTexture(GL_TEXTURE_2D, _texId);
 }
@@ -56,7 +56,7 @@ void avt::RenderTargetTexture::bind() const
 void avt::RenderTargetTexture::unbind() const
 {
 	glBindTexture(GL_TEXTURE_2D, 0);
-}
+}*/
 
 void avt::RenderTargetTexture::create(const int width, const int height)
 {
