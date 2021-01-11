@@ -103,7 +103,7 @@ private:
 		//colorCube->rotateY(-avt::PI/2);
 		colorCube->scale({ .3f,.3f,.3f });
 
-		_emitter = new avt::DustEmitter({ 4, 1, 4 });
+		_emitter = new avt::DustEmitter(2, 1);
 		_emitter->setShader(&_shaderP);
 		//_emitter->scale({ .2f, .2f, .2f });
 		_emitter->translate({ 0,-1.f,0 });
