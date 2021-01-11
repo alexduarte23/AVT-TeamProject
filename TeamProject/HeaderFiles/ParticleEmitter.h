@@ -127,34 +127,18 @@ namespace avt {
 	class DustEmitter : public ParticleEmitter {
 	private:
 		Vector3 _box;
-
-		void createParticle() {
-			Particle p;
-			p.s = Vector3(
-				randrange(-_box.x() / 2, _box.x() / 2), 
-				randrange(-_box.y() / 2, _box.y() / 2), 
-				randrange(-_box.z() / 2, _box.z() / 2));
-
-			p.v = randVector(-1, 1).normalize() * randrange(.01f, .07f);//((Quaternion({0,0,1.f}, randrange(-PI/2,PI/2)) * Quaternion({0,1.f,0}, randrange(0,2*PI)) ).toMat() * Vector4(randrange(.2f,1.f),0,0,1.f)).to3D();
-
-			float rand = random();
-			if (rand < .01f) p.size = randrange(.025f, .03f); // bigger
-			else if (rand < .07f) p.size = randrange(.01f, .02f); // medium
-			else p.size = randrange(.005f, .009f); // smaller
-
-			p.initialColor = { 1.f,1.f,1.f,randrange(.05f, .4f) };
-			p.color = p.initialColor;
-			p.color.setW(0);
-			p.lifetime = randrange(4.f,8.f);
-
-			addParticle(p);
-		}
+		float _r = 0, _h = 0;
 
 		void initParticles() {
 			for (int i = 0; i < 200; i++)
-				createParticle();
-
+				spawn(0);
 		}
+
+	protected:
+
+		void kill(float dt) override;
+		void updateParticles(float dt) override;
+		void spawn(float dt) override;
 
 	public:
 
@@ -164,13 +148,14 @@ namespace avt {
 			initParticles();
 		}
 
+		DustEmitter(float radius, float height)
+			: ParticleEmitter("Resources/textures/dustParticle.png", 10000), _h(height), _r(radius) {
+			_spawnPeriod = .003f;
+			initParticles();
+		}
+
 		~DustEmitter() {}
 
-	protected:
-
-		void kill(float dt) override;
-		void updateParticles(float dt) override;
-		void spawn(float dt) override;
 
 	};
 

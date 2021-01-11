@@ -141,17 +141,34 @@ namespace avt {
 	// DUST EMITTER
 
 	void DustEmitter::spawn(float dt) {
-		createParticle();
-		/*Particle p;
-		p.s = {};
-		p.v = Vector3(randrange(-.3f, .3f), 1.f, randrange(-.3f, .3f)).normalized() * 3;
-		p.size = randrange(25.f, 60.f);
-		p.rot = randrange(0, PI / 2);
-		p.color = { randrange(.4f,.6f),1,1,0 };
-		p.age = 0;
-		p.lifetime = randrange(6.f, 12.f);
+		Particle p;
+		if (!_r && !_h) { // box
+			p.s = Vector3(
+				randrange(-_box.x() / 2, _box.x() / 2),
+				randrange(-_box.y() / 2, _box.y() / 2),
+				randrange(-_box.z() / 2, _box.z() / 2));
+		}
+		else { // cylinder
+			float radius = randrange(0, _r), angle = randrange(0, 2*PI);
+			p.s = Vector3(
+				radius * cos(angle),
+				randrange(-_h / 2, _h / 2),
+				radius * sin(angle));
+		}
 
-		addParticle(p);*/
+		p.v = randVector(-1, 1).normalize() * randrange(.01f, .07f);//((Quaternion({0,0,1.f}, randrange(-PI/2,PI/2)) * Quaternion({0,1.f,0}, randrange(0,2*PI)) ).toMat() * Vector4(randrange(.2f,1.f),0,0,1.f)).to3D();
+
+		float rand = random();
+		if (rand < .01f) p.size = randrange(.025f, .03f); // bigger
+		else if (rand < .07f) p.size = randrange(.01f, .02f); // medium
+		else p.size = randrange(.005f, .009f); // smaller
+
+		p.initialColor = { .5f,.5f,.5f,randrange(.1f, .7f) };
+		p.color = p.initialColor;
+		p.color.setW(0);
+		p.lifetime = randrange(4.f, 8.f);
+
+		addParticle(p);
 	}
 
 	void DustEmitter::updateParticles(float dt) {
