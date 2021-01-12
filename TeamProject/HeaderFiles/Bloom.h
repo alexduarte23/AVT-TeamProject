@@ -17,7 +17,7 @@ namespace avt {
 		Shader _ShaderGaussianBlur;
 		Shader _ShaderBloomFinal;
 
-		unsigned int _amount = 30;
+		unsigned int _amount = 40;
 		bool _bloom = true;
 
 		void createShaders() {
@@ -129,10 +129,10 @@ namespace avt {
 
 		void setBlurTex(int t) {
 			if (t < 0)
-				if(_amount > 2)
+				if(_amount > 0)
 					_amount += t;
 			if (t >= 0)
-				if (_amount < 50)
+				if (_amount < 100)
 					_amount += t;
 		}
 

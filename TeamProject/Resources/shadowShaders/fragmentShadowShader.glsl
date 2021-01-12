@@ -32,7 +32,7 @@ float ShadowCalculation(vec4 fragPosLightSpace, vec3 lightDir)
 
     //Create a shadow bias value to avoid shadow acne, based on the light direction and the fragment no
     //float bias = max(0.05 * (1.0 - dot(exNormal, lightDir)), 0.002); 
-    float bias = 0.002;
+    float bias = 0.001;
 	//float shadow = currentDepth - bias > closestDepth  ? 1.0 : 0.0; 
     
 	//PCF TEST
@@ -78,7 +78,13 @@ void main(void)
     float spec = pow(max(dot(norm, halfwayDir), 0.0), shininess);
     vec3 specular = LightColor * spec;
 
-    float strength = 3/pow(length(FragPos - LightPosition), 2);
+    //Point light factors
+    float constant = 0.0;
+    float linear = 0.5;
+    float quadratic = 1;
+
+    float dist = length(FragPos - LightPosition);
+    float strength = 10/(constant + linear*dist + quadratic*(dist*dist));
 
 	float shadow = ShadowCalculation(FragPosLightSpace, lightDir);       
     vec3 lighting = (ambient + (0.8 - shadow) * (diffuse + specular))* strength * objectColor;  
