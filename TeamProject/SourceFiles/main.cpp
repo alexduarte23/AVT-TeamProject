@@ -313,11 +313,11 @@ public:
 		glUniform1i(_shader.getUniform("shadowMap"), 0);
 		_shader.unbind();
 
-		renderWithBloom();
+		renderWithBloom(win);
 		//renderWithoutBloom();
 	}
 
-	void renderWithBloom()
+	void renderWithBloom(GLFWwindow* win)
 	{
 		_bloom->bindHDR();
 		//_renderer.draw(_scene, _ub, _shader, _cams.get(_activeCam), _lights.get("sun"));
@@ -345,6 +345,7 @@ public:
 			_cams.get("ort")->resize(w, h);
 			_cams.get("per")->resize(w, h);
 		}
+		_bloom->create(w,h);
 	}
 
 	void keyCallback(GLFWwindow* win, int key, int scancode, int action, int mods) override {
