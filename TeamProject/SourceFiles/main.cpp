@@ -40,7 +40,7 @@ private:
 	avt::Manager<avt::Light> _lights;
 
 
-	avt::SceneNode* _tree = nullptr, *_lightStruct = nullptr , *_light= nullptr, *_floor = nullptr, *_cloud = nullptr;
+	avt::SceneNode* _tree = nullptr, *_tree2 = nullptr, * _tree3 = nullptr, *_lightStruct = nullptr , *_light= nullptr, *_floor = nullptr, *_cloud = nullptr;
 	std::string _activeCam = "per";
 	
 	const float _duration = 3, _duration2 = 6;
@@ -84,14 +84,20 @@ private:
 		avt::StencilPicker::addTarget(_tree, "tree");
 		//_tree->setStencilIndex(1);
 
+		_tree2 = _scene.createNode(treeM);
+		_tree2->translate({ 3.f, 0.f, 3.f });
+
+		_tree3 = _scene.createNode(treeM);
+		_tree3->translate({ -6.f, 0.f, -3.f });
+
 		_lightStruct = _scene.createNode();
 
 		_light = _lightStruct->createNode(lightM);
 		_light->setTranslation(_lights.get("sun")->getPosition());
-		_lightStruct->setRotation(avt::Quaternion({ 0,0,1.f }, avt::PI/10));
+		//_lightStruct->setRotation(avt::Quaternion({ 0,0,1.f }, avt::PI/10));
 
 		_floor = _scene.createNode(floorM);
-		//_floor->scale({6.f, 1.0f, 6.f});
+		_floor->scale({3.f, 1.0f, 3.f});
 		//_floor->translate({ 0.0f, -2.8f, 0.0f });
 		_floor->translate({ -4.5f, -1.8f, -4.5f });
 
@@ -162,7 +168,6 @@ private:
 		_shader.addAttribute("inTexcoord", TEXTURES);
 		_shader.addAttribute("inNormal", NORMALS);
 		_shader.addAttribute("inColor", COLORS);
-		_shader.addAttribute("inShininess", 4);
 		_shader.addUniform("ModelMatrix");
 		_shader.addUniform("lightSpaceMatrix");
 		_shader.addUniform("shadowMap");
@@ -207,15 +212,22 @@ private:
 		glfwGetWindowSize(win, &winx, &winy);
 
 		float aspect = winx / (float)winy;
-
+		/*
 		_shadow = avt::Shadow((unsigned int)1024, (unsigned int)1024, avt::OrthographicCamera(-10.0f, 10.0f, -10.0f / aspect, 10.0f / aspect, 0.1f, 100.0f, avt::Vector3(0, 0, 20.f)));
 		_shadow.setPosition({ 4.0f, 0.0f, 0.0f });
 		_shadow.lookAt({ 0.0f, 0.0f, 0.0f });
 		_shadow.setup();
+		*/
+
+		_shadow = avt::Shadow((unsigned int)1024, (unsigned int)1024, avt::PerspectiveCamera(90.f, aspect, 0.1f, 100.0f, avt::Vector3(0, 0, 10.f)));
+		_shadow.setPosition({ 4.0f, 0.0f, 0.0f });
+		_shadow.lookAt({ 0.0f, 0.0f, 0.0f });
+		_shadow.setup();
+
 	}
 
 	void createLights() {
-		_lights.add("sun", new avt::Light({ 3.0f, 0.0f, 0.0f }, { 1.f, 0.5f, 0.f }));
+		_lights.add("sun", new avt::Light({ 3.0f, 0.0f, -3.0f }, { 1.f, 0.5f, 0.f }));
 	}
 
 	void createBloom(GLFWwindow* win) {

@@ -28,8 +28,13 @@ namespace avt {
 				_shadowWidth, _shadowHeight, 0, GL_DEPTH_COMPONENT, GL_FLOAT, NULL);
 			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
 			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
-			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+			//glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
+			//glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+
+			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_BORDER);
+			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_BORDER);
+			float borderColor[] = { 1.0f, 1.0f, 1.0f, 1.0f };
+			glTexParameterfv(GL_TEXTURE_2D, GL_TEXTURE_BORDER_COLOR, borderColor);
 		}
 
 		void attachTexture() {
@@ -54,12 +59,22 @@ namespace avt {
 
 	public:
 
+		/*
 		OrthographicCamera _lightView;
 
 		Shadow() :
 			_depthMap(0), _depthMapFBO(0), _shadowWidth(1), _shadowHeight(1), _lightView(avt::OrthographicCamera(-10.0f, 10.0f, -10.0f / 1, 10.0f / 1, 0.1f, 100.0f, avt::Vector3(0, 0, 20.f))) {}
 
 		Shadow(unsigned int shadowWidth, unsigned int shadowHeight, avt::OrthographicCamera camera) :
+			_depthMap(0), _depthMapFBO(0), _shadowWidth(shadowWidth), _shadowHeight(shadowHeight), _lightView(camera) {}
+		*/
+
+		PerspectiveCamera _lightView;
+
+		Shadow() :
+			_depthMap(0), _depthMapFBO(0), _shadowWidth(1), _shadowHeight(1), _lightView(avt::PerspectiveCamera(45.f, 1.f, 0.1f, 100.0f, avt::Vector3(0, 0, 10.f))) {}
+
+		Shadow(unsigned int shadowWidth, unsigned int shadowHeight, avt::PerspectiveCamera camera) :
 			_depthMap(0), _depthMapFBO(0), _shadowWidth(shadowWidth), _shadowHeight(shadowHeight), _lightView(camera) {}
 
 		void setup() {
