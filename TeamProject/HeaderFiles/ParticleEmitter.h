@@ -143,13 +143,13 @@ namespace avt {
 	public:
 
 		DustEmitter(const Vector3& spawnBox)
-			: ParticleEmitter("Resources/textures/dustParticle.png", 10000), _box(spawnBox) {
+			: ParticleEmitter("Resources/textures/dustParticle2.png", 10000), _box(spawnBox) {
 			_spawnPeriod = .003f;
 			initParticles();
 		}
 
 		DustEmitter(float radius, float height)
-			: ParticleEmitter("Resources/textures/dustParticle.png", 10000), _h(height), _r(radius) {
+			: ParticleEmitter("Resources/textures/dustParticle2.png", 10000), _h(height), _r(radius) {
 			_spawnPeriod = .003f;
 			initParticles();
 		}
