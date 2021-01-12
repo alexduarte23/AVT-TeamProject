@@ -19,6 +19,7 @@ namespace avt {
 
 		unsigned int _amount = 40;
 		bool _bloom = true;
+		GLfloat exposure = 1.;
 
 		void createShaders() {
 			createShaderBrightValues();
@@ -138,7 +139,6 @@ namespace avt {
 
 		void renderBloomFinal() {
 
-			GLfloat exposure = .7f;
 			setBloom(_bloom);
 			setExposure(exposure);
 			setTextures();
