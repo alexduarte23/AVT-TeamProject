@@ -17,6 +17,7 @@ namespace avt {
 		float rot = 0;
 		float age = 0;
 		float lifetime = 0;
+		int type = 0;
 	};
 
 	struct ParticleBody {
@@ -155,6 +156,41 @@ namespace avt {
 		}
 
 		~DustEmitter() {}
+
+
+	};
+
+	class FireflyEmitter : public ParticleEmitter {
+	private:
+		Vector3 _box;
+		float _r = 0, _h = 0;
+
+		void initParticles() {
+			for (int i = 0; i < 20; i++)
+				spawn(0);
+		}
+
+	protected:
+
+		void kill(float dt) override;
+		void updateParticles(float dt) override;
+		void spawn(float dt) override;
+
+	public:
+
+		FireflyEmitter(const Vector3& spawnBox)
+			: ParticleEmitter("Resources/textures/dustParticle.png", 200), _box(spawnBox) {
+			_spawnPeriod = .4f;
+			initParticles();
+		}
+
+		FireflyEmitter(float radius, float height)
+			: ParticleEmitter("Resources/textures/dustParticle.png", 200), _h(height), _r(radius) {
+			_spawnPeriod = .4f;
+			initParticles();
+		}
+
+		~FireflyEmitter() {}
 
 
 	};
