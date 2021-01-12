@@ -103,10 +103,10 @@ private:
 		//colorCube->rotateY(-avt::PI/2);
 		colorCube->scale({ .3f,.3f,.3f });
 
-		_emitter = new avt::FireflyEmitter(2, 1);
+		_emitter = new avt::FireEmitter();
 		_emitter->setShader(&_shaderP);
 		//_emitter->scale({ .2f, .2f, .2f });
-		_emitter->translate({ 0,-1.f,0 });
+		_emitter->translate({ 0,0,3.f });
 		_scene.addNode(_emitter); // scene deletes nodes when destroyed
 
 
@@ -173,7 +173,7 @@ private:
 		_shader.create();
 
 		_shaderP.addShader(GL_VERTEX_SHADER, "./Resources/particleShaders/particles-vs.glsl");
-		_shaderP.addShader(GL_FRAGMENT_SHADER, "./Resources/particleShaders/particles-fs.glsl");
+		_shaderP.addShader(GL_FRAGMENT_SHADER, "./Resources/particleShaders/fire-fs.glsl");
 		_shaderP.addAttribute("in_vertex", 0);
 		_shaderP.addAttribute("in_texCoord", 1);
 		_shaderP.addAttribute("in_pos", 2);
@@ -181,8 +181,14 @@ private:
 		_shaderP.addAttribute("in_size", 4);
 		_shaderP.addAttribute("in_rot", 5);
 		_shaderP.addUniform("ModelMatrix");
+		_shaderP.addUniform("in_texture");
+		_shaderP.addUniform("in_dissolveMap");
 		_shaderP.addUbo("SharedMatrices", UBO_BP);
 		_shaderP.create();
+		_shaderP.bind();
+		glUniform1i(_shaderP.getUniform("in_texture"), 0);
+		glUniform1i(_shaderP.getUniform("in_dissolveMap"), 1);
+		_shaderP.unbind();
 	}
 
 

@@ -79,7 +79,7 @@ namespace avt {
 
 			unsigned char* data = stbi_load(filename.data(), &_width, &_height, &_nrChannels, 0);
 			if (data) {
-				glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, _width, _height, 0, GL_RGBA, GL_UNSIGNED_BYTE, data);
+				glTexImage2D(GL_TEXTURE_2D, 0, _nrChannels == 4 ? GL_RGBA : GL_RGB, _width, _height, 0, _nrChannels == 4 ? GL_RGBA : GL_RGB, GL_UNSIGNED_BYTE, data);
 				if (_mipmap) glGenerateMipmap(GL_TEXTURE_2D);
 			}
 			else { // use error manager

@@ -14,6 +14,7 @@ namespace avt {
 		Vector4 color = { 1.f,1.f,1.f,1.f };
 		Vector4 initialColor = { 1.f,1.f,1.f,1.f };
 		float size = 1;
+		float initialSize = 1;
 		float rot = 0;
 		float age = 0;
 		float lifetime = 0;
@@ -191,6 +192,41 @@ namespace avt {
 		}
 
 		~FireflyEmitter() {}
+
+
+	};
+
+	class FireEmitter : public ParticleEmitter {
+	private:
+
+		Texture _dissolveMap;
+		static constexpr float K1 = .4f; // time to start dissolve
+		static constexpr float K2 = .5f; // time to stop size grow
+
+	protected:
+
+		void kill(float dt) override;
+		void updateParticles(float dt) override;
+		void spawn(float dt) override;
+
+	public:
+
+		FireEmitter()
+			: ParticleEmitter("Resources/textures/particleSmoke7.png", 100) {
+			_spawnPeriod = .02f;
+		
+			_dissolveMap.setWrap(GL_REPEAT, GL_REPEAT);
+			_dissolveMap.setFilter(GL_LINEAR_MIPMAP_LINEAR, GL_LINEAR);
+			_dissolveMap.useMipmap();
+			_dissolveMap.create("Resources/textures/dissolve01.png");
+
+			spawn(0);
+		
+		}
+
+		~FireEmitter() {}
+
+		void draw(Shader* shader, const Mat4& worldMatrix, Light* light) override;
 
 
 	};
