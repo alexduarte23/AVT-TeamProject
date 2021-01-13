@@ -212,7 +212,7 @@ namespace avt {
 	public:
 
 		FireEmitter()
-			: ParticleEmitter("Resources/textures/particleSmoke7.png", 100) {
+			: ParticleEmitter("Resources/textures/particleSmoke7.png", 50) {
 			_spawnPeriod = .02f;
 		
 			_dissolveMap.setWrap(GL_REPEAT, GL_REPEAT);

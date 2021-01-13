@@ -8,6 +8,8 @@ namespace avt {
 
 	std::vector<std::pair<SceneNode*, std::string>> StencilPicker::_targets;
 
+	std::pair<SceneNode*, std::string> StencilPicker::_last = {nullptr, ""};
+
 
 	bool StencilPicker::addTarget(SceneNode* target, const std::string& alias) {
 		if (_targets.size() == MAX) return false;
@@ -104,8 +106,26 @@ namespace avt {
 	std::pair<SceneNode*, std::string> StencilPicker::getTargetOn(int x, int y) {
 		GLuint index;
 		glReadPixels(x, y, 1, 1, GL_STENCIL_INDEX, GL_UNSIGNED_INT, &index);
-		if (index) return _targets[index - 1];
-		return { nullptr, "" };
+
+		if (index && index <= _targets.size()) _last = _targets[index - 1];
+		else _last = { nullptr, "" };
+
+		return _last;
+	}
+
+	std::pair<SceneNode*, std::string> StencilPicker::getTargetOn(GLFWwindow* win) {
+		double cursorX, cursorY;
+		glfwGetCursorPos(win, &cursorX, &cursorY);
+
+		int winx, winy;
+		glfwGetWindowSize(win, &winx, &winy);
+		int x = static_cast<int>(cursorX);
+		int y = winy - static_cast<int>(cursorY);
+
+		if (x <= 0 || y <= 0 || x >= winx || y >= winy)
+			return _last = { nullptr, "" };
+
+		return getTargetOn(x, y);
 	}
 
 }

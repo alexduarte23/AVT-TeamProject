@@ -3,6 +3,7 @@
 #include <vector>
 #include <string>
 #include <GL/glew.h>
+#include <GLFW/glfw3.h>
 
 namespace avt {
 	class SceneNode;
@@ -14,6 +15,8 @@ namespace avt {
 
 		static std::vector<std::pair<SceneNode*, std::string>> _targets;
 
+		static std::pair<SceneNode*, std::string> _last;
+
 		StencilPicker() {}
 
 	public:
@@ -23,6 +26,14 @@ namespace avt {
 		static void enable() {
 			glEnable(GL_STENCIL_TEST);
 			glStencilOp(GL_KEEP, GL_KEEP, GL_REPLACE);
+		}
+
+		static void enableWriting() {
+			glStencilMask(0xFF);
+		}
+
+		static void disableWriting() {
+			glStencilMask(0x00);
 		}
 
 		static void disable() {
@@ -44,6 +55,12 @@ namespace avt {
 		static void clear();
 
 		static std::pair<SceneNode*, std::string> getTargetOn(int x, int y);
+		
+		static std::pair<SceneNode*, std::string> getTargetOn(GLFWwindow* win);
+
+		static std::pair<SceneNode*, std::string> getLastPick() {
+			return _last;
+		}
 
 	};
 }

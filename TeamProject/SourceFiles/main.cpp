@@ -81,7 +81,6 @@ private:
 
 
 		_tree = _scene.createNode(treeM);
-		avt::StencilPicker::addTarget(_tree, "tree");
 		//_tree->setStencilIndex(1);
 
 		_tree2 = _scene.createNode(treeM);
@@ -110,6 +109,7 @@ private:
 		colorCube->scale({ .3f,.3f,.3f });
 
 		_emitter = new avt::FireEmitter();
+		avt::StencilPicker::addTarget(_emitter, "fire");
 		_emitter->setShader(&_shaderP);
 		//_emitter->scale({ .2f, .2f, .2f });
 		_emitter->translate({ 0,0,3.f });
@@ -332,14 +332,14 @@ public:
 		_shader.unbind();
 
 		renderWithBloom(win);
-		//renderWithoutBloom();
+		//renderWithoutBloom(win);
 	}
 
-	void renderWithBloom(GLFWwindow* win)
-	{
+	void renderWithBloom(GLFWwindow* win) {
 		_bloom->bindHDR();
 		//_renderer.draw(_scene, _ub, _shader, _cams.get(_activeCam), _lights.get("sun"));
 		_scene.draw(_ub, _cams.get(_activeCam), _lights.get("sun"));
+		avt::StencilPicker::getTargetOn(win); // stencil is lost after unbindHDR so this stores internally the pick
 		_bloom->unbindHDR();
 
 		_bloom->bindPingBlur();
@@ -351,10 +351,10 @@ public:
 		_bloom->renderBloomFinal();
 	}
 
-	void renderWithoutBloom()
-	{
+	void renderWithoutBloom(GLFWwindow* win) {
 		//_renderer.draw(_scene, _ub, _shader, _cams.get(_activeCam), _lights.get("sun"));
 		_scene.draw(_ub, _cams.get(_activeCam), _lights.get("sun"));
+		avt::StencilPicker::getTargetOn(win);
 	}
 
 	void windowResizeCallback(GLFWwindow* win, int w, int h) override {
@@ -402,6 +402,9 @@ public:
 		case GLFW_KEY_B:
 			_turnOffOnBloom = !_turnOffOnBloom;
 			break;
+		case GLFW_KEY_X:
+			_emitter->toggle();
+			break;
 		}
 
 	}
@@ -416,10 +419,11 @@ public:
 			int x = static_cast<int>(cursorX);
 			int y = winy - static_cast<int>(cursorY);
 
-			auto target = avt::StencilPicker::getTargetOn(x, y);
-			if (target.second == "tree") {
-				_meshes.get("tree")->colorAll({ avt::random(), avt::random(), avt::random() });
-				_meshes.get("tree")->updateBufferData();
+			auto target = avt::StencilPicker::getLastPick();
+			if (target.second == "fire") {
+				_emitter->toggle();
+				//_meshes.get("tree")->colorAll({ avt::random(), avt::random(), avt::random() });
+				//_meshes.get("tree")->updateBufferData();
 			}
 
 		}
@@ -437,7 +441,7 @@ int main(int argc, char* argv[]) {
 	avt::Engine engine;
 	engine.setApp(app);
 	engine.setOpenGL(gl_major, gl_minor);
-	engine.setWindow(640, 480, "Penrose Museum", is_fullscreen, is_vsync);
+	engine.setWindow(640, 480, "Low Poly Loli", is_fullscreen, is_vsync);
 
 	engine.init();
 	engine.run();

@@ -255,7 +255,7 @@ namespace avt {
 		Particle p;
 		p.s = {};
 		p.v = Vector3(randrange(-1.f, 1.f), 0, randrange(-1.f, 1.f)).normalize() * .3f;
-		p.a = Vector3(0, randrange(1.f, 3.f), 0);
+		p.a = Vector3(0, randrange(1.f, 5.f), 0);
 		p.initialSize = randrange(.5f, .8f);
 		p.size = 0;
 		p.lifetime = randrange(.8f, 1.5f);
