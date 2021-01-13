@@ -109,7 +109,6 @@ namespace avt {
 
 		if (index && index <= _targets.size()) _last = _targets[index - 1];
 		else _last = { nullptr, "" };
-
 		return _last;
 	}
 
@@ -124,7 +123,7 @@ namespace avt {
 
 		if (x <= 0 || y <= 0 || x >= winx || y >= winy)
 			return _last = { nullptr, "" };
-
+		
 		return getTargetOn(x, y);
 	}
 

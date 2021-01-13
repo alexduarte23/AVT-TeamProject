@@ -17,7 +17,7 @@ namespace avt {
 		Shader _ShaderGaussianBlur;
 		Shader _ShaderBloomFinal;
 
-		unsigned int _amount = 40;
+		unsigned int _amount = 2;
 		bool _bloom = true;
 		GLfloat exposure = .7f;
 
@@ -133,7 +133,7 @@ namespace avt {
 				if(_amount > 0)
 					_amount += t;
 			if (t >= 0)
-				if (_amount < 100)
+				if (_amount < 20)
 					_amount += t;
 		}
 
