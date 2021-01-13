@@ -103,7 +103,7 @@ namespace avt {
 			if (!_default.get()) {
 				_default.reset(new Texture());
 				_default->setWrap(GL_REPEAT, GL_REPEAT);
-				_default->setFilter(GL_LINEAR, GL_LINEAR);
+				_default->setFilter(GL_NEAREST, GL_NEAREST);
 				_default->create("Resources/textures/default.png");
 			}
 			return _default.get();
