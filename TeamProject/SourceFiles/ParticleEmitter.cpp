@@ -247,4 +247,96 @@ namespace avt {
 			if (p->age > p->lifetime) p->age = -1;
 		}
 	}
+
+
+	// FIRE EMITTER
+
+	void FireEmitter::spawn(float dt) {
+		Particle p;
+		p.s = {};
+		p.v = Vector3(randrange(-1.f, 1.f), 0, randrange(-1.f, 1.f)).normalize() * .3f;
+		p.a = Vector3(0, randrange(1.f, 5.f), 0);
+		p.initialSize = randrange(.5f, .8f);
+		p.size = 0;
+		p.lifetime = randrange(.8f, 1.5f);
+		p.rot = randrange(0, 2*PI);
+
+		addParticle(p);
+	}
+
+	void FireEmitter::updateParticles(float dt) {
+		
+		for (auto p : _particles) {
+			if (p->age < 0) continue;
+			p->age += dt;
+			if (p->age > p->lifetime) p->age = p->lifetime;
+
+			if (p->age > K1) p->color.setW(1 - (p->age - K1) / (p->lifetime - K1));
+
+			if (p->age < K2) p->size = p->initialSize / K2 * p->age;
+			else p->size = p->initialSize;
+
+			p->v += p->a * dt;
+			p->s += p->v * dt;
+
+			/*if (p->age < 0) continue;
+			float rand = random();
+			if (rand < 0.1f) {
+				p->v = (Quaternion({ 0,1,0 }, randrange(.05, .3f)).toMat() * p->v.to4D()).to3D();
+			}
+			else if (rand > .95f) {
+				p->v = (Quaternion({ 0,1,0 }, -randrange(.05, .3f)).toMat() * p->v.to4D()).to3D();
+
+			}
+			//p->v += p->a * dt;
+			p->s += p->v * dt;
+			p->age += dt;
+			if (p->age < 2.f) p->color.setW(p->initialColor.w() / 2.f * p->age);
+			else if (p->age > p->lifetime - 2.f) p->color.setW(-p->initialColor.w() / 2.f * p->age + p->initialColor.w() + p->initialColor.w() / 2.f * (p->lifetime - 2.f));
+			else p->color.setW(p->initialColor.w());
+			*/
+		}
+	}
+
+	void FireEmitter::kill(float dt) {
+		for (auto p : _particles) {
+			if (p->age >= p->lifetime) p->age = -1;
+		}
+	}
+
+	void FireEmitter::draw(Shader* shader, const Mat4& worldMatrix, Light* light) {
+		auto newWorldMat = worldMatrix * getTransform();
+		Shader* curr_shader = getShader() ? getShader() : shader;
+		curr_shader->bind();
+
+		_va.bind();
+
+		StencilPicker::prepareStencil(getStencilIndex());
+
+		std::vector<ParticleBody> data;
+		for (auto p : _particles) {
+			if (p->age < 0) continue;
+			data.push_back({ p->s, p->color, p->size, p->rot });
+		}
+		_instance_vb.fill(data.data(), (GLsizei)data.size() * sizeof(ParticleBody));
+		_instance_vb.unbind();
+
+		_texture.bind(0);
+		_dissolveMap.bind(1);
+
+		beforeDraw();
+		glDepthMask(GL_FALSE);
+		glUniformMatrix4fv(curr_shader->getUniform(MODEL_MATRIX), 1, GL_FALSE, newWorldMat.data());
+		glDrawArraysInstanced(GL_TRIANGLE_STRIP, 0, 4, (GLsizei)data.size());
+		glDepthMask(GL_TRUE);
+		afterDraw();
+
+		_texture.unbind(0);
+		_dissolveMap.unbind(1);
+
+		_va.unbind();
+		curr_shader->unbind();
+
+	}
+
 }

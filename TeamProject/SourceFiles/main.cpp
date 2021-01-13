@@ -81,7 +81,6 @@ private:
 
 
 		_tree = _scene.createNode(treeM);
-		avt::StencilPicker::addTarget(_tree, "tree");
 		//_tree->setStencilIndex(1);
 
 		_tree2 = _scene.createNode(treeM);
@@ -109,10 +108,11 @@ private:
 		//colorCube->rotateY(-avt::PI/2);
 		colorCube->scale({ .3f,.3f,.3f });
 
-		_emitter = new avt::FireflyEmitter(2, 1);
+		_emitter = new avt::FireEmitter();
+		avt::StencilPicker::addTarget(_emitter, "fire");
 		_emitter->setShader(&_shaderP);
 		//_emitter->scale({ .2f, .2f, .2f });
-		_emitter->translate({ 0,-1.f,0 });
+		_emitter->translate({ 0,0,3.f });
 		_scene.addNode(_emitter); // scene deletes nodes when destroyed
 
 
@@ -178,7 +178,7 @@ private:
 		_shader.create();
 
 		_shaderP.addShader(GL_VERTEX_SHADER, "./Resources/particleShaders/particles-vs.glsl");
-		_shaderP.addShader(GL_FRAGMENT_SHADER, "./Resources/particleShaders/particles-fs.glsl");
+		_shaderP.addShader(GL_FRAGMENT_SHADER, "./Resources/particleShaders/fire-fs.glsl");
 		_shaderP.addAttribute("in_vertex", 0);
 		_shaderP.addAttribute("in_texCoord", 1);
 		_shaderP.addAttribute("in_pos", 2);
@@ -186,8 +186,14 @@ private:
 		_shaderP.addAttribute("in_size", 4);
 		_shaderP.addAttribute("in_rot", 5);
 		_shaderP.addUniform("ModelMatrix");
+		_shaderP.addUniform("in_texture");
+		_shaderP.addUniform("in_dissolveMap");
 		_shaderP.addUbo("SharedMatrices", UBO_BP);
 		_shaderP.create();
+		_shaderP.bind();
+		glUniform1i(_shaderP.getUniform("in_texture"), 0);
+		glUniform1i(_shaderP.getUniform("in_dissolveMap"), 1);
+		_shaderP.unbind();
 	}
 
 
@@ -326,14 +332,14 @@ public:
 		_shader.unbind();
 
 		renderWithBloom(win);
-		//renderWithoutBloom();
+		//renderWithoutBloom(win);
 	}
 
-	void renderWithBloom(GLFWwindow* win)
-	{
+	void renderWithBloom(GLFWwindow* win) {
 		_bloom->bindHDR();
 		//_renderer.draw(_scene, _ub, _shader, _cams.get(_activeCam), _lights.get("sun"));
 		_scene.draw(_ub, _cams.get(_activeCam), _lights.get("sun"));
+		avt::StencilPicker::getTargetOn(win); // stencil is lost after unbindHDR so this stores internally the pick
 		_bloom->unbindHDR();
 
 		_bloom->bindPingBlur();
@@ -345,10 +351,10 @@ public:
 		_bloom->renderBloomFinal();
 	}
 
-	void renderWithoutBloom()
-	{
+	void renderWithoutBloom(GLFWwindow* win) {
 		//_renderer.draw(_scene, _ub, _shader, _cams.get(_activeCam), _lights.get("sun"));
 		_scene.draw(_ub, _cams.get(_activeCam), _lights.get("sun"));
+		avt::StencilPicker::getTargetOn(win);
 	}
 
 	void windowResizeCallback(GLFWwindow* win, int w, int h) override {
@@ -396,6 +402,9 @@ public:
 		case GLFW_KEY_B:
 			_turnOffOnBloom = !_turnOffOnBloom;
 			break;
+		case GLFW_KEY_X:
+			_emitter->toggle();
+			break;
 		}
 
 	}
@@ -410,10 +419,11 @@ public:
 			int x = static_cast<int>(cursorX);
 			int y = winy - static_cast<int>(cursorY);
 
-			auto target = avt::StencilPicker::getTargetOn(x, y);
-			if (target.second == "tree") {
-				_meshes.get("tree")->colorAll({ avt::random(), avt::random(), avt::random() });
-				_meshes.get("tree")->updateBufferData();
+			auto target = avt::StencilPicker::getLastPick();
+			if (target.second == "fire") {
+				_emitter->toggle();
+				//_meshes.get("tree")->colorAll({ avt::random(), avt::random(), avt::random() });
+				//_meshes.get("tree")->updateBufferData();
 			}
 
 		}
@@ -431,7 +441,7 @@ int main(int argc, char* argv[]) {
 	avt::Engine engine;
 	engine.setApp(app);
 	engine.setOpenGL(gl_major, gl_minor);
-	engine.setWindow(640, 480, "Penrose Museum", is_fullscreen, is_vsync);
+	engine.setWindow(1280, 960, "Low Poly Loli", is_fullscreen, is_vsync);
 
 	engine.init();
 	engine.run();
