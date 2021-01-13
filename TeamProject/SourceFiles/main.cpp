@@ -441,7 +441,7 @@ int main(int argc, char* argv[]) {
 	avt::Engine engine;
 	engine.setApp(app);
 	engine.setOpenGL(gl_major, gl_minor);
-	engine.setWindow(640, 480, "Low Poly Loli", is_fullscreen, is_vsync);
+	engine.setWindow(1280, 960, "Low Poly Loli", is_fullscreen, is_vsync);
 
 	engine.init();
 	engine.run();
