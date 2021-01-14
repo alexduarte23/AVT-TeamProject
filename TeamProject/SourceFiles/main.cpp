@@ -5,7 +5,7 @@
 
 #include <vector>
 
-#include "../HeaderFiles/Shadow.h"
+//#include "../HeaderFiles/Shadow.h"
 #include "../HeaderFiles/TerrainPlane.h"
 #include "../HeaderFiles/Cloud.h"
 
@@ -32,7 +32,7 @@ private:
 
 	avt::ParticleEmitter* _emitter = nullptr;
 
-	avt::Shadow _shadow;
+	avt::Shadow _shadow, _shadow2, _shadow3, _shadow4;
 	avt::Bloom* _bloom = nullptr;
 
 	avt::Manager<avt::Mesh> _meshes;
@@ -170,7 +170,13 @@ private:
 		_shader.addAttribute("inColor", COLORS);
 		_shader.addUniform("ModelMatrix");
 		_shader.addUniform("lightSpaceMatrix");
+		_shader.addUniform("lightSpaceMatrix2");
+		_shader.addUniform("lightSpaceMatrix3");
+		_shader.addUniform("lightSpaceMatrix4");
 		_shader.addUniform("shadowMap");
+		_shader.addUniform("shadowMap2");
+		_shader.addUniform("shadowMap3");
+		_shader.addUniform("shadowMap4");
 		_shader.addUniform("LightPosition");
 		_shader.addUniform("LightColor");
 		_shader.addUniform("EyePosition");
@@ -226,9 +232,16 @@ private:
 		*/
 
 		_shadow = avt::Shadow((unsigned int)1024, (unsigned int)1024, avt::PerspectiveCamera(90.f, aspect, 0.1f, 100.0f, avt::Vector3(0, 0, 10.f)));
-		_shadow.setPosition({ 4.0f, 0.0f, 0.0f });
-		_shadow.lookAt({ 0.0f, 0.0f, 0.0f });
 		_shadow.setup();
+
+		_shadow2 = avt::Shadow((unsigned int)1024, (unsigned int)1024, avt::PerspectiveCamera(90.f, aspect, 0.1f, 100.0f, avt::Vector3(0, 0, 10.f)));
+		_shadow2.setup();
+
+		_shadow3 = avt::Shadow((unsigned int)1024, (unsigned int)1024, avt::PerspectiveCamera(90.f, aspect, 0.1f, 100.0f, avt::Vector3(0, 0, 10.f)));
+		_shadow3.setup();
+
+		_shadow4 = avt::Shadow((unsigned int)1024, (unsigned int)1024, avt::PerspectiveCamera(90.f, aspect, 0.1f, 100.0f, avt::Vector3(0, 0, 10.f)));
+		_shadow4.setup();
 
 	}
 
@@ -306,11 +319,23 @@ public:
 		_lights.get("sun")->setPosition(_light->pos().to3D());
 
 		_shadow.setPosition(_light->pos().to3D());
-		_shadow.lookAt({ 0.0f, 0.0f, 0.0f });
+		_shadow.lookAt(_light->pos().to3D() + avt::Vector3(1.f, 0.0f, 0.0f));
+
+		_shadow2.setPosition(_light->pos().to3D());
+		_shadow2.lookAt(_light->pos().to3D() + avt::Vector3(0.0f, 0.0f, 1.f));
+
+		_shadow3.setPosition(_light->pos().to3D());
+		_shadow3.lookAt(_light->pos().to3D() + avt::Vector3(-1.f, 0.0f, 0.0f));
+
+		_shadow4.setPosition(_light->pos().to3D());
+		_shadow4.lookAt(_light->pos().to3D() + avt::Vector3(0.0f, 0.0f, -1.f));
 
 		//Update Shader uniforms
 		_shader.bind();
 		glUniformMatrix4fv(_shader.getUniform("lightSpaceMatrix"), 1, GL_FALSE, (_shadow._lightView.projMatrix() * _shadow._lightView.viewMatrix()).GLdata()); //TODO private stuff here
+		glUniformMatrix4fv(_shader.getUniform("lightSpaceMatrix2"), 1, GL_FALSE, (_shadow2._lightView.projMatrix() * _shadow2._lightView.viewMatrix()).GLdata()); //TODO private stuff here
+		glUniformMatrix4fv(_shader.getUniform("lightSpaceMatrix3"), 1, GL_FALSE, (_shadow3._lightView.projMatrix() * _shadow3._lightView.viewMatrix()).GLdata()); //TODO private stuff here
+		glUniformMatrix4fv(_shader.getUniform("lightSpaceMatrix4"), 1, GL_FALSE, (_shadow4._lightView.projMatrix() * _shadow4._lightView.viewMatrix()).GLdata()); //TODO private stuff here
 		avt::Vector3 camPos = _cams.get(_activeCam)->position();
 		glUniform3f(_shader.getUniform("EyePosition"), camPos.x(), camPos.y(), camPos.z());
 		_shader.unbind();
@@ -324,11 +349,28 @@ public:
 		_renderer.clear();
 
 		_shadow.renderToDepthMap(_renderer, _scene, (unsigned int)winx, (unsigned int)winy);
+		_shadow2.renderToDepthMap(_renderer, _scene, (unsigned int)winx, (unsigned int)winy);
+		_shadow3.renderToDepthMap(_renderer, _scene, (unsigned int)winx, (unsigned int)winy);
+		_shadow4.renderToDepthMap(_renderer, _scene, (unsigned int)winx, (unsigned int)winy);
 
 		_shader.bind();
 		glActiveTexture(GL_TEXTURE0);
 		glBindTexture(GL_TEXTURE_2D, _shadow.depthMap());
 		glUniform1i(_shader.getUniform("shadowMap"), 0);
+
+		glActiveTexture(GL_TEXTURE1);
+		glBindTexture(GL_TEXTURE_2D, _shadow2.depthMap());
+		glUniform1i(_shader.getUniform("shadowMap2"), 1);
+
+		glActiveTexture(GL_TEXTURE2);
+		glBindTexture(GL_TEXTURE_2D, _shadow3.depthMap());
+		glUniform1i(_shader.getUniform("shadowMap3"), 2);
+
+		glActiveTexture(GL_TEXTURE3);
+		glBindTexture(GL_TEXTURE_2D, _shadow4.depthMap());
+		glUniform1i(_shader.getUniform("shadowMap4"), 3);
+
+		glActiveTexture(GL_TEXTURE0);
 		_shader.unbind();
 
 		renderWithBloom(win);

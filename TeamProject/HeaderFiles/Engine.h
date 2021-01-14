@@ -34,6 +34,8 @@
 #include "ParticleEmitter.h"
 #include "StencilPicker.h"
 
+#include "Shadow.h"
+
 
 #define ERROR_CALLBACK
 
