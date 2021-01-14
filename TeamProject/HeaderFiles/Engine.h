@@ -34,6 +34,8 @@
 #include "ParticleEmitter.h"
 #include "StencilPicker.h"
 
+#include "CloudSystem.h"
+
 
 #define ERROR_CALLBACK
 

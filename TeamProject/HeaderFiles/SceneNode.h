@@ -54,6 +54,26 @@ namespace avt {
 			return node;
 		}
 
+		bool deleteNode(int index) {
+			if (index < 0 || index >= _nodes.size()) return false;
+
+			delete _nodes[index];
+			_nodes.erase(_nodes.begin() + index);
+			return true;
+		}
+
+		bool deleteNode(const SceneNode* node) {
+			for (int i = 0; i < _nodes.size(); i++) {
+				if (_nodes[i] == node) {
+					delete _nodes[i];
+					_nodes.erase(_nodes.begin() + i);
+					return true;
+				}
+			}
+
+			return false;
+		}
+
 		void setMesh(Mesh* mesh) {
 			_mesh = mesh;
 		}

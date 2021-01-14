@@ -2,15 +2,23 @@
 
 #pragma once
 
-#include "Mesh.h"
+#include "SceneNode.h"
 #include "Perlin.h"
 
 namespace avt {
 
-	class Cloud : public Mesh {
+	class CloudSystem : public SceneNode {
+	private:
+		
+		Mesh _cubeMesh;
+
 	public:
-		Cloud() {
+		CloudSystem() : _cubeMesh("./Resources/Objects/cube_vtn_flat.obj") {
+			_cubeMesh.setup();
+			createNode(&_cubeMesh);
+			//loadOBJ("./Resources/Objects/cube_vtn_flat.obj");
 			//Vertex field with squares in order
+			/*
 			for (int i = 0; i < 10; i++) {
 				for (int j = 0; j < 10; j++) {
 					Mesh m = Mesh("./Resources/Objects/cube_vtn_flat.obj");
@@ -29,16 +37,9 @@ namespace avt {
 			
 			computeFaceNormals();
 			applyTransform(Mat4::scale({ 0.25f, 0.25f, 0.25f }));
-
+			*/
 		}
 
-		void update(float t) {
-			for (auto& v : _meshData) {
-				v.position.setY(Perlin::perlin(v.position.x() + t, v.position.z() + t)-0.5f);
-			}
-			computeFaceNormals();
-			updateBufferData();
-		}
 	};
 
 }

@@ -7,9 +7,10 @@ namespace avt {
 
 	class Perlin {
 	private:
+
 		static float interpolate(float a0, float a1, float w) {
-			//return (a1 - a0) * w + a0;
-			return (a1 - a0) * (3.0 - w * 2.0) * w * w + a0;
+			return (a1 - a0) * w + a0;
+			//return (a1 - a0) * (3.0 - w * 2.0) * w * w + a0;
 		}
 
 		static Vector2 randomGradient(int ix, int iy) {
@@ -31,6 +32,10 @@ namespace avt {
 			return (dx * gradient.x() + dy * gradient.y());
 		}
 
+		static float fade(float a) {
+			return a * a * a * (a * (a * 6.0 - 15.0) + 10.0);
+		}
+
 	public:
 		static float perlin(float x, float y) {
 			// Determine grid cell coordinates
@@ -41,23 +46,25 @@ namespace avt {
 
 			// Determine interpolation weights
 			// Could also use higher order polynomial/s-curve here
-			float sx = 0.8 + x - (float)x0;
-			float sy = 0.8 + y - (float)y0;
+			float sx = x - x0;//0.8 + x - (float)x0;
+			float sy = y - y0;//0.8 + y - (float)y0;
 
 			// Interpolate between grid point gradients
 			float n0, n1, ix0, ix1, value;
 
 			n0 = dotGridGradient(x0, y0, x, y);
 			n1 = dotGridGradient(x1, y0, x, y);
-			ix0 = interpolate(n0, n1, sx);
+			ix0 = interpolate(n0, n1, fade(sx));
 
 			n0 = dotGridGradient(x0, y1, x, y);
 			n1 = dotGridGradient(x1, y1, x, y);
-			ix1 = interpolate(n0, n1, sx);
+			ix1 = interpolate(n0, n1, fade(sx));
 
-			value = interpolate(ix0, ix1, sy);
+			value = interpolate(ix0, ix1, fade(sy));
 			return value;
 		}
+		
+
 	};
 
 }

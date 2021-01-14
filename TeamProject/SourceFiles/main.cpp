@@ -7,7 +7,7 @@
 
 #include "../HeaderFiles/Shadow.h"
 #include "../HeaderFiles/TerrainPlane.h"
-#include "../HeaderFiles/Cloud.h"
+
 
 class MyNodeCallback : public avt::SceneNodeCallback {
 public:
@@ -61,8 +61,8 @@ private:
 		auto floorM = _meshes.add("floor", new avt::TerrainPlane());
 		floorM->setup();
 
-		auto cloudM = _meshes.add("cloud", new avt::Cloud());
-		cloudM->setup();
+		//auto cloudM = _meshes.add("cloud", new avt::Cloud());
+		//cloudM->setup();
 
 		
 		auto lightM = _meshes.add("cube", new avt::Mesh("./Resources/Objects/cube_vtn_flat.obj"));
@@ -107,6 +107,10 @@ private:
 		colorCube->translate({ 0,0,5.f });
 		//colorCube->rotateY(-avt::PI/2);
 		colorCube->scale({ .3f,.3f,.3f });
+
+		auto clouds = _scene.addNode(new avt::CloudSystem());
+		clouds->translate({ 0,5.f,5.f });
+		clouds->scale({ .5f,.5f,.5f });
 
 		_emitter = new avt::FireEmitter();
 		avt::StencilPicker::addTarget(_emitter, "fire");
