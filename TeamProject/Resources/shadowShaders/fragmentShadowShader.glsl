@@ -90,7 +90,7 @@ void main(void)
     diffuse = diffuse * strength;
 
 	float shadow = ShadowCalculation(FragPosLightSpace, lightDir);       
-    vec3 lighting = (ambient + (0.8 - shadow) * (diffuse + specular)) * objectColor;  
+    vec3 lighting = (ambient + (1 - shadow) * (diffuse + specular)) * objectColor;  
     
     FragmentColor = vec4(lighting, 1.0);
 
