@@ -60,7 +60,7 @@ void main(void)
 
 	vec3 objectColor = exColor;
 
-	vec3 ambientColor = vec3(1.0, 1.0, 1.0);
+	vec3 ambientColor = vec3(0.19, 0.17, 0.33);
 
     float shininess = 100;
 
@@ -86,8 +86,11 @@ void main(void)
     float dist = length(FragPos - LightPosition);
     float strength = 10/(constant + linear*dist + quadratic*(dist*dist));
 
+    specular = specular * strength;
+    diffuse = diffuse * strength;
+
 	float shadow = ShadowCalculation(FragPosLightSpace, lightDir);       
-    vec3 lighting = (ambient + (0.8 - shadow) * (diffuse + specular))* strength * objectColor;  
+    vec3 lighting = (ambient + (1 - shadow) * (diffuse + specular)) * objectColor;  
     
     FragmentColor = vec4(lighting, 1.0);
 
