@@ -3,6 +3,7 @@
 #include "Globals.h"
 #include "Shader.h"
 #include "OrthographicCamera.h"
+#include "PerspectiveCamera.h"
 #include "Renderer.h"
 
 namespace avt {

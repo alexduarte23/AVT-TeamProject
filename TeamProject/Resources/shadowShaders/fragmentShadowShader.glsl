@@ -6,7 +6,10 @@ in vec3 exNormal;
 in vec3 exColor;
 
 in vec3 FragPos;
-in vec4  FragPosLightSpace;
+in vec4 FragPosLightSpace;
+in vec4 FragPosLightSpace2;
+in vec4 FragPosLightSpace3;
+in vec4 FragPosLightSpace4;
 
 layout(location = 0) out vec4 FragmentColor;
 layout(location = 1) out vec4 BrightColor;
@@ -16,8 +19,12 @@ uniform vec3 LightColor;
 uniform vec3 EyePosition;
 
 uniform sampler2D shadowMap;
+uniform sampler2D shadowMap2;
+uniform sampler2D shadowMap3;
+uniform sampler2D shadowMap4;
 
-float ShadowCalculation(vec4 fragPosLightSpace, vec3 lightDir)
+
+float ShadowCalculation(vec4 fragPosLightSpace, vec3 lightDir, sampler2D currShadowMap)
 {
 	// Adjustment to perspective projection
     vec3 projCoords = fragPosLightSpace.xyz / fragPosLightSpace.w;
@@ -26,7 +33,7 @@ float ShadowCalculation(vec4 fragPosLightSpace, vec3 lightDir)
     projCoords = projCoords * 0.5 + 0.5;
 
     //Get the closest depth position
-    float closestDepth = texture(shadowMap, projCoords.xy).r; 
+    float closestDepth = texture(currShadowMap, projCoords.xy).r; 
     //Get the depth of the current fragment
     float currentDepth = projCoords.z;
 
@@ -37,12 +44,12 @@ float ShadowCalculation(vec4 fragPosLightSpace, vec3 lightDir)
     
 	//PCF TEST
 	float shadow = 0.0;
-    vec2 texelSize = 1.0 / textureSize(shadowMap, 0);
+    vec2 texelSize = 1.0 / textureSize(currShadowMap, 0);
     for(int x = -1; x <= 1; ++x)
     {
         for(int y = -1; y <= 1; ++y)
         {
-            float pcfDepth = texture(shadowMap, projCoords.xy + vec2(x, y) * texelSize).r; 
+            float pcfDepth = texture(currShadowMap, projCoords.xy + vec2(x, y) * texelSize).r; 
             shadow += currentDepth - bias > pcfDepth  ? 1.0 : 0.0;        
         }    
     }
@@ -89,7 +96,18 @@ void main(void)
     specular = specular * strength;
     diffuse = diffuse * strength;
 
-	float shadow = ShadowCalculation(FragPosLightSpace, lightDir);       
+    float shadow = 0.0;
+    shadow = shadow + ShadowCalculation(FragPosLightSpace, lightDir, shadowMap);
+    if(shadow==0.0){
+        shadow = shadow + ShadowCalculation(FragPosLightSpace2, lightDir, shadowMap2); 
+    }
+    if(shadow==0.0){
+        shadow = shadow + ShadowCalculation(FragPosLightSpace3, lightDir, shadowMap3); 
+    }
+    if(shadow==0.0){
+        shadow = shadow + ShadowCalculation(FragPosLightSpace4, lightDir, shadowMap4); 
+    }
+    
     vec3 lighting = (ambient + (1 - shadow) * (diffuse + specular)) * objectColor;  
     
     FragmentColor = vec4(lighting, 1.0);
