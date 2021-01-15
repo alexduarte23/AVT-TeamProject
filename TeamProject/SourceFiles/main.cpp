@@ -24,7 +24,7 @@ public:
 
 class MyApp : public avt::App {
 private:
-	avt::Shader _shader, _shaderP;
+	avt::Shader _shader, _shaderParticles, _shaderClouds;
 	avt::Renderer _renderer;
 	avt::UniformBuffer _ub;
 	avt::Scene _scene;
@@ -111,12 +111,13 @@ private:
 
 		_cloudSystem = new avt::CloudSystem();
 		_scene.addNode(_cloudSystem);
+		_cloudSystem->setShader(&_shaderClouds);
 		_cloudSystem->translate({ 3.f,8.f,-3.f });
 		_cloudSystem->scale({ .5f,.5f,.5f });
 
 		_emitter = new avt::FireEmitter();
 		avt::StencilPicker::addTarget(_emitter, "fire");
-		_emitter->setShader(&_shaderP);
+		_emitter->setShader(&_shaderParticles);
 		//_emitter->scale({ .2f, .2f, .2f });
 		_emitter->translate({ 0,0,3.f });
 		_scene.addNode(_emitter); // scene deletes nodes when destroyed
@@ -189,23 +190,46 @@ private:
 		_shader.addUbo("CameraMatrices", UBO_BP);
 		_shader.create();
 
-		_shaderP.addShader(GL_VERTEX_SHADER, "./Resources/particleShaders/particles-vs.glsl");
-		_shaderP.addShader(GL_FRAGMENT_SHADER, "./Resources/particleShaders/fire-fs.glsl");
-		_shaderP.addAttribute("in_vertex", 0);
-		_shaderP.addAttribute("in_texCoord", 1);
-		_shaderP.addAttribute("in_pos", 2);
-		_shaderP.addAttribute("in_color", 3);
-		_shaderP.addAttribute("in_size", 4);
-		_shaderP.addAttribute("in_rot", 5);
-		_shaderP.addUniform("ModelMatrix");
-		_shaderP.addUniform("in_texture");
-		_shaderP.addUniform("in_dissolveMap");
-		_shaderP.addUbo("SharedMatrices", UBO_BP);
-		_shaderP.create();
-		_shaderP.bind();
-		glUniform1i(_shaderP.getUniform("in_texture"), 0);
-		glUniform1i(_shaderP.getUniform("in_dissolveMap"), 1);
-		_shaderP.unbind();
+		_shaderClouds.addShader(GL_VERTEX_SHADER, "./Resources/shadowShaders/vertexShadowCloudsShader.glsl");
+		_shaderClouds.addShader(GL_FRAGMENT_SHADER, "./Resources/shadowShaders/fragmentShadowShader.glsl");
+		_shaderClouds.addAttribute("inPosition", VERTICES);
+		_shaderClouds.addAttribute("inTexcoord", TEXTURES);
+		_shaderClouds.addAttribute("inNormal", NORMALS);
+		_shaderClouds.addAttribute("inColor", COLORS);
+		_shaderClouds.addAttribute("inOffset", 4);
+		_shaderClouds.addAttribute("inSize", 5);
+		_shaderClouds.addUniform("ModelMatrix");
+		_shaderClouds.addUniform("lightSpaceMatrix");
+		_shaderClouds.addUniform("lightSpaceMatrix2");
+		_shaderClouds.addUniform("lightSpaceMatrix3");
+		_shaderClouds.addUniform("lightSpaceMatrix4");
+		_shaderClouds.addUniform("shadowMap");
+		_shaderClouds.addUniform("shadowMap2");
+		_shaderClouds.addUniform("shadowMap3");
+		_shaderClouds.addUniform("shadowMap4");
+		_shaderClouds.addUniform("LightPosition");
+		_shaderClouds.addUniform("LightColor");
+		_shaderClouds.addUniform("EyePosition");
+		_shaderClouds.addUbo("CameraMatrices", UBO_BP);
+		_shaderClouds.create();
+
+		_shaderParticles.addShader(GL_VERTEX_SHADER, "./Resources/particleShaders/particles-vs.glsl");
+		_shaderParticles.addShader(GL_FRAGMENT_SHADER, "./Resources/particleShaders/fire-fs.glsl");
+		_shaderParticles.addAttribute("in_vertex", 0);
+		_shaderParticles.addAttribute("in_texCoord", 1);
+		_shaderParticles.addAttribute("in_pos", 2);
+		_shaderParticles.addAttribute("in_color", 3);
+		_shaderParticles.addAttribute("in_size", 4);
+		_shaderParticles.addAttribute("in_rot", 5);
+		_shaderParticles.addUniform("ModelMatrix");
+		_shaderParticles.addUniform("in_texture");
+		_shaderParticles.addUniform("in_dissolveMap");
+		_shaderParticles.addUbo("SharedMatrices", UBO_BP);
+		_shaderParticles.create();
+		_shaderParticles.bind();
+		glUniform1i(_shaderParticles.getUniform("in_texture"), 0);
+		glUniform1i(_shaderParticles.getUniform("in_dissolveMap"), 1);
+		_shaderParticles.unbind();
 	}
 
 
@@ -347,6 +371,14 @@ public:
 		glUniform3f(_shader.getUniform("EyePosition"), camPos.x(), camPos.y(), camPos.z());
 		_shader.unbind();
 		
+		_shaderClouds.bind();
+		glUniformMatrix4fv(_shaderClouds.getUniform("lightSpaceMatrix"), 1, GL_FALSE, (_shadow._lightView.projMatrix() * _shadow._lightView.viewMatrix()).GLdata()); //TODO private stuff here
+		glUniformMatrix4fv(_shaderClouds.getUniform("lightSpaceMatrix2"), 1, GL_FALSE, (_shadow2._lightView.projMatrix() * _shadow2._lightView.viewMatrix()).GLdata()); //TODO private stuff here
+		glUniformMatrix4fv(_shaderClouds.getUniform("lightSpaceMatrix3"), 1, GL_FALSE, (_shadow3._lightView.projMatrix() * _shadow3._lightView.viewMatrix()).GLdata()); //TODO private stuff here
+		glUniformMatrix4fv(_shaderClouds.getUniform("lightSpaceMatrix4"), 1, GL_FALSE, (_shadow4._lightView.projMatrix() * _shadow4._lightView.viewMatrix()).GLdata()); //TODO private stuff here
+		//avt::Vector3 camPos = _cams.get(_activeCam)->position();
+		glUniform3f(_shaderClouds.getUniform("EyePosition"), camPos.x(), camPos.y(), camPos.z());
+		_shaderClouds.unbind();
 		
 	}
 
@@ -379,6 +411,26 @@ public:
 
 		glActiveTexture(GL_TEXTURE0);
 		_shader.unbind();
+
+		_shaderClouds.bind();
+		glActiveTexture(GL_TEXTURE0);
+		glBindTexture(GL_TEXTURE_2D, _shadow.depthMap());
+		glUniform1i(_shaderClouds.getUniform("shadowMap"), 0);
+
+		glActiveTexture(GL_TEXTURE1);
+		glBindTexture(GL_TEXTURE_2D, _shadow2.depthMap());
+		glUniform1i(_shaderClouds.getUniform("shadowMap2"), 1);
+
+		glActiveTexture(GL_TEXTURE2);
+		glBindTexture(GL_TEXTURE_2D, _shadow3.depthMap());
+		glUniform1i(_shaderClouds.getUniform("shadowMap3"), 2);
+
+		glActiveTexture(GL_TEXTURE3);
+		glBindTexture(GL_TEXTURE_2D, _shadow4.depthMap());
+		glUniform1i(_shaderClouds.getUniform("shadowMap4"), 3);
+
+		glActiveTexture(GL_TEXTURE0);
+		_shaderClouds.unbind();
 
 		renderWithBloom(win);
 		//renderWithoutBloom(win);

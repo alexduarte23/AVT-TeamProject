@@ -22,10 +22,10 @@ namespace avt {
 		};
 
 		Mesh _cubeMesh;
-		//std::vector<Vertex> _cubeData;
+		std::vector<Vertex> _cubeData;
 		//std::vector<CloudInfo> _cloudCubes;
-		//VertexBuffer _cube_vb, _instance_vb;
-		//VertexArray _va;
+		VertexBuffer _cube_vb, _instance_vb;
+		VertexArray _va;
 
 		GridCell** grid = nullptr;
 
@@ -33,7 +33,7 @@ namespace avt {
 		float perlinSpacing = 0.2;
 		float threshold = 0.4;
 		float threshold2 = 0.07;
-		int rowN = 10;
+		int rowN = 15;
 		int _maxCubes = rowN * rowN;
 
 		float movePeriod = 1.0;
@@ -42,11 +42,11 @@ namespace avt {
 		float time = 0;
 
 	public:
-		CloudSystem() : //_cubeData(Mesh::loadOBJ("./Resources/Objects/cube_vtn_flat.obj")) {
-			_cubeMesh("./Resources/Objects/cube_vtn_flat.obj") {
+		CloudSystem() : _cubeData(Mesh::loadOBJ("./Resources/Objects/cube_vtn_flat.obj")) {
+			//_cubeMesh("./Resources/Objects/cube_vtn_flat.obj") {
 
-			_cubeMesh.setup();
-			/*
+			//_cubeMesh.setup();
+			
 			_va.create();
 
 			VertexBufferLayout cube_layout;
@@ -69,7 +69,7 @@ namespace avt {
 			_instance_vb.unbind();
 
 			_va.unbind();
-			*/
+			
 
 			grid = new GridCell*[rowN];
 			for (int i = 0; i < rowN; i++) {
@@ -113,7 +113,7 @@ namespace avt {
 		}
 
 		void regen() {
-			deleteAll();
+			//deleteAll();
 
 			Vector2 gridPoint(randrange(0, 100), randrange(0, 100));
 			gridPoint = Vector2(randrange(0, 100), randrange(0, 100));
@@ -189,7 +189,7 @@ namespace avt {
 			updateSizes(dt);
 
 
-			deleteAll();
+			/*deleteAll();
 			for (int i = 0; i < rowN; i++) {
 				for (int j = 0; j < rowN; j++) {
 					if (grid[i][j].size == 0) continue;
@@ -198,10 +198,10 @@ namespace avt {
 					cube->scale(Vector3() + grid[i][j].size);
 					cube->translate({ spacing * i, 0, spacing * j });
 				}
-			}
+			}*/
 		}
 
-		/*void draw(Shader* shader, const Mat4& worldMatrix, Light* light) override {
+		void draw(Shader* shader, const Mat4& worldMatrix, Light* light) override {
 			auto newWorldMat = worldMatrix * getTransform();
 			Shader* curr_shader = getShader() ? getShader() : shader;
 			if (getShader()) {
@@ -214,18 +214,20 @@ namespace avt {
 
 			StencilPicker::prepareStencil(getStencilIndex());
 
-			//std::vector<ParticleBody> data;
-			//for (auto p : _particles) {
-			//	if (p->age < 0) continue;
-			//	data.push_back({ p->s, p->color, p->size, p->rot });
-			//}
-			_instance_vb.fill(_cloudCubes.data(), (GLsizei)_cloudCubes.size() * sizeof(CloudInfo));
+			std::vector<CloudInfo> data;
+			for (int i = 0; i < rowN; i++) {
+				for (int j = 0; j < rowN; j++) {
+					if (grid[i][j].size == 0) continue;
+					data.push_back({ { spacing * i, 0, spacing * j }, grid[i][j].size });
+				}
+			}
+			_instance_vb.fill(data.data(), (GLsizei)data.size() * sizeof(CloudInfo));
 			_instance_vb.unbind();
 
 
 			beforeDraw();
 			glUniformMatrix4fv(curr_shader->getUniform(MODEL_MATRIX), 1, GL_FALSE, newWorldMat.data());
-			glDrawArraysInstanced(GL_TRIANGLES, 0, _cubeData.size(), (GLsizei)_cloudCubes.size());
+			glDrawArraysInstanced(GL_TRIANGLES, 0, _cubeData.size(), (GLsizei)data.size());
 			afterDraw();
 
 			_va.unbind();
@@ -235,7 +237,7 @@ namespace avt {
 				shader->bind();
 			}
 
-		}*/
+		}
 
 	};
 
