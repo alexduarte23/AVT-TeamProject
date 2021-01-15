@@ -36,6 +36,7 @@
 
 #include "CloudSystem.h"
 #include "PointLight.h"
+#include "Shadow.h"
 
 
 #define ERROR_CALLBACK
