@@ -2,8 +2,9 @@
 #include "avt_math.h"
 
 namespace avt {
+
 	class Light {
-	private:
+	protected:
 		avt::Vector3 _pos;
 		avt::Vector3 _color;
 		float _intensity;

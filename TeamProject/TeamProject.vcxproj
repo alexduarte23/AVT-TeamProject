@@ -194,6 +194,7 @@
     <ClInclude Include="HeaderFiles\ParticleEmitter.h" />
     <ClInclude Include="HeaderFiles\Perlin.h" />
     <ClInclude Include="HeaderFiles\PerspectiveCamera.h" />
+    <ClInclude Include="HeaderFiles\PointLight.h" />
     <ClInclude Include="HeaderFiles\Quaternion.h" />
     <ClInclude Include="HeaderFiles\Renderer.h" />
     <ClInclude Include="HeaderFiles\Scene.h" />
