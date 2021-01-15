@@ -35,6 +35,7 @@
 #include "StencilPicker.h"
 
 #include "CloudSystem.h"
+#include "Shadow.h"
 
 
 #define ERROR_CALLBACK

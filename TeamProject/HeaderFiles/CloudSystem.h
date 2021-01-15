@@ -16,18 +16,30 @@ namespace avt {
 			float size = 0;
 		};
 
+		struct GridCell {
+			float perlin = 0;
+			float size = 0;
+		};
+
 		Mesh _cubeMesh;
 		//std::vector<Vertex> _cubeData;
 		//std::vector<CloudInfo> _cloudCubes;
 		//VertexBuffer _cube_vb, _instance_vb;
 		//VertexArray _va;
 
+		GridCell** grid = nullptr;
+
 		float spacing = 0.7f;
 		float perlinSpacing = 0.2;
-		float threshold = 0.45;
+		float threshold = 0.4;
 		float threshold2 = 0.07;
-		float rowN = 20;
+		int rowN = 10;
 		int _maxCubes = rowN * rowN;
+
+		float movePeriod = 1.0;
+		float growth = 0.1;
+
+		float time = 0;
 
 	public:
 		CloudSystem() : //_cubeData(Mesh::loadOBJ("./Resources/Objects/cube_vtn_flat.obj")) {
@@ -58,6 +70,12 @@ namespace avt {
 
 			_va.unbind();
 			*/
+
+			grid = new GridCell*[rowN];
+			for (int i = 0; i < rowN; i++) {
+				grid[i] = new GridCell[rowN];
+			}
+
 			regen();
 
 
@@ -87,29 +105,98 @@ namespace avt {
 			*/
 		}
 
+		~CloudSystem() {
+			for (int i = 0; i < rowN; i++) {
+				delete[] grid[i];
+			}
+			delete[] grid;
+		}
+
 		void regen() {
 			deleteAll();
 
 			Vector2 gridPoint(randrange(0, 100), randrange(0, 100));
 			gridPoint = Vector2(randrange(0, 100), randrange(0, 100));
 
+			float max = 0;
+			Vector2 maxPos;
+
 			for (int i = 0; i < rowN; i++) {
 				for (int j = 0; j < rowN; j++) {
 					float p = Perlin::perlin(perlinSpacing * rowN / 2 - gridPoint.x() + i * perlinSpacing, perlinSpacing * rowN / 2 - gridPoint.x() + j * perlinSpacing);
 					p = p / 2.f + .5f;
 					p = p < threshold ? 0 : (p - threshold) / (1 - threshold);
+					p = p > 0.6 ? 0.6 : p;
 					p *= 3;
 					p = p * p;
-					p /= 3;
+					p /= 4;
 					p = p < threshold2 ? 0 : p;
 					//if (p > 0) std::cout << p << std::endl;
-					if (p) {
+					if (p > max) {
+						max = p;
+						maxPos = { 1.f*i, 1.f*j };
+					}
+					grid[i][j] = {p, p};
+					/*if (p) {
 						//_cloudCubes.push_back({ {spacing * i, 0, spacing * j}, p });
 						auto cube = createNode(&_cubeMesh);
 						cube->scale(Vector3() + p);
 						cube->translate({ spacing * i, 0, spacing * j });
-					}
+					}*/
 
+				}
+			}
+
+			/*for (int i = 0; i < rowN; i++) {
+				for (int j = 0; j < rowN; j++) {
+					if (grid[i][j].size == 0) continue;
+
+					auto cube = createNode(&_cubeMesh);
+					cube->scale(Vector3() + grid[i][j].size);
+					cube->translate({ spacing * i, 0, spacing * j });
+				}
+			}*/
+		}
+
+		void move() {
+			for (int i = 0; i < rowN; i++) {
+				for (int j = 0; j < rowN-1; j++) {
+					grid[i][j].perlin = grid[i][j+1].perlin;
+				}
+				grid[i][rowN - 1].perlin = 0;
+			}
+		}
+
+		void updateSizes(float dt) {
+			for (int i = 0; i < rowN; i++) {
+				for (int j = 0; j < rowN; j++) {
+					if (grid[i][j].size == grid[i][j].perlin) continue;
+					
+					float v = grid[i][j].perlin - grid[i][j].size;
+					float sign = v / abs(v);
+					grid[i][j].size += v / abs(v) * dt * growth;
+					grid[i][j].size = sign > 0 ? min(grid[i][j].size, grid[i][j].perlin) : max(grid[i][j].size, grid[i][j].perlin);
+				}
+			}
+		}
+
+		void update(float dt) {
+			time += dt;
+			if (time >= movePeriod) {
+				time = 0;
+				move();
+			}
+			updateSizes(dt);
+
+
+			deleteAll();
+			for (int i = 0; i < rowN; i++) {
+				for (int j = 0; j < rowN; j++) {
+					if (grid[i][j].size == 0) continue;
+
+					auto cube = createNode(&_cubeMesh);
+					cube->scale(Vector3() + grid[i][j].size);
+					cube->translate({ spacing * i, 0, spacing * j });
 				}
 			}
 		}

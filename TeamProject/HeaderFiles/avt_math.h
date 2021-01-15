@@ -11,6 +11,10 @@
 
 #include "Quaternion.h"
 
+#define max(a, b) (a > b ? a : b)
+#define min(a, b) (a > b ? b : a)
+#define clamp(v, b1, b2) min(max(v, b1), b2)
+
 namespace avt {
 
 	constexpr float PI = 3.14159265359f;

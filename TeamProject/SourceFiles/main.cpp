@@ -288,6 +288,7 @@ public:
 		avt::Mat4 rotMat;
 
 		_emitter->update(dt);
+		_cloudSystem->update(dt);
 		
 		if (_animating) {
 			_time += dt;
