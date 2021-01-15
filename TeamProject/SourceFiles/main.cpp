@@ -5,7 +5,7 @@
 
 #include <vector>
 
-//#include "../HeaderFiles/Shadow.h"
+#include "../HeaderFiles/Shadow.h"
 #include "../HeaderFiles/TerrainPlane.h"
 
 
@@ -66,9 +66,9 @@ private:
 		//cloudM->setup();
 
 		
-		auto lightM = _meshes.add("cube", new avt::Mesh("./Resources/Objects/cube_vtn_flat.obj"));
-		lightM->applyTransform(avt::Mat4::scale({ 0.25f, 0.25f, 0.25f }));
-		lightM->colorAll({ 1.f, 0.5f, 0.f });
+		auto lightM = _meshes.add("moon", new avt::Mesh("./Resources/Objects/sun_moon.obj"));
+		lightM->applyTransform(avt::Mat4::scale({ 0.5f, 0.5f, 0.5f }));
+		lightM->colorAll({ 1.f, 1.f, 1.f });
 		lightM->setup();
 
 		auto colorCubeM = _meshes.add("colorCube", new avt::Mesh("./Resources/Objects/colourscube.obj"));
