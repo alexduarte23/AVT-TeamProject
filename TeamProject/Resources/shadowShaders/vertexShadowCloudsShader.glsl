@@ -24,10 +24,10 @@ out vec4 FragPosLightSpace4;
 
 //UNIFORMS
 uniform mat4 ModelMatrix;
-uniform mat4 lightSpaceMatrix;
-uniform mat4 lightSpaceMatrix2;
-uniform mat4 lightSpaceMatrix3;
-uniform mat4 lightSpaceMatrix4;
+uniform mat4 campfireLSM1;
+uniform mat4 campfireLSM2;
+uniform mat4 campfireLSM3;
+uniform mat4 campfireLSM4;
 
 
 uniform CameraMatrices
@@ -49,8 +49,8 @@ void main(void)
 	gl_Position = ProjectionMatrix * ViewMatrix * ModelMatrix * MCPosition;
 
 	FragPos = vec3(ModelMatrix * vec4(realPosition, 1.0));
-	FragPosLightSpace = lightSpaceMatrix * vec4(FragPos, 1.0);
-	FragPosLightSpace2 = lightSpaceMatrix2 * vec4(FragPos, 1.0);
-	FragPosLightSpace3 = lightSpaceMatrix3 * vec4(FragPos, 1.0);
-	FragPosLightSpace4 = lightSpaceMatrix4 * vec4(FragPos, 1.0);
+	FragPosLightSpace = campfireLSM1 * vec4(FragPos, 1.0);
+	FragPosLightSpace2 = campfireLSM2 * vec4(FragPos, 1.0);
+	FragPosLightSpace3 = campfireLSM3 * vec4(FragPos, 1.0);
+	FragPosLightSpace4 = campfireLSM4 * vec4(FragPos, 1.0);
 }
