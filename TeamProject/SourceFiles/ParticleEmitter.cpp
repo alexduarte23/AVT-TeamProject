@@ -68,7 +68,9 @@ namespace avt {
 	void ParticleEmitter::draw(Shader* shader, const Mat4& worldMatrix, Light* light) {
 		auto newWorldMat = worldMatrix * getTransform();
 		Shader* curr_shader = getShader() ? getShader() : shader;
-		curr_shader->bind();
+		if (getShader()) {
+			getShader()->bind();
+		}
 
 		_va.bind();
 
@@ -95,6 +97,11 @@ namespace avt {
 
 		_va.unbind();
 		curr_shader->unbind();
+
+		if (getShader()) {
+			getShader()->unbind();
+			shader->bind();
+		}
 
 	}
 
@@ -213,7 +220,7 @@ namespace avt {
 		p.initialColor = { 1.f,1.f,1.f,randrange(.7f, 1.f) };
 		//Vector4 cmyk();
 		Vector3 c1 = Vector3(255, 251, 222)/255, c2 = Vector3(255, 200, 117)/255;
-		p.initialColor = { randrange(.86f, 1.f),randrange(.86f, 1.f),randrange(.74f,.78f),randrange(.7f, 1.f) };
+		p.initialColor = { randrange(1.5f, 1.9f),randrange(1.2f, 1.6f),randrange(.9f,1.1f),randrange(.7f, 1.f) };
 		p.initialColor = ((c2 - c1) * random() + c1).to4D();
 		p.color = p.initialColor;
 		p.color.setW(0);

@@ -39,9 +39,9 @@ namespace avt {
 	public:
 		static float perlin(float x, float y) {
 			// Determine grid cell coordinates
-			int x0 = (int)x;
+			int x0 = (int)floor(x);
 			int x1 = x0 + 1;
-			int y0 = (int)y;
+			int y0 = (int)floor(y);
 			int y1 = y0 + 1;
 
 			// Determine interpolation weights

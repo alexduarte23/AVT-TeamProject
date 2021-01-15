@@ -30,6 +30,7 @@ namespace avt {
 		//mouse picking
 		unsigned int _stencilIndex = 0; //0 = not selectable
 
+
 	public:
 		SceneNode(Mesh* mesh = nullptr)
 			: _callback(nullptr), _parent(nullptr), _mesh(mesh), _translation(0, 0, 0), _scale(1.f, 1.f, 1.f), _rot({ 1.f,0,0 }, 0) , /*_transform(Mat4::identity()),*/
@@ -74,6 +75,13 @@ namespace avt {
 			return false;
 		}
 
+		void deleteAll() {
+			for (auto node : _nodes) {
+				delete node;
+			}
+			_nodes.clear();
+		}
+
 		void setMesh(Mesh* mesh) {
 			_mesh = mesh;
 		}
@@ -114,9 +122,9 @@ namespace avt {
 		}*/
 
 		Mat4 getTransform() const {
-			return Mat4::scale(_scale)
+			return Mat4::translation(_translation)
 				* _rot.toMat()
-				* Mat4::translation(_translation);
+				* Mat4::scale(_scale);
 		}
 
 		void setTranslation(const Vector3& v) {

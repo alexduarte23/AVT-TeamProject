@@ -146,7 +146,9 @@ namespace avt {
 
 	// OBJ LOADING
 
-	void Mesh::loadOBJ(const std::string& filename, const Vector3& baseColor) {
+	std::vector<Vertex> Mesh::loadOBJ(const std::string& filename, const Vector3& baseColor) {
+		std::vector<Vertex> data;
+
 		std::vector<Vector3> vertices;
 		std::vector<Vector3> normals;
 		std::vector<Vector2> textures;
@@ -156,11 +158,13 @@ namespace avt {
 		std::ifstream ifile(filename);
 		std::string line;
 		while (std::getline(ifile, line)) {
-			parseLine(line, vertices, textures, normals, baseColor, color);
+			parseLine(line, data, vertices, textures, normals, baseColor, color);
 		}
+
+		return data;
 	}
 
-	void Mesh::parseLine(const std::string& line, std::vector<Vector3>& vertices, std::vector<Vector2>& textures, std::vector<Vector3>& normals, const Vector3& baseColor, Vector3& color) {
+	void Mesh::parseLine(const std::string& line, std::vector<Vertex>& data, std::vector<Vector3>& vertices, std::vector<Vector2>& textures, std::vector<Vector3>& normals, const Vector3& baseColor, Vector3& color) {
 		std::stringstream sline(line);
 		std::string s;
 
@@ -168,7 +172,7 @@ namespace avt {
 		if (s.compare("v") == 0) parseVertex(sline, vertices);
 		else if (s.compare("vt") == 0) parseTexture(sline, textures);
 		else if (s.compare("vn") == 0) parseNormal(sline, normals);
-		else if (s.compare("f") == 0) parseFace(sline, vertices, textures, normals, color);
+		else if (s.compare("f") == 0) parseFace(sline, data, vertices, textures, normals, color);
 		else if (s.compare("usemtl") == 0) color = parseMaterial(sline, baseColor);
 	}
 
@@ -190,7 +194,7 @@ namespace avt {
 		normals.push_back(n);
 	}
 
-	void Mesh::parseFace(std::stringstream& sin, const std::vector<Vector3>& vertices, const std::vector<Vector2>& textures, const std::vector<Vector3>& normals, const Vector3& color) {
+	void Mesh::parseFace(std::stringstream& sin, std::vector<Vertex>& data, const std::vector<Vector3>& vertices, const std::vector<Vector2>& textures, const std::vector<Vector3>& normals, const Vector3& color) {
 		std::string vertexString, token;
 		
 		for (size_t i = 0; i < 3; i++) {
@@ -209,7 +213,7 @@ namespace avt {
 
 			v.color = color;
 
-			_meshData.push_back(v);
+			data.push_back(v);
 			
 		}
 	}

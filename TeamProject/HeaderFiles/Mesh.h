@@ -47,10 +47,13 @@ namespace avt {
 		Mesh() {}
 
 		Mesh(const std::string& filename, const Vector3& baseColor = Vector3(1.f, 1.f, 1.f)) {
-			loadOBJ(filename, baseColor);
+			addOBJ(filename, baseColor);
 		}
 
-		void loadOBJ(const std::string& filename, const Vector3& baseColor = Vector3(1.f,1.f,1.f));
+		void addOBJ(const std::string& filename, const Vector3& baseColor = Vector3(1.f, 1.f, 1.f)) {
+			auto data = loadOBJ(filename, baseColor);
+			_meshData.insert(_meshData.end(), data.begin(), data.end());
+		}
 
 		void addFace(const Vertex& v1, const Vertex& v2, const Vertex& v3, bool computeFaceNormal = false);
 
@@ -93,14 +96,16 @@ namespace avt {
 		void computeMixedNormals(float threshold, bool weighted = true);
 
 
+		static std::vector<Vertex> loadOBJ(const std::string& filename, const Vector3& baseColor = Vector3(1.f, 1.f, 1.f));
+
 	private:
 
-		void parseLine(const std::string& line, std::vector<Vector3>& vertices, std::vector<Vector2>& textures, std::vector<Vector3>& normals, const Vector3& baseColor, Vector3& color);
-		void parseVertex(std::stringstream& sin, std::vector<Vector3>& vertices);
-		void parseTexture(std::stringstream& sin, std::vector<Vector2>& textures);
-		void parseNormal(std::stringstream& sin, std::vector<Vector3>& normals);
-		void parseFace(std::stringstream& sin, const std::vector<Vector3>& vertices, const std::vector<Vector2>& textures, const std::vector<Vector3>& normals, const Vector3& color);
-		Vector3 parseMaterial(std::stringstream& sin, const Vector3& baseColor);
+		static void parseLine(const std::string& line, std::vector<Vertex>& data, std::vector<Vector3>& vertices, std::vector<Vector2>& textures, std::vector<Vector3>& normals, const Vector3& baseColor, Vector3& color);
+		static void parseVertex(std::stringstream& sin, std::vector<Vector3>& vertices);
+		static void parseTexture(std::stringstream& sin, std::vector<Vector2>& textures);
+		static void parseNormal(std::stringstream& sin, std::vector<Vector3>& normals);
+		static void parseFace(std::stringstream& sin, std::vector<Vertex>& data, const std::vector<Vector3>& vertices, const std::vector<Vector2>& textures, const std::vector<Vector3>& normals, const Vector3& color);
+		static Vector3 parseMaterial(std::stringstream& sin, const Vector3& baseColor);
 
 	};
 }

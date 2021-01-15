@@ -41,6 +41,7 @@ private:
 
 
 	avt::SceneNode* _tree = nullptr, *_tree2 = nullptr, * _tree3 = nullptr, *_lightStruct = nullptr , *_light= nullptr, *_floor = nullptr, *_cloud = nullptr;
+	avt::CloudSystem* _cloudSystem = nullptr;
 	std::string _activeCam = "per";
 	
 	const float _duration = 3, _duration2 = 6;
@@ -96,9 +97,9 @@ private:
 		//_lightStruct->setRotation(avt::Quaternion({ 0,0,1.f }, avt::PI/10));
 
 		_floor = _scene.createNode(floorM);
+		_floor->translate({ -15.f, -2.f, -15.f });
 		_floor->scale({3.f, 1.0f, 3.f});
 		//_floor->translate({ 0.0f, -2.8f, 0.0f });
-		_floor->translate({ -4.5f, -1.8f, -4.5f });
 
 		//_cloud = _scene.createNode(cloudM);
 		//_cloud->translate({ -2.5f, 4.f, -2.5f });
@@ -108,9 +109,10 @@ private:
 		//colorCube->rotateY(-avt::PI/2);
 		colorCube->scale({ .3f,.3f,.3f });
 
-		auto clouds = _scene.addNode(new avt::CloudSystem());
-		clouds->translate({ 0,5.f,5.f });
-		clouds->scale({ .5f,.5f,.5f });
+		_cloudSystem = new avt::CloudSystem();
+		_scene.addNode(_cloudSystem);
+		_cloudSystem->translate({ 3.f,8.f,-3.f });
+		_cloudSystem->scale({ .5f,.5f,.5f });
 
 		_emitter = new avt::FireEmitter();
 		avt::StencilPicker::addTarget(_emitter, "fire");
@@ -408,6 +410,9 @@ public:
 			break;
 		case GLFW_KEY_X:
 			_emitter->toggle();
+			break;
+		case GLFW_KEY_ENTER:
+			_cloudSystem->regen();
 			break;
 		}
 
