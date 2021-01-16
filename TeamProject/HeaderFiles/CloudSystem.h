@@ -194,8 +194,10 @@ namespace avt {
 			Shader* curr_shader = getShader() ? getShader() : shader;
 			if (getShader()) {
 				getShader()->bind();
+				/*
 				glUniform3f(curr_shader->getUniform("LightPosition"), light->getPosition().x(), light->getPosition().y(), light->getPosition().z());
 				glUniform3f(curr_shader->getUniform("LightColor"), light->getColor().x(), light->getColor().y(), light->getColor().z());
+				*/
 			}
 
 			_va.bind();

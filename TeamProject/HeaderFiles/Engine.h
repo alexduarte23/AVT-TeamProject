@@ -36,6 +36,7 @@
 
 #include "CloudSystem.h"
 #include "PointLight.h"
+#include "DirectionalLight.h"
 #include "Shadow.h"
 
 

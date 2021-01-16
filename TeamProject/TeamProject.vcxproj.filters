@@ -212,6 +212,9 @@
     <ClInclude Include="HeaderFiles\PointLight.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="HeaderFiles\DirectionalLight.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="Resources\shadowShaders\fragmentDepthShader.glsl" />

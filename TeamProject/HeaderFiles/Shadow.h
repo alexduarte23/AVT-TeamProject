@@ -71,12 +71,12 @@ namespace avt {
 			_depthMap(0), _depthMapFBO(0), _shadowWidth(shadowWidth), _shadowHeight(shadowHeight), _lightView(camera) {}
 		*/
 
-		PerspectiveCamera _lightView;
+		Camera _lightView;
 
 		Shadow() :
 			_depthMap(0), _depthMapFBO(0), _shadowWidth(1), _shadowHeight(1), _lightView(avt::PerspectiveCamera(45.f, 1.f, 0.1f, 100.0f, avt::Vector3(0, 0, 10.f))) {}
 
-		Shadow(unsigned int shadowWidth, unsigned int shadowHeight, avt::PerspectiveCamera camera) :
+		Shadow(unsigned int shadowWidth, unsigned int shadowHeight, avt::Camera camera) :
 			_depthMap(0), _depthMapFBO(0), _shadowWidth(shadowWidth), _shadowHeight(shadowHeight), _lightView(camera) {}
 
 		~Shadow() {}

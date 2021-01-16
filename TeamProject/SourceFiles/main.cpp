@@ -34,7 +34,9 @@ private:
 
 	avt::Shadow _shadow, _shadow2, _shadow3, _shadow4;
 	avt::Bloom* _bloom = nullptr;
+
 	avt::PointLight campfire;
+	avt::DirectionalLight env;
 
 	avt::Manager<avt::Mesh> _meshes;
 	avt::Manager<avt::Camera> _cams;
@@ -123,6 +125,8 @@ private:
 		_emitter->translate(campfire.getPosition());
 		_scene.addNode(_emitter); // scene deletes nodes when destroyed
 
+		env.setPosition(_light->pos().to3D() + avt::Vector3(0.0f, 10.f, 0.0f));
+
 
 #ifndef ERROR_CALLBACK
 		avt::ErrorManager::checkOpenGLError("ERROR: Could not create VAOs and VBOs.");
@@ -188,8 +192,15 @@ private:
 		_shader.addUniform("campfireSM3");
 		_shader.addUniform("campfireSM4");
 
-		_shader.addUniform("LightPosition");
-		_shader.addUniform("LightColor");
+		_shader.addUniform("envLSM");
+		_shader.addUniform("envSM");
+
+		_shader.addUniform("campfirePos");
+		_shader.addUniform("campfireColor");
+
+		_shader.addUniform("envPos");
+		_shader.addUniform("envColor");
+
 		_shader.addUniform("EyePosition");
 		_shader.addUbo("CameraMatrices", UBO_BP);
 		_shader.create();
@@ -214,8 +225,15 @@ private:
 		_shaderClouds.addUniform("campfireSM3");
 		_shaderClouds.addUniform("campfireSM4");
 
-		_shaderClouds.addUniform("LightPosition");
-		_shaderClouds.addUniform("LightColor");
+		_shaderClouds.addUniform("envLSM");
+		_shaderClouds.addUniform("envSM");
+
+		_shaderClouds.addUniform("campfirePos");
+		_shaderClouds.addUniform("campfireColor");
+
+		_shaderClouds.addUniform("envPos");
+		_shaderClouds.addUniform("envColor");
+
 		_shaderClouds.addUniform("EyePosition");
 		_shaderClouds.addUbo("CameraMatrices", UBO_BP);
 		_shaderClouds.create();
@@ -258,10 +276,13 @@ private:
 
 	void createShadows() {
 		campfire.setupShadows();
+		env.setupShadows();
 	}
 
 	void createLights() {
 		campfire = avt::PointLight({ 3.0f, 0.0f, -3.0f }, { 1.f, 0.5f, 0.f });
+		campfire.setIntensity(0.0f);
+		env = avt::DirectionalLight({ 5.0f, 5.0f, 5.0f }, { 0.1f, 0.1f, 0.1f });
 	}
 
 	void createBloom(GLFWwindow* win) {
@@ -308,7 +329,6 @@ public:
 		
 		if (_rotating) {
 			_time2 += dt;
-
 			float k = (float)_time2 / _duration2;
 			_lightStruct->setRotation(avt::Quaternion({ 0,1.f,0.f }, k * 2 * avt::PI));
 			_lightStruct->rotateZ(avt::PI / 10);
@@ -346,8 +366,15 @@ public:
 		campfire.updateLightSpaceMatrices(_shaderClouds, _shaderClouds.getUniform("campfireLSM1"), _shaderClouds.getUniform("campfireLSM2"),
 			_shaderClouds.getUniform("campfireLSM3"), _shaderClouds.getUniform("campfireLSM4"));
 
-		campfire.updateLight(_shader, _shader.getUniform("LightPosition"), _shader.getUniform("LightColor"));
-		campfire.updateLight(_shaderClouds, _shaderClouds.getUniform("LightPosition"), _shaderClouds.getUniform("LightColor"));
+		campfire.updateLight(_shader, _shader.getUniform("campfirePos"), _shader.getUniform("campfireColor"));
+		campfire.updateLight(_shaderClouds, _shaderClouds.getUniform("campfirePos"), _shaderClouds.getUniform("campfireColor"));
+
+		env.updateLightSpaceMatrices(_shader, _shader.getUniform("envLSM"));
+		env.updateLightSpaceMatrices(_shaderClouds, _shader.getUniform("envLSM"));
+
+		env.updateLight(_shader, _shader.getUniform("envPos"), _shader.getUniform("envColor"));
+		env.updateLight(_shaderClouds, _shaderClouds.getUniform("envPos"), _shaderClouds.getUniform("envColor"));
+
 
 		_shader.bind();
 		avt::Vector3 camPos = _cams.get(_activeCam)->position();
@@ -366,9 +393,13 @@ public:
 		_renderer.clear();
 
 		campfire.renderShadowMaps(_renderer, _scene, (unsigned int)winx, (unsigned int)winy);
+		env.renderShadowMaps(_renderer, _scene, (unsigned int)winx, (unsigned int)winy);
 
 		campfire.shadowMapTextureLoad(_shader, 0, _shader.getUniform("campfireSM1"), _shader.getUniform("campfireSM2"), _shader.getUniform("campfireSM3"), _shader.getUniform("campfireSM4"));
 		campfire.shadowMapTextureLoad(_shaderClouds, 0, _shaderClouds.getUniform("campfireSM1"), _shaderClouds.getUniform("campfireSM2"), _shaderClouds.getUniform("campfireSM3"), _shaderClouds.getUniform("campfireSM4"));
+
+		env.shadowMapTextureLoad(_shader, 4, _shader.getUniform("envSM"));
+		env.shadowMapTextureLoad(_shaderClouds, 4, _shaderClouds.getUniform("envSM"));
 
 		renderWithBloom(win);
 		//renderWithoutBloom(win);

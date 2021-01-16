@@ -10,18 +10,26 @@ in vec4 FragPosLightSpace;
 in vec4 FragPosLightSpace2;
 in vec4 FragPosLightSpace3;
 in vec4 FragPosLightSpace4;
+in vec4 FragPosLightSpace5;
+
 
 layout(location = 0) out vec4 FragmentColor;
 layout(location = 1) out vec4 BrightColor;
 
-uniform vec3 LightPosition;
-uniform vec3 LightColor;
+uniform vec3 campfirePos;
+uniform vec3 campfireColor;
+
+uniform vec3 envPos;
+uniform vec3 envColor;
+
 uniform vec3 EyePosition;
 
 uniform sampler2D campfireSM1;
 uniform sampler2D campfireSM2;
 uniform sampler2D campfireSM3;
 uniform sampler2D campfireSM4;
+
+uniform sampler2D envSM;
 
 
 float ShadowCalculation(vec4 fragPosLightSpace, vec3 lightDir, sampler2D currShadowMap)
@@ -38,7 +46,7 @@ float ShadowCalculation(vec4 fragPosLightSpace, vec3 lightDir, sampler2D currSha
     float currentDepth = projCoords.z;
 
     //Create a shadow bias value to avoid shadow acne, based on the light direction and the fragment no
-    //float bias = max(0.05 * (1.0 - dot(exNormal, lightDir)), 0.002); 
+    //float bias = max(0.05 * (1.0 - dot(exNormal, lightDir)), 0.001); 
     float bias = 0.001;
 	//float shadow = currentDepth - bias > closestDepth  ? 1.0 : 0.0; 
     
@@ -74,23 +82,24 @@ void main(void)
 	float ambientStrength = 0.05;
 	vec3 ambient = ambientStrength * ambientColor;
 
+    //Campfire Calculation
 	vec3 norm = normalize(exNormal);
-	vec3 lightDir = normalize(LightPosition - FragPos);
+	vec3 lightDir = normalize(campfirePos - FragPos);
     vec3 viewDir = normalize(EyePosition - FragPos);
     vec3 halfwayDir = normalize(lightDir + viewDir);
 
 	float diff = max(dot(norm, lightDir), 0.0);
-	vec3 diffuse = diff * LightColor;
+	vec3 diffuse = diff * campfireColor;
 
     float spec = pow(max(dot(norm, halfwayDir), 0.0), shininess);
-    vec3 specular = LightColor * spec;
+    vec3 specular = campfireColor * spec;
 
     //Point light factors
     float constant = 0.0;
     float linear = 0.5;
     float quadratic = 1;
 
-    float dist = length(FragPos - LightPosition);
+    float dist = length(FragPos - campfirePos);
     float strength = 10/(constant + linear*dist + quadratic*(dist*dist));
 
     specular = specular * strength;
@@ -110,6 +119,23 @@ void main(void)
     
     vec3 lighting = (ambient + (1 - shadow) * (diffuse + specular)) * objectColor;  
     
+    //Environment Light Calculation
+
+	lightDir = normalize(envPos);
+    halfwayDir = normalize(lightDir + viewDir);
+
+	diff = max(dot(norm, lightDir), 0.0);
+	diffuse = diff * envColor;
+
+    spec = pow(max(dot(norm, halfwayDir), 0.0), shininess);
+    specular = envColor * spec;
+
+    shadow = 0.0;
+    shadow = ShadowCalculation(FragPosLightSpace5, lightDir, envSM);
+    
+    lighting = lighting + (1 - shadow) * (diffuse + specular) * objectColor; 
+
+
     FragmentColor = vec4(lighting, 1.0);
 
     float brightness = dot(FragmentColor.rgb, vec3(0.2126, 0.7152, 0.0722));
