@@ -61,8 +61,8 @@ private:
 		treeM->colorAll({0.2f, 0.6f, 0.2f});
 		treeM->setup();
 
-		//auto floorM = _meshes.add("floor", new avt::Mesh("./Resources/cube_vtn_flat.obj"));
-		auto islandM = _meshes.add("island", new avt::Mesh("./Resources/Objects/mainIsland.obj"));
+		auto floorM = _meshes.add("floor", new avt::Mesh("./Resources/cube_vtn_flat.obj"));
+		auto islandM = _meshes.add("island", new avt::Mesh("./Resources/Objects/island3.obj"));
 		islandM->setup();
 
 		auto appleTreeIslandM = _meshes.add("appleTreeIsland", new avt::Mesh("./Resources/Objects/appleTreeIsland.obj"));
@@ -117,7 +117,7 @@ private:
 		appleTreeIsland->scale({ 1.5f, 1.5f, 1.5f });
 
 		auto apple = appleTreeIsland->createNode(appleM);
-		apple->translate({ 1.05f, 1.5f, 0.25f });
+		apple->translate({ 1.05f, 1.5f, 0.10f });
 		apple->scale({ 1.5f, 1.5f, 1.5f });
 
 		_apples.push_back(apple);
@@ -130,13 +130,13 @@ private:
 		_apples.push_back(apple2);
 
 		auto apple3 = appleTreeIsland->createNode(appleM);
-		apple3->translate({ 0.0f, 2.1f, 0.25f });
+		apple3->translate({ 0.0f, 2.1f, 0.10f });
 		apple3->scale({ 1.5f, 1.5f, 1.5f });
 
 		_apples.push_back(apple3);
 
 		auto apple4 = appleTreeIsland->createNode(appleM);
-		apple4->translate({ -0.6f, 1.7f, 0.25f });
+		apple4->translate({ -0.6f, 1.7f, 0.10f });
 		apple4->scale({ 1.5f, 1.5f, 1.5f });
 
 		_apples.push_back(apple4);
