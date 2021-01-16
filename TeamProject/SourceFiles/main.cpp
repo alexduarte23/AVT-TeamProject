@@ -113,8 +113,8 @@ private:
 		_cloudSystem = new avt::CloudSystem();
 		_scene.addNode(_cloudSystem);
 		_cloudSystem->setShader(&_shaderClouds);
-		_cloudSystem->translate({ 3.f,8.f,-3.f });
-		_cloudSystem->scale({ .5f,.5f,.5f });
+		_cloudSystem->translate({ 0,15.f,0 });
+		//_cloudSystem->scale({ .5f,.5f,.5f });
 
 		_emitter = new avt::FireEmitter();
 		avt::StencilPicker::addTarget(_emitter, "fire");
@@ -443,7 +443,7 @@ public:
 			_emitter->toggle();
 			break;
 		case GLFW_KEY_ENTER:
-			_cloudSystem->regen();
+			_cloudSystem->createCloud();
 			break;
 		}
 

@@ -33,7 +33,7 @@ namespace avt {
 		}
 
 		static float fade(float a) {
-			return a * a * a * (a * (a * 6.0 - 15.0) + 10.0);
+			return a * a * a * (a * (a * 6.0f - 15.0f) + 10.0f);
 		}
 
 	public:
