@@ -19,34 +19,85 @@ namespace avt {
 		struct GridCell {
 			float perlin = 0;
 			float size = 0;
+			float time = 0;
+			float pulseOffset = 0;
+			float wobbleOffset = 0;
 		};
 
-		Mesh _cubeMesh;
 		std::vector<Vertex> _cubeData;
-		//std::vector<CloudInfo> _cloudCubes;
 		VertexBuffer _cube_vb, _instance_vb;
 		VertexArray _va;
 
 		GridCell** grid = nullptr;
 
-		float spacing = 0.7f;
-		float perlinSpacing = 0.2;
-		float threshold = 0.4;
-		float threshold2 = 0.07;
-		int rowN = 15;
+		float spacing = 0.5f;
+		float perlinSpacing = 0.15f;
+		float threshold = 0.35f;
+		float threshold2 = 0.05f;
+		//int gridN = 50;
+		int rowN = 100;
 		int _maxCubes = rowN * rowN;
 
-		float movePeriod = 1.0;
-		float growth = 0.1;
+		float movePeriod = .8f;
+		float spawnPeriod = 1.0f;
+		float growth = 0.12f;
 
-		float time = 0;
+		float pulseSpeed = 0.12f;
+		float pulseStrength = 0.07f;
 
-	public:
-		CloudSystem() : _cubeData(Mesh::loadOBJ("./Resources/Objects/cube_vtn_flat.obj")) {
-			//_cubeMesh("./Resources/Objects/cube_vtn_flat.obj") {
+		float wobbleSpeed = 0.1f;
+		float wobbleStrength = 0.12f;
 
-			//_cubeMesh.setup();
-			
+		float moveTimer = 0;
+		float spawnTimer = 0;
+
+
+		void move() {
+			for (int i = 0; i < rowN; i++) {
+				for (int j = 0; j < rowN - 1; j++) {
+					grid[i][j].perlin = grid[i][j + 1].perlin;
+					grid[i][j].time = grid[i][j + 1].time;
+					
+					if (grid[i][j].perlin != 0 && grid[i][j].size <= 0) {
+						grid[i][j].pulseOffset = randrange(0, 2.f*PI);
+						grid[i][j].wobbleOffset = randrange(0, 2.f*PI);
+					}
+				}
+				grid[i][rowN - 1].perlin = 0;
+				grid[i][rowN - 1].time = 0;
+			}
+		}
+
+		void updateSizes(float dt) {
+			for (int i = 0; i < rowN; i++) {
+				for (int j = 0; j < rowN; j++) {
+					auto& cell = grid[i][j];
+
+					if (cell.perlin != 0 || cell.size != 0) {
+						cell.pulseOffset = fmod(cell.pulseOffset + pulseSpeed, 2 * PI);
+						cell.wobbleOffset = fmod(cell.wobbleOffset + wobbleSpeed, 2 * PI);
+					}
+
+					if (cell.time > 0) {
+						cell.time -= dt;
+						if (cell.time <= 0) {
+							cell.time = 0;
+							cell.perlin = 0;
+						}
+					}
+
+					if (cell.size == cell.perlin) continue;
+
+					float v = cell.perlin - cell.size;
+					float sign = v / abs(v);
+					cell.size += v / abs(v) * dt * growth;
+					//cell.size = sign > 0 ? min(cell.size, cell.perlin) : max(cell.size, cell.perlin);
+					cell.size = sign > 0 ? min(cell.size, cell.perlin) : max(cell.size, cell.perlin);
+				}
+			}
+		}
+
+		void setupBuffers() {
 			_va.create();
 
 			VertexBufferLayout cube_layout;
@@ -69,40 +120,21 @@ namespace avt {
 			_instance_vb.unbind();
 
 			_va.unbind();
+		}
+
+	public:
+		CloudSystem()
+			: _cubeData(Mesh::loadOBJ("./Resources/Objects/cube_vtn_flat.obj")) {
 			
+			setupBuffers();
 
 			grid = new GridCell*[rowN];
 			for (int i = 0; i < rowN; i++) {
 				grid[i] = new GridCell[rowN];
+				for (int j = 0; j < rowN; j++) grid[i][j] = {0, 0};
 			}
 
-			regen();
-
-
-
-
-			//loadOBJ("./Resources/Objects/cube_vtn_flat.obj");
-			//Vertex field with squares in order
-			/*
-			for (int i = 0; i < 10; i++) {
-				for (int j = 0; j < 10; j++) {
-					Mesh m = Mesh("./Resources/Objects/cube_vtn_flat.obj");
-					m.colorAll({ 1.0f, 1.0f, 1.0f });
-					m.applyTransform(Mat4::translation({(float)i, 0.0f, (float)j}));
-					float perlin = Perlin::perlin(i, j);
-					if (perlin-0.4f> 0) {
-						m.applyTransform(Mat4::scale({perlin - 0.4f, perlin-0.4f, perlin - 0.4f}));
-
-						for (auto v : m._meshData) {
-							_meshData.push_back(v);
-						}
-					}
-				}
-			}
-			
-			computeFaceNormals();
-			applyTransform(Mat4::scale({ 0.25f, 0.25f, 0.25f }));
-			*/
+			for (int i = 0; i < 15; i++) createCloud();
 		}
 
 		~CloudSystem() {
@@ -112,93 +144,49 @@ namespace avt {
 			delete[] grid;
 		}
 
-		void regen() {
-			//deleteAll();
+		void createCloud() {
+			Vector2 gridPoint(randrange(0, 100.f), randrange(0, 100.f));
 
-			Vector2 gridPoint(randrange(0, 100), randrange(0, 100));
-			gridPoint = Vector2(randrange(0, 100), randrange(0, 100));
+			int n = (int)randrange(3.f, 15.f);
+			int m = (int)randrange(3.f, 15.f);
+			Vector2 start(round(randrange(0, (float)rowN - n)), round(randrange(0, (float) rowN - m)));
+			float lifetime = randrange(20.f, 30.f);
 
-			float max = 0;
-			Vector2 maxPos;
-
-			for (int i = 0; i < rowN; i++) {
-				for (int j = 0; j < rowN; j++) {
-					float p = Perlin::perlin(perlinSpacing * rowN / 2 - gridPoint.x() + i * perlinSpacing, perlinSpacing * rowN / 2 - gridPoint.x() + j * perlinSpacing);
+			for (int i = 0; i < n; i++) {
+				for (int j = 0; j < m; j++) {
+					float p = Perlin::perlin(perlinSpacing * n / 2 - gridPoint.x() + i * perlinSpacing, perlinSpacing * m / 2 - gridPoint.y() + j * perlinSpacing);
 					p = p / 2.f + .5f;
 					p = p < threshold ? 0 : (p - threshold) / (1 - threshold);
-					p = p > 0.6 ? 0.6 : p;
-					p *= 3;
+					p = p > 0.6f ? 0.6f : p;
+					p *= 3.f;
 					p = p * p;
-					p /= 4;
+					p /= 4.f;
 					p = p < threshold2 ? 0 : p;
 					//if (p > 0) std::cout << p << std::endl;
-					if (p > max) {
-						max = p;
-						maxPos = { 1.f*i, 1.f*j };
-					}
-					grid[i][j] = {p, p};
-					/*if (p) {
-						//_cloudCubes.push_back({ {spacing * i, 0, spacing * j}, p });
-						auto cube = createNode(&_cubeMesh);
-						cube->scale(Vector3() + p);
-						cube->translate({ spacing * i, 0, spacing * j });
-					}*/
+					if (p == 0) continue;
 
-				}
-			}
+					auto& cell = grid[(int)start.x() + i][(int)start.y() + j];
+					float pulseOffset = randrange(0, 2*PI);
+					float wobbleOffset = randrange(0, 2*PI);
+					if (cell.size == 0) cell = { p, -p, lifetime, pulseOffset, wobbleOffset };
+					else cell = { p, cell.size, lifetime, cell.pulseOffset, cell.wobbleOffset };
 
-			/*for (int i = 0; i < rowN; i++) {
-				for (int j = 0; j < rowN; j++) {
-					if (grid[i][j].size == 0) continue;
-
-					auto cube = createNode(&_cubeMesh);
-					cube->scale(Vector3() + grid[i][j].size);
-					cube->translate({ spacing * i, 0, spacing * j });
-				}
-			}*/
-		}
-
-		void move() {
-			for (int i = 0; i < rowN; i++) {
-				for (int j = 0; j < rowN-1; j++) {
-					grid[i][j].perlin = grid[i][j+1].perlin;
-				}
-				grid[i][rowN - 1].perlin = 0;
-			}
-		}
-
-		void updateSizes(float dt) {
-			for (int i = 0; i < rowN; i++) {
-				for (int j = 0; j < rowN; j++) {
-					if (grid[i][j].size == grid[i][j].perlin) continue;
-					
-					float v = grid[i][j].perlin - grid[i][j].size;
-					float sign = v / abs(v);
-					grid[i][j].size += v / abs(v) * dt * growth;
-					grid[i][j].size = sign > 0 ? min(grid[i][j].size, grid[i][j].perlin) : max(grid[i][j].size, grid[i][j].perlin);
 				}
 			}
 		}
 
-		void update(float dt) {
-			time += dt;
-			if (time >= movePeriod) {
-				time = 0;
+		void update(double dt) {
+			moveTimer += (float)dt;
+			spawnTimer += (float)dt;
+			if (moveTimer >= movePeriod) {
+				moveTimer = 0;
 				move();
 			}
-			updateSizes(dt);
-
-
-			/*deleteAll();
-			for (int i = 0; i < rowN; i++) {
-				for (int j = 0; j < rowN; j++) {
-					if (grid[i][j].size == 0) continue;
-
-					auto cube = createNode(&_cubeMesh);
-					cube->scale(Vector3() + grid[i][j].size);
-					cube->translate({ spacing * i, 0, spacing * j });
-				}
-			}*/
+			if (spawnTimer >= spawnPeriod) {
+				spawnTimer = 0;
+				createCloud();
+			}
+			updateSizes((float)dt);
 		}
 
 		void draw(Shader* shader, const Mat4& worldMatrix, Light* light) override {
@@ -217,8 +205,12 @@ namespace avt {
 			std::vector<CloudInfo> data;
 			for (int i = 0; i < rowN; i++) {
 				for (int j = 0; j < rowN; j++) {
-					if (grid[i][j].size == 0) continue;
-					data.push_back({ { spacing * i, 0, spacing * j }, grid[i][j].size });
+					auto& cell = grid[i][j];
+					if (cell.size <= 0) continue;
+
+					float pulse = pulseStrength * sin(cell.pulseOffset);
+					float wobble = wobbleStrength * sin(cell.wobbleOffset);
+					data.push_back({ { spacing*i - rowN*spacing/2 + wobble, 0, spacing*j - rowN*spacing/2 }, cell.size + pulse });
 				}
 			}
 			_instance_vb.fill(data.data(), (GLsizei)data.size() * sizeof(CloudInfo));
@@ -227,7 +219,7 @@ namespace avt {
 
 			beforeDraw();
 			glUniformMatrix4fv(curr_shader->getUniform(MODEL_MATRIX), 1, GL_FALSE, newWorldMat.data());
-			glDrawArraysInstanced(GL_TRIANGLES, 0, _cubeData.size(), (GLsizei)data.size());
+			glDrawArraysInstanced(GL_TRIANGLES, 0, (GLsizei)_cubeData.size(), (GLsizei)data.size());
 			afterDraw();
 
 			_va.unbind();
