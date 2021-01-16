@@ -67,11 +67,11 @@ void main(void)
 
 	vec3 objectColor = exColor;
 
-	vec3 ambientColor = vec3(0.19, 0.17, 0.33);
+	vec3 ambientColor = vec3(1.00, 1.00, 1.00); //vec3(0.19, 0.17, 0.33);
 
     float shininess = 100;
 
-	float ambientStrength = 0.05;
+	float ambientStrength = 0.5; //0.05
 	vec3 ambient = ambientStrength * ambientColor;
 
 	vec3 norm = normalize(exNormal);

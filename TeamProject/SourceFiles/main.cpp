@@ -40,13 +40,14 @@ private:
 	avt::Manager<avt::Camera> _cams;
 
 
-	avt::SceneNode* _tree = nullptr, *_tree2 = nullptr, * _tree3 = nullptr, *_lightStruct = nullptr , *_light= nullptr, *_floor = nullptr, *_cloud = nullptr;
+	avt::SceneNode* _tree = nullptr, *_tree2 = nullptr, * _tree3 = nullptr, *_lightStruct = nullptr , *_light= nullptr, *_floor = nullptr, *_cloud = nullptr, * _floor2 = nullptr;
+	std::vector<avt::SceneNode*> _apples;
 	avt::CloudSystem* _cloudSystem = nullptr;
 	std::string _activeCam = "per";
 	
 	const float _duration = 3, _duration2 = 6;
 	double _time = 0, _time2 = 0;
-	bool _animating = false, _rotating = false, _selecting = false, _morebloom = false, _lessbloom = false, _turnOffOnBloom = false;
+	bool _animating = false, _rotating = false, _selecting = false, _morebloom = false, _lessbloom = false, _turnOffOnBloom = false, _animatingApples = false;
 
 	unsigned int _selected = -1; //stencil index of the currently selected scene node - mouse picking
 
@@ -59,8 +60,14 @@ private:
 		treeM->setup();
 
 		//auto floorM = _meshes.add("floor", new avt::Mesh("./Resources/cube_vtn_flat.obj"));
-		auto floorM = _meshes.add("floor", new avt::TerrainPlane());
+		auto floorM = _meshes.add("floor", new avt::Mesh("./Resources/Objects/mainIsland.obj"));
 		floorM->setup();
+
+		auto rabbitIsland = _meshes.add("rabbitIsland", new avt::Mesh("./Resources/Objects/appleTreeIsland.obj"));
+		rabbitIsland->setup();
+
+		auto appleM = _meshes.add("apple", new avt::Mesh("./Resources/Objects/apple.obj"));
+		appleM->setup();
 
 		//auto cloudM = _meshes.add("cloud", new avt::Cloud());
 		//cloudM->setup();
@@ -80,7 +87,7 @@ private:
 
 		_scene.setShader(&_shader);
 
-
+		/** / trees
 		_tree = _scene.createNode(treeM);
 		//_tree->setStencilIndex(1);
 
@@ -89,17 +96,50 @@ private:
 
 		_tree3 = _scene.createNode(treeM);
 		_tree3->translate({ -6.f, 0.f, -3.f });
+		/**/
 
+		/**/
 		_lightStruct = _scene.createNode();
 
-		_light = _lightStruct->createNode(lightM);
+		_light = _lightStruct->createNode();
 		//_light->setTranslation(_lights.get("sun")->getPosition());
 		_light->setTranslation(campfire.getPosition());
 		//_lightStruct->setRotation(avt::Quaternion({ 0,0,1.f }, avt::PI/10));
 
 		_floor = _scene.createNode(floorM);
-		_floor->translate({ -15.f, -2.f, -15.f });
-		_floor->scale({3.f, 1.0f, 3.f});
+		_floor->translate({ 3.5f, -2.f, -8.5f });
+		_floor->scale({ 1.5f, 1.5f, 1.5f });
+
+		_floor2 = _scene.createNode(rabbitIsland);
+		_floor2->translate({ 10.5f, -2.f, -8.5f });
+		_floor2->scale({ 1.5f, 1.5f, 1.5f });
+
+		auto apple = _floor2->createNode(appleM);
+		apple->translate({ 1.05f, 1.5f, 0.25f });
+		apple->scale({ 1.5f, 1.5f, 1.5f });
+
+		_apples.push_back(apple);
+		avt::StencilPicker::addTarget(apple, "apple");
+
+		auto apple2 = _floor2->createNode(appleM);
+		apple2->translate({ 0.6f, 2.45f, 0.25f });
+		apple2->scale({ 1.5f, 1.5f, 1.5f });
+
+		_apples.push_back(apple2);
+
+		auto apple3 = _floor2->createNode(appleM);
+		apple3->translate({ 0.0f, 2.1f, 0.25f });
+		apple3->scale({ 1.5f, 1.5f, 1.5f });
+
+		_apples.push_back(apple3);
+
+		auto apple4 = _floor2->createNode(appleM);
+		apple4->translate({ -0.6f, 1.7f, 0.25f });
+		apple4->scale({ 1.5f, 1.5f, 1.5f });
+
+		_apples.push_back(apple4);
+		//_floor->translate({ -15.f, -2.f, -15.f });
+		//_floor->scale({3.f, 1.0f, 3.f});
 		//_floor->translate({ 0.0f, -2.8f, 0.0f });
 
 		//_cloud = _scene.createNode(cloudM);
@@ -462,6 +502,11 @@ public:
 			auto target = avt::StencilPicker::getLastPick();
 			if (target.second == "fire") {
 				_emitter->toggle();
+				//_meshes.get("tree")->colorAll({ avt::random(), avt::random(), avt::random() });
+				//_meshes.get("tree")->updateBufferData();
+			}else if (target.second == "apple") {
+				if(_animatingApples == false)
+					_animatingApples = true;
 				//_meshes.get("tree")->colorAll({ avt::random(), avt::random(), avt::random() });
 				//_meshes.get("tree")->updateBufferData();
 			}
