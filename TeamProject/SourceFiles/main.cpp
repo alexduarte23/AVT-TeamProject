@@ -62,7 +62,7 @@ private:
 		treeM->setup();
 
 		//auto floorM = _meshes.add("floor", new avt::Mesh("./Resources/cube_vtn_flat.obj"));
-		auto islandM = _meshes.add("island", new avt::Mesh("./Resources/Objects/SCENEinesVersion2.obj"));
+		auto islandM = _meshes.add("island", new avt::Mesh("./Resources/Objects/mainIsland.obj"));
 		islandM->setup();
 
 		auto appleTreeIslandM = _meshes.add("appleTreeIsland", new avt::Mesh("./Resources/Objects/appleTreeIsland.obj"));
@@ -113,7 +113,7 @@ private:
 		island->scale({ 1.5f, 1.5f, 1.5f });
 
 		auto appleTreeIsland = _scene.createNode(appleTreeIslandM);
-		appleTreeIsland->translate({ 10.5f, -2.f, -8.5f });
+		appleTreeIsland->translate({ 12.5f, -2.f, -8.5f });
 		appleTreeIsland->scale({ 1.5f, 1.5f, 1.5f });
 
 		auto apple = appleTreeIsland->createNode(appleM);
