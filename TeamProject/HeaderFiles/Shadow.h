@@ -15,6 +15,7 @@ namespace avt {
 		unsigned int _shadowHeight;
 		unsigned int _depthMapFBO;
 		unsigned int _depthMap;
+		bool _rendered = false;
 		Shader _depthShader;
 		//OrthographicCamera _lightView;
 
@@ -89,6 +90,9 @@ namespace avt {
 		}
 
 		void renderToDepthMap(Renderer& renderer, Scene& scene, unsigned int screenWidth, unsigned int screenHeight) {
+			if (_rendered) {
+				return;
+			}
 			_depthShader.bind();
 			glUniformMatrix4fv(_depthShader.getUniform("lightSpaceMatrix"), 1, GL_FALSE, (_lightView.projMatrix() * _lightView.viewMatrix()).GLdata());
 
@@ -101,14 +105,17 @@ namespace avt {
 
 			glViewport(0, 0, screenWidth, screenHeight);
 			renderer.clear();
+			_rendered = true;
 		}
 
 		void setPosition(const Vector3& pos) {
 			_lightView.setPosition(pos);
+			_rendered = false;
 		}
 
 		void lookAt(const Vector3& target) {
 			_lightView.lookAt(target);
+			_rendered = false;
 		}
 
 		unsigned int depthMap() {
