@@ -77,7 +77,7 @@ void main(void)
 
 	vec3 ambientColor = vec3(0.19, 0.17, 0.33);
 
-    float shininess = 100;
+    float shininess = 50;
 
 	float ambientStrength = 0.05;
 	vec3 ambient = ambientStrength * ambientColor;

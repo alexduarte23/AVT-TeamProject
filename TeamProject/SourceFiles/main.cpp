@@ -49,7 +49,7 @@ private:
 	
 	const float _duration = 3, _duration2 = 6;
 	double _time = 0, _time2 = 0;
-	bool _animating = false, _rotating = false, _selecting = false, _morebloom = false, _lessbloom = false, _turnOffOnBloom = false, _animatingApples = false;
+	bool _animating = true, _rotating = false, _selecting = false, _morebloom = false, _lessbloom = false, _turnOffOnBloom = false, _animatingApples = false, _isBunny = false;
 
 	unsigned int _selected = -1; //stencil index of the currently selected scene node - mouse picking
 
@@ -71,6 +71,15 @@ private:
 		auto appleM = _meshes.add("apple", new avt::Mesh("./Resources/Objects/apple.obj"));
 		appleM->setup();
 
+		auto bunnyIslandM = _meshes.add("bunnyIsland", new avt::Mesh("./Resources/Objects/Island2.obj"));
+		bunnyIslandM->setup();
+
+		auto bushM = _meshes.add("bush", new avt::Mesh("./Resources/Objects/simplebush.obj"));
+		bushM->setup();
+
+		auto bunnyM = _meshes.add("bunny", new avt::Mesh("./Resources/Objects/bunny.obj"));
+		bunnyM->setup();
+
 		//auto cloudM = _meshes.add("cloud", new avt::Cloud());
 		//cloudM->setup();
 
@@ -89,18 +98,6 @@ private:
 
 		_scene.setShader(&_shader);
 
-		/** / trees
-		_tree = _scene.createNode(treeM);
-		//_tree->setStencilIndex(1);
-
-		_tree2 = _scene.createNode(treeM);
-		_tree2->translate({ 3.f, 0.f, 3.f });
-
-		_tree3 = _scene.createNode(treeM);
-		_tree3->translate({ -6.f, 0.f, -3.f });
-		/**/
-
-		/**/
 		_lightStruct = _scene.createNode();
 
 		_light = _lightStruct->createNode();
@@ -147,6 +144,16 @@ private:
 		//_cloud = _scene.createNode(cloudM);
 		//_cloud->translate({ -2.5f, 4.f, -2.5f });
 
+		auto bunnyIsland = _scene.createNode(bunnyIslandM);
+		bunnyIsland->translate({ -8.5f, -4.5f, -8.5f });
+		bunnyIsland->scale({ 2.2f, 2.2f, 2.2f });
+
+		auto bush = bunnyIsland->createNode(bushM);
+		auto bunny = bunnyIsland->createNode(bunnyM);
+
+		
+		avt::StencilPicker::addTarget(bush, "bunny");
+
 		auto colorCube = _scene.createNode(colorCubeM);
 		colorCube->translate({ 0,0,5.f });
 		//colorCube->rotateY(-avt::PI/2);
@@ -161,7 +168,7 @@ private:
 		_emitter = new avt::FireEmitter();
 		avt::StencilPicker::addTarget(_emitter, "fire");
 		_emitter->setShader(&_shaderParticles);
-		//_emitter->scale({ .2f, .2f, .2f });
+		_emitter->scale({ .5f, .5f, .5f });
 		_emitter->translate(campfire.getPosition());
 		_scene.addNode(_emitter); // scene deletes nodes when destroyed
 
@@ -320,10 +327,10 @@ private:
 	}
 
 	void createLights() {
-		campfire = avt::PointLight({ 3.0f, 0.0f, -3.0f }, { 1.f, 0.5f, 0.f });
-		campfire.setIntensity(0.0f);
+		campfire = avt::PointLight({ 3.0f, -0.6f, -3.6f }, { 1.f, 0.5f, 0.f });
+		campfire.setIntensity(1.0f);
 		env = avt::DirectionalLight({ 5.0f, 5.0f, 5.0f }, { 0.1f, 0.1f, 0.1f });
-		env.setIntensity(0.1f);
+		env.setIntensity(0.3f);
 	}
 
 	void createBloom(GLFWwindow* win) {
@@ -374,8 +381,6 @@ public:
 			float k = (float)_time2 / _duration2;
 			_lightStruct->setRotation(avt::Quaternion({ 0,1.f,0.f }, k * 2 * avt::PI));
 			_lightStruct->rotateZ(avt::PI / 10);
-
-			campfire.setIntensity( 1.0f + 0.2f*(float)sin(_time2*10)+ 0.2f * (float)sin(_time2 * 7));
 			if (_time2 > _duration2) {
 				_time2 = 0;
 				_rotating = false;
@@ -417,9 +422,9 @@ public:
 		env.updateLight(_shader, _shader.getUniform("envPos"), _shader.getUniform("envColor"));
 		env.updateLight(_shaderClouds, _shaderClouds.getUniform("envPos"), _shaderClouds.getUniform("envColor"));
 
+		avt::Vector3 camPos = _cams.get(_activeCam)->position();
 
 		_shader.bind();
-		avt::Vector3 camPos = _cams.get(_activeCam)->position();
 		glUniform3f(_shader.getUniform("EyePosition"), camPos.x(), camPos.y(), camPos.z());
 		_shader.unbind();
 		
@@ -518,7 +523,16 @@ public:
 		case GLFW_KEY_ENTER:
 			_cloudSystem->createCloud();
 			break;
+		case GLFW_KEY_V:
+			if (env.getIntensity() == 2.f) {
+				env.setIntensity(0.3f);
+			}
+			else {
+				env.setIntensity(2.f);
+			}
+			break;
 		}
+
 
 	}
 
@@ -542,6 +556,10 @@ public:
 					_animatingApples = true;
 				//_meshes.get("tree")->colorAll({ avt::random(), avt::random(), avt::random() });
 				//_meshes.get("tree")->updateBufferData();
+			}
+			else if (target.second == "bunny") {
+				if (_isBunny == false)
+					_isBunny = true;
 			}
 
 		}
