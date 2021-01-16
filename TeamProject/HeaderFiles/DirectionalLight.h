@@ -14,8 +14,7 @@ namespace avt {
 		}
 
 		DirectionalLight(avt::Vector3 pos, avt::Vector3 color) : Light(pos, color) {
-			//shadow = avt::Shadow((unsigned int)1024, (unsigned int)1024, avt::PerspectiveCamera(90.f, 1.f, 0.1f, 100.0f, pos));
-			shadow = avt::Shadow((unsigned int)1024, (unsigned int)1024, avt::OrthographicCamera(-10.0f, 10.0f, -10.0f, 10.0f, 0.1f, 100.0f));
+			shadow = avt::Shadow((unsigned int)1024, (unsigned int)1024, avt::OrthographicCamera(-10.0f, 10.0f, -10.0f, 20.0f, 0.1f, 100.0f));
 			shadow.setPosition(pos);
 		}
 
