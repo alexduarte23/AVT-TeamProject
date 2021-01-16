@@ -79,6 +79,8 @@ namespace avt {
 		Shadow(unsigned int shadowWidth, unsigned int shadowHeight, avt::PerspectiveCamera camera) :
 			_depthMap(0), _depthMapFBO(0), _shadowWidth(shadowWidth), _shadowHeight(shadowHeight), _lightView(camera) {}
 
+		~Shadow() {}
+
 		void setup() {
 			genFrameBuffer();
 			createTexture();

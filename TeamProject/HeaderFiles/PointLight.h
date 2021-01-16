@@ -9,14 +9,14 @@ namespace avt {
 	public:
 		Shadow shadowXplus, shadowZplus, shadowXminus, shadowZminus;
 
-		PointLight(): Light(){
+		PointLight() : Light() {
 			shadowXplus = avt::Shadow();
 			shadowZplus = avt::Shadow();
 			shadowXminus = avt::Shadow();
 			shadowZminus = avt::Shadow();
 		}
 
-		PointLight(avt::Vector3 pos, avt::Vector3 color): Light(pos, color) {
+		PointLight(avt::Vector3 pos, avt::Vector3 color) : Light(pos, color) {
 			shadowXplus = avt::Shadow((unsigned int)1024, (unsigned int)1024, avt::PerspectiveCamera(90.f, 1.f, 0.1f, 100.0f, pos));
 			shadowZplus = avt::Shadow((unsigned int)1024, (unsigned int)1024, avt::PerspectiveCamera(90.f, 1.f, 0.1f, 100.0f, pos));
 			shadowXminus = avt::Shadow((unsigned int)1024, (unsigned int)1024, avt::PerspectiveCamera(90.f, 1.f, 0.1f, 100.0f, pos));
@@ -27,6 +27,8 @@ namespace avt {
 			shadowXminus.lookAt(pos + avt::Vector3(-1.f, 0.0f, 0.0f));
 			shadowZminus.lookAt(pos + avt::Vector3(0.0f, 0.0f, -1.f));
 		}
+
+		~PointLight() {}
 
 		void setupShadows() {
 			shadowXplus.setup();

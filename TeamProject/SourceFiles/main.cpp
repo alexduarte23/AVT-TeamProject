@@ -38,7 +38,6 @@ private:
 
 	avt::Manager<avt::Mesh> _meshes;
 	avt::Manager<avt::Camera> _cams;
-	avt::Manager<avt::Light> _lights;
 
 
 	avt::SceneNode* _tree = nullptr, *_tree2 = nullptr, * _tree3 = nullptr, *_lightStruct = nullptr , *_light= nullptr, *_floor = nullptr, *_cloud = nullptr;
@@ -257,35 +256,11 @@ private:
 
 	}
 
-	void createShadows(GLFWwindow* win) {
-		int winx, winy;
-		glfwGetWindowSize(win, &winx, &winy);
-
-		float aspect = winx / (float)winy;
-		/*
-		_shadow = avt::Shadow((unsigned int)1024, (unsigned int)1024, avt::OrthographicCamera(-10.0f, 10.0f, -10.0f / aspect, 10.0f / aspect, 0.1f, 100.0f, avt::Vector3(0, 0, 20.f)));
-		_shadow.setPosition({ 4.0f, 0.0f, 0.0f });
-		_shadow.lookAt({ 0.0f, 0.0f, 0.0f });
-		_shadow.setup();
-		*/
-		/*
-		_shadow = avt::Shadow((unsigned int)1024, (unsigned int)1024, avt::PerspectiveCamera(90.f, aspect, 0.1f, 100.0f, avt::Vector3(0, 0, 10.f)));
-		_shadow.setup();
-
-		_shadow2 = avt::Shadow((unsigned int)1024, (unsigned int)1024, avt::PerspectiveCamera(90.f, aspect, 0.1f, 100.0f, avt::Vector3(0, 0, 10.f)));
-		_shadow2.setup();
-
-		_shadow3 = avt::Shadow((unsigned int)1024, (unsigned int)1024, avt::PerspectiveCamera(90.f, aspect, 0.1f, 100.0f, avt::Vector3(0, 0, 10.f)));
-		_shadow3.setup();
-
-		_shadow4 = avt::Shadow((unsigned int)1024, (unsigned int)1024, avt::PerspectiveCamera(90.f, aspect, 0.1f, 100.0f, avt::Vector3(0, 0, 10.f)));
-		_shadow4.setup();
-		*/
+	void createShadows() {
 		campfire.setupShadows();
 	}
 
 	void createLights() {
-		//_lights.add("sun", new avt::Light({ 3.0f, 0.0f, -3.0f }, { 1.f, 0.5f, 0.f }));
 		campfire = avt::PointLight({ 3.0f, 0.0f, -3.0f }, { 1.f, 0.5f, 0.f });
 	}
 
@@ -306,7 +281,7 @@ public:
 	void initCallback(GLFWwindow* win) override {
 		createCams(win);
 		createLights();
-		createShadows(win);
+		createShadows();
 		createBloom(win);
 		createShader();
 		createScene();
@@ -365,7 +340,6 @@ public:
 		_emitter->setTranslation(campfire.getPosition());
 
 		//Update Shader uniforms
-		_shader.bind();
 
 		campfire.updateLightSpaceMatrices(_shader, _shader.getUniform("campfireLSM1"), _shader.getUniform("campfireLSM2"),
 			_shader.getUniform("campfireLSM3"), _shader.getUniform("campfireLSM4"));
@@ -375,6 +349,7 @@ public:
 		campfire.updateLight(_shader, _shader.getUniform("LightPosition"), _shader.getUniform("LightColor"));
 		campfire.updateLight(_shaderClouds, _shaderClouds.getUniform("LightPosition"), _shaderClouds.getUniform("LightColor"));
 
+		_shader.bind();
 		avt::Vector3 camPos = _cams.get(_activeCam)->position();
 		glUniform3f(_shader.getUniform("EyePosition"), camPos.x(), camPos.y(), camPos.z());
 		_shader.unbind();
@@ -390,33 +365,6 @@ public:
 		glfwGetWindowSize(win, &winx, &winy);
 		_renderer.clear();
 
-		/*
-		_shadow.renderToDepthMap(_renderer, _scene, (unsigned int)winx, (unsigned int)winy);
-		_shadow2.renderToDepthMap(_renderer, _scene, (unsigned int)winx, (unsigned int)winy);
-		_shadow3.renderToDepthMap(_renderer, _scene, (unsigned int)winx, (unsigned int)winy);
-		_shadow4.renderToDepthMap(_renderer, _scene, (unsigned int)winx, (unsigned int)winy);
-
-		_shader.bind();
-		glActiveTexture(GL_TEXTURE0);
-		glBindTexture(GL_TEXTURE_2D, _shadow.depthMap());
-		glUniform1i(_shader.getUniform("shadowMap"), 0);
-
-		glActiveTexture(GL_TEXTURE1);
-		glBindTexture(GL_TEXTURE_2D, _shadow2.depthMap());
-		glUniform1i(_shader.getUniform("shadowMap2"), 1);
-
-		glActiveTexture(GL_TEXTURE2);
-		glBindTexture(GL_TEXTURE_2D, _shadow3.depthMap());
-		glUniform1i(_shader.getUniform("shadowMap3"), 2);
-
-		glActiveTexture(GL_TEXTURE3);
-		glBindTexture(GL_TEXTURE_2D, _shadow4.depthMap());
-		glUniform1i(_shader.getUniform("shadowMap4"), 3);
-
-		glActiveTexture(GL_TEXTURE0);
-		_shader.unbind();
-		*/
-
 		campfire.renderShadowMaps(_renderer, _scene, (unsigned int)winx, (unsigned int)winy);
 
 		campfire.shadowMapTextureLoad(_shader, 0, _shader.getUniform("campfireSM1"), _shader.getUniform("campfireSM2"), _shader.getUniform("campfireSM3"), _shader.getUniform("campfireSM4"));
@@ -428,9 +376,7 @@ public:
 
 	void renderWithBloom(GLFWwindow* win) {
 		_bloom->bindHDR();
-		//_renderer.draw(_scene, _ub, _shader, _cams.get(_activeCam), _lights.get("sun"));
 		_scene.draw(_ub, _cams.get(_activeCam), &campfire);
-		//_scene.draw(_ub, _cams.get(_activeCam));
 		avt::StencilPicker::getTargetOn(win); // stencil is lost after unbindHDR so this stores internally the pick
 		_bloom->unbindHDR();
 
@@ -444,7 +390,6 @@ public:
 	}
 
 	void renderWithoutBloom(GLFWwindow* win) {
-		//_renderer.draw(_scene, _ub, _shader, _cams.get(_activeCam), _lights.get("sun"));
 		_scene.draw(_ub, _cams.get(_activeCam), &campfire);
 		avt::StencilPicker::getTargetOn(win);
 	}
