@@ -283,6 +283,7 @@ private:
 		campfire = avt::PointLight({ 3.0f, 0.0f, -3.0f }, { 1.f, 0.5f, 0.f });
 		campfire.setIntensity(0.0f);
 		env = avt::DirectionalLight({ 5.0f, 5.0f, 5.0f }, { 0.1f, 0.1f, 0.1f });
+		env.setIntensity(0.1f);
 	}
 
 	void createBloom(GLFWwindow* win) {
@@ -322,6 +323,7 @@ public:
 		
 		if (_animating) {
 			_time += dt;
+			campfire.setIntensity(1.0f + 0.2f * (float)sin(_time * 10) + 0.2f * (float)sin(_time * 7));
 			if (_time > _duration) {
 				_time -= _duration;				
 			}
@@ -333,7 +335,7 @@ public:
 			_lightStruct->setRotation(avt::Quaternion({ 0,1.f,0.f }, k * 2 * avt::PI));
 			_lightStruct->rotateZ(avt::PI / 10);
 
-			campfire.setIntensity(_time2);
+			campfire.setIntensity( 1.0f + 0.2f*(float)sin(_time2*10)+ 0.2f * (float)sin(_time2 * 7));
 			if (_time2 > _duration2) {
 				_time2 = 0;
 				_rotating = false;
