@@ -179,6 +179,7 @@
     <ClInclude Include="HeaderFiles\Camera.h" />
     <ClInclude Include="HeaderFiles\CloudSystem.h" />
     <ClInclude Include="HeaderFiles\Cube.h" />
+    <ClInclude Include="HeaderFiles\DirectionalLight.h" />
     <ClInclude Include="HeaderFiles\Engine.h" />
     <ClInclude Include="HeaderFiles\ErrorManager.h" />
     <ClInclude Include="HeaderFiles\Globals.h" />
