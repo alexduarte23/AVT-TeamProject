@@ -18,10 +18,10 @@ uniform vec3 LightPosition;
 uniform vec3 LightColor;
 uniform vec3 EyePosition;
 
-uniform sampler2D shadowMap;
-uniform sampler2D shadowMap2;
-uniform sampler2D shadowMap3;
-uniform sampler2D shadowMap4;
+uniform sampler2D campfireSM1;
+uniform sampler2D campfireSM2;
+uniform sampler2D campfireSM3;
+uniform sampler2D campfireSM4;
 
 
 float ShadowCalculation(vec4 fragPosLightSpace, vec3 lightDir, sampler2D currShadowMap)
@@ -97,15 +97,15 @@ void main(void)
     diffuse = diffuse * strength;
 
     float shadow = 0.0;
-    shadow = shadow + ShadowCalculation(FragPosLightSpace, lightDir, shadowMap);
+    shadow = shadow + ShadowCalculation(FragPosLightSpace, lightDir, campfireSM1);
     if(shadow==0.0){
-        shadow = shadow + ShadowCalculation(FragPosLightSpace2, lightDir, shadowMap2); 
+        shadow = shadow + ShadowCalculation(FragPosLightSpace2, lightDir, campfireSM2); 
     }
     if(shadow==0.0){
-        shadow = shadow + ShadowCalculation(FragPosLightSpace3, lightDir, shadowMap3); 
+        shadow = shadow + ShadowCalculation(FragPosLightSpace3, lightDir, campfireSM3); 
     }
     if(shadow==0.0){
-        shadow = shadow + ShadowCalculation(FragPosLightSpace4, lightDir, shadowMap4); 
+        shadow = shadow + ShadowCalculation(FragPosLightSpace4, lightDir, campfireSM4); 
     }
     
     vec3 lighting = (ambient + (1 - shadow) * (diffuse + specular)) * objectColor;  

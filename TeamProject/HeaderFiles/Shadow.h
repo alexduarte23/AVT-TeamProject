@@ -2,6 +2,7 @@
 #include "avt_math.h"
 #include "Globals.h"
 #include "Shader.h"
+#include "Camera.h"
 #include "OrthographicCamera.h"
 #include "PerspectiveCamera.h"
 #include "Renderer.h"

@@ -34,6 +34,7 @@ private:
 
 	avt::Shadow _shadow, _shadow2, _shadow3, _shadow4;
 	avt::Bloom* _bloom = nullptr;
+	avt::PointLight campfire;
 
 	avt::Manager<avt::Mesh> _meshes;
 	avt::Manager<avt::Camera> _cams;
@@ -93,7 +94,8 @@ private:
 		_lightStruct = _scene.createNode();
 
 		_light = _lightStruct->createNode(lightM);
-		_light->setTranslation(_lights.get("sun")->getPosition());
+		//_light->setTranslation(_lights.get("sun")->getPosition());
+		_light->setTranslation(campfire.getPosition());
 		//_lightStruct->setRotation(avt::Quaternion({ 0,0,1.f }, avt::PI/10));
 
 		_floor = _scene.createNode(floorM);
@@ -119,7 +121,7 @@ private:
 		avt::StencilPicker::addTarget(_emitter, "fire");
 		_emitter->setShader(&_shaderParticles);
 		//_emitter->scale({ .2f, .2f, .2f });
-		_emitter->translate({ 0,0,3.f });
+		_emitter->translate(campfire.getPosition());
 		_scene.addNode(_emitter); // scene deletes nodes when destroyed
 
 
@@ -176,14 +178,17 @@ private:
 		_shader.addAttribute("inNormal", NORMALS);
 		_shader.addAttribute("inColor", COLORS);
 		_shader.addUniform("ModelMatrix");
-		_shader.addUniform("lightSpaceMatrix");
-		_shader.addUniform("lightSpaceMatrix2");
-		_shader.addUniform("lightSpaceMatrix3");
-		_shader.addUniform("lightSpaceMatrix4");
-		_shader.addUniform("shadowMap");
-		_shader.addUniform("shadowMap2");
-		_shader.addUniform("shadowMap3");
-		_shader.addUniform("shadowMap4");
+
+		_shader.addUniform("campfireLSM1");
+		_shader.addUniform("campfireLSM2");
+		_shader.addUniform("campfireLSM3");
+		_shader.addUniform("campfireLSM4");
+
+		_shader.addUniform("campfireSM1");
+		_shader.addUniform("campfireSM2");
+		_shader.addUniform("campfireSM3");
+		_shader.addUniform("campfireSM4");
+
 		_shader.addUniform("LightPosition");
 		_shader.addUniform("LightColor");
 		_shader.addUniform("EyePosition");
@@ -199,14 +204,17 @@ private:
 		_shaderClouds.addAttribute("inOffset", 4);
 		_shaderClouds.addAttribute("inSize", 5);
 		_shaderClouds.addUniform("ModelMatrix");
-		_shaderClouds.addUniform("lightSpaceMatrix");
-		_shaderClouds.addUniform("lightSpaceMatrix2");
-		_shaderClouds.addUniform("lightSpaceMatrix3");
-		_shaderClouds.addUniform("lightSpaceMatrix4");
-		_shaderClouds.addUniform("shadowMap");
-		_shaderClouds.addUniform("shadowMap2");
-		_shaderClouds.addUniform("shadowMap3");
-		_shaderClouds.addUniform("shadowMap4");
+
+		_shaderClouds.addUniform("campfireLSM1");
+		_shaderClouds.addUniform("campfireLSM2");
+		_shaderClouds.addUniform("campfireLSM3");
+		_shaderClouds.addUniform("campfireLSM4");
+
+		_shaderClouds.addUniform("campfireSM1");
+		_shaderClouds.addUniform("campfireSM2");
+		_shaderClouds.addUniform("campfireSM3");
+		_shaderClouds.addUniform("campfireSM4");
+
 		_shaderClouds.addUniform("LightPosition");
 		_shaderClouds.addUniform("LightColor");
 		_shaderClouds.addUniform("EyePosition");
@@ -260,7 +268,7 @@ private:
 		_shadow.lookAt({ 0.0f, 0.0f, 0.0f });
 		_shadow.setup();
 		*/
-
+		/*
 		_shadow = avt::Shadow((unsigned int)1024, (unsigned int)1024, avt::PerspectiveCamera(90.f, aspect, 0.1f, 100.0f, avt::Vector3(0, 0, 10.f)));
 		_shadow.setup();
 
@@ -272,11 +280,13 @@ private:
 
 		_shadow4 = avt::Shadow((unsigned int)1024, (unsigned int)1024, avt::PerspectiveCamera(90.f, aspect, 0.1f, 100.0f, avt::Vector3(0, 0, 10.f)));
 		_shadow4.setup();
-
+		*/
+		campfire.setupShadows();
 	}
 
 	void createLights() {
-		_lights.add("sun", new avt::Light({ 3.0f, 0.0f, -3.0f }, { 1.f, 0.5f, 0.f }));
+		//_lights.add("sun", new avt::Light({ 3.0f, 0.0f, -3.0f }, { 1.f, 0.5f, 0.f }));
+		campfire = avt::PointLight({ 3.0f, 0.0f, -3.0f }, { 1.f, 0.5f, 0.f });
 	}
 
 	void createBloom(GLFWwindow* win) {
@@ -295,10 +305,10 @@ public:
 
 	void initCallback(GLFWwindow* win) override {
 		createCams(win);
+		createLights();
 		createShadows(win);
 		createBloom(win);
 		createShader();
-		createLights();
 		createScene();
 	}
 
@@ -323,14 +333,18 @@ public:
 		
 		if (_rotating) {
 			_time2 += dt;
+
+			float k = (float)_time2 / _duration2;
+			_lightStruct->setRotation(avt::Quaternion({ 0,1.f,0.f }, k * 2 * avt::PI));
+			_lightStruct->rotateZ(avt::PI / 10);
+
+			campfire.setIntensity(_time2);
 			if (_time2 > _duration2) {
 				_time2 = 0;
 				_rotating = false;
 				_lightStruct->setRotation(avt::Quaternion({ 1.f,0,0 }, avt::PI/10));
+				campfire.setIntensity(1.f);
 			}
-			float k = (float)_time2 / _duration2;
-			_lightStruct->setRotation(avt::Quaternion({ 0,1.f,0.f }, k * 2 * avt::PI));
-			_lightStruct->rotateZ(avt::PI/10);
 		}
 
 		if (_morebloom) { //bloom
@@ -347,36 +361,25 @@ public:
 			_turnOffOnBloom = false;
 		}
 
-		_lights.get("sun")->setPosition(_light->pos().to3D());
-
-		_shadow.setPosition(_light->pos().to3D());
-		_shadow.lookAt(_light->pos().to3D() + avt::Vector3(1.f, 0.0f, 0.0f));
-
-		_shadow2.setPosition(_light->pos().to3D());
-		_shadow2.lookAt(_light->pos().to3D() + avt::Vector3(0.0f, 0.0f, 1.f));
-
-		_shadow3.setPosition(_light->pos().to3D());
-		_shadow3.lookAt(_light->pos().to3D() + avt::Vector3(-1.f, 0.0f, 0.0f));
-
-		_shadow4.setPosition(_light->pos().to3D());
-		_shadow4.lookAt(_light->pos().to3D() + avt::Vector3(0.0f, 0.0f, -1.f));
+		campfire.setPosition(_light->pos().to3D());
+		_emitter->setTranslation(campfire.getPosition());
 
 		//Update Shader uniforms
 		_shader.bind();
-		glUniformMatrix4fv(_shader.getUniform("lightSpaceMatrix"), 1, GL_FALSE, (_shadow._lightView.projMatrix() * _shadow._lightView.viewMatrix()).GLdata()); //TODO private stuff here
-		glUniformMatrix4fv(_shader.getUniform("lightSpaceMatrix2"), 1, GL_FALSE, (_shadow2._lightView.projMatrix() * _shadow2._lightView.viewMatrix()).GLdata()); //TODO private stuff here
-		glUniformMatrix4fv(_shader.getUniform("lightSpaceMatrix3"), 1, GL_FALSE, (_shadow3._lightView.projMatrix() * _shadow3._lightView.viewMatrix()).GLdata()); //TODO private stuff here
-		glUniformMatrix4fv(_shader.getUniform("lightSpaceMatrix4"), 1, GL_FALSE, (_shadow4._lightView.projMatrix() * _shadow4._lightView.viewMatrix()).GLdata()); //TODO private stuff here
+
+		campfire.updateLightSpaceMatrices(_shader, _shader.getUniform("campfireLSM1"), _shader.getUniform("campfireLSM2"),
+			_shader.getUniform("campfireLSM3"), _shader.getUniform("campfireLSM4"));
+		campfire.updateLightSpaceMatrices(_shaderClouds, _shaderClouds.getUniform("campfireLSM1"), _shaderClouds.getUniform("campfireLSM2"),
+			_shaderClouds.getUniform("campfireLSM3"), _shaderClouds.getUniform("campfireLSM4"));
+
+		campfire.updateLight(_shader, _shader.getUniform("LightPosition"), _shader.getUniform("LightColor"));
+		campfire.updateLight(_shaderClouds, _shaderClouds.getUniform("LightPosition"), _shaderClouds.getUniform("LightColor"));
+
 		avt::Vector3 camPos = _cams.get(_activeCam)->position();
 		glUniform3f(_shader.getUniform("EyePosition"), camPos.x(), camPos.y(), camPos.z());
 		_shader.unbind();
 		
 		_shaderClouds.bind();
-		glUniformMatrix4fv(_shaderClouds.getUniform("lightSpaceMatrix"), 1, GL_FALSE, (_shadow._lightView.projMatrix() * _shadow._lightView.viewMatrix()).GLdata()); //TODO private stuff here
-		glUniformMatrix4fv(_shaderClouds.getUniform("lightSpaceMatrix2"), 1, GL_FALSE, (_shadow2._lightView.projMatrix() * _shadow2._lightView.viewMatrix()).GLdata()); //TODO private stuff here
-		glUniformMatrix4fv(_shaderClouds.getUniform("lightSpaceMatrix3"), 1, GL_FALSE, (_shadow3._lightView.projMatrix() * _shadow3._lightView.viewMatrix()).GLdata()); //TODO private stuff here
-		glUniformMatrix4fv(_shaderClouds.getUniform("lightSpaceMatrix4"), 1, GL_FALSE, (_shadow4._lightView.projMatrix() * _shadow4._lightView.viewMatrix()).GLdata()); //TODO private stuff here
-		//avt::Vector3 camPos = _cams.get(_activeCam)->position();
 		glUniform3f(_shaderClouds.getUniform("EyePosition"), camPos.x(), camPos.y(), camPos.z());
 		_shaderClouds.unbind();
 		
@@ -387,6 +390,7 @@ public:
 		glfwGetWindowSize(win, &winx, &winy);
 		_renderer.clear();
 
+		/*
 		_shadow.renderToDepthMap(_renderer, _scene, (unsigned int)winx, (unsigned int)winy);
 		_shadow2.renderToDepthMap(_renderer, _scene, (unsigned int)winx, (unsigned int)winy);
 		_shadow3.renderToDepthMap(_renderer, _scene, (unsigned int)winx, (unsigned int)winy);
@@ -411,26 +415,12 @@ public:
 
 		glActiveTexture(GL_TEXTURE0);
 		_shader.unbind();
+		*/
 
-		_shaderClouds.bind();
-		glActiveTexture(GL_TEXTURE0);
-		glBindTexture(GL_TEXTURE_2D, _shadow.depthMap());
-		glUniform1i(_shaderClouds.getUniform("shadowMap"), 0);
+		campfire.renderShadowMaps(_renderer, _scene, (unsigned int)winx, (unsigned int)winy);
 
-		glActiveTexture(GL_TEXTURE1);
-		glBindTexture(GL_TEXTURE_2D, _shadow2.depthMap());
-		glUniform1i(_shaderClouds.getUniform("shadowMap2"), 1);
-
-		glActiveTexture(GL_TEXTURE2);
-		glBindTexture(GL_TEXTURE_2D, _shadow3.depthMap());
-		glUniform1i(_shaderClouds.getUniform("shadowMap3"), 2);
-
-		glActiveTexture(GL_TEXTURE3);
-		glBindTexture(GL_TEXTURE_2D, _shadow4.depthMap());
-		glUniform1i(_shaderClouds.getUniform("shadowMap4"), 3);
-
-		glActiveTexture(GL_TEXTURE0);
-		_shaderClouds.unbind();
+		campfire.shadowMapTextureLoad(_shader, 0, _shader.getUniform("campfireSM1"), _shader.getUniform("campfireSM2"), _shader.getUniform("campfireSM3"), _shader.getUniform("campfireSM4"));
+		campfire.shadowMapTextureLoad(_shaderClouds, 0, _shaderClouds.getUniform("campfireSM1"), _shaderClouds.getUniform("campfireSM2"), _shaderClouds.getUniform("campfireSM3"), _shaderClouds.getUniform("campfireSM4"));
 
 		renderWithBloom(win);
 		//renderWithoutBloom(win);
@@ -439,7 +429,8 @@ public:
 	void renderWithBloom(GLFWwindow* win) {
 		_bloom->bindHDR();
 		//_renderer.draw(_scene, _ub, _shader, _cams.get(_activeCam), _lights.get("sun"));
-		_scene.draw(_ub, _cams.get(_activeCam), _lights.get("sun"));
+		_scene.draw(_ub, _cams.get(_activeCam), &campfire);
+		//_scene.draw(_ub, _cams.get(_activeCam));
 		avt::StencilPicker::getTargetOn(win); // stencil is lost after unbindHDR so this stores internally the pick
 		_bloom->unbindHDR();
 
@@ -454,7 +445,7 @@ public:
 
 	void renderWithoutBloom(GLFWwindow* win) {
 		//_renderer.draw(_scene, _ub, _shader, _cams.get(_activeCam), _lights.get("sun"));
-		_scene.draw(_ub, _cams.get(_activeCam), _lights.get("sun"));
+		_scene.draw(_ub, _cams.get(_activeCam), &campfire);
 		avt::StencilPicker::getTargetOn(win);
 	}
 

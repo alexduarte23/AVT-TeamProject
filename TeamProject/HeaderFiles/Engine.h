@@ -35,6 +35,7 @@
 #include "StencilPicker.h"
 
 #include "CloudSystem.h"
+#include "PointLight.h"
 #include "Shadow.h"
 
 
