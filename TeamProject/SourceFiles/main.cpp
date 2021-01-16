@@ -62,11 +62,11 @@ private:
 		treeM->setup();
 
 		//auto floorM = _meshes.add("floor", new avt::Mesh("./Resources/cube_vtn_flat.obj"));
-		auto floorM = _meshes.add("floor", new avt::Mesh("./Resources/Objects/mainIsland.obj"));
-		floorM->setup();
+		auto islandM = _meshes.add("island", new avt::Mesh("./Resources/Objects/SCENEinesVersion2.obj"));
+		islandM->setup();
 
-		auto rabbitIsland = _meshes.add("rabbitIsland", new avt::Mesh("./Resources/Objects/appleTreeIsland.obj"));
-		rabbitIsland->setup();
+		auto appleTreeIslandM = _meshes.add("appleTreeIsland", new avt::Mesh("./Resources/Objects/appleTreeIsland.obj"));
+		appleTreeIslandM->setup();
 
 		auto appleM = _meshes.add("apple", new avt::Mesh("./Resources/Objects/apple.obj"));
 		appleM->setup();
@@ -108,34 +108,34 @@ private:
 		_light->setTranslation(campfire.getPosition());
 		//_lightStruct->setRotation(avt::Quaternion({ 0,0,1.f }, avt::PI/10));
 
-		_floor = _scene.createNode(floorM);
-		_floor->translate({ 3.5f, -2.f, -8.5f });
-		_floor->scale({ 1.5f, 1.5f, 1.5f });
+		auto island = _scene.createNode(islandM);
+		island->translate({ 3.5f, -2.f, -8.5f });
+		island->scale({ 1.5f, 1.5f, 1.5f });
 
-		_floor2 = _scene.createNode(rabbitIsland);
-		_floor2->translate({ 10.5f, -2.f, -8.5f });
-		_floor2->scale({ 1.5f, 1.5f, 1.5f });
+		auto appleTreeIsland = _scene.createNode(appleTreeIslandM);
+		appleTreeIsland->translate({ 10.5f, -2.f, -8.5f });
+		appleTreeIsland->scale({ 1.5f, 1.5f, 1.5f });
 
-		auto apple = _floor2->createNode(appleM);
+		auto apple = appleTreeIsland->createNode(appleM);
 		apple->translate({ 1.05f, 1.5f, 0.25f });
 		apple->scale({ 1.5f, 1.5f, 1.5f });
 
 		_apples.push_back(apple);
 		avt::StencilPicker::addTarget(apple, "apple");
 
-		auto apple2 = _floor2->createNode(appleM);
+		auto apple2 = appleTreeIsland->createNode(appleM);
 		apple2->translate({ 0.6f, 2.45f, 0.25f });
 		apple2->scale({ 1.5f, 1.5f, 1.5f });
 
 		_apples.push_back(apple2);
 
-		auto apple3 = _floor2->createNode(appleM);
+		auto apple3 = appleTreeIsland->createNode(appleM);
 		apple3->translate({ 0.0f, 2.1f, 0.25f });
 		apple3->scale({ 1.5f, 1.5f, 1.5f });
 
 		_apples.push_back(apple3);
 
-		auto apple4 = _floor2->createNode(appleM);
+		auto apple4 = appleTreeIsland->createNode(appleM);
 		apple4->translate({ -0.6f, 1.7f, 0.25f });
 		apple4->scale({ 1.5f, 1.5f, 1.5f });
 
