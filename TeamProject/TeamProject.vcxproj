@@ -177,6 +177,7 @@
     <ClInclude Include="HeaderFiles\apple.h" />
     <ClInclude Include="HeaderFiles\avt_math.h" />
     <ClInclude Include="HeaderFiles\Bloom.h" />
+    <ClInclude Include="HeaderFiles\Bunny.h" />
     <ClInclude Include="HeaderFiles\Camera.h" />
     <ClInclude Include="HeaderFiles\CloudSystem.h" />
     <ClInclude Include="HeaderFiles\Cube.h" />
