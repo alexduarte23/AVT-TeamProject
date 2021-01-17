@@ -42,14 +42,15 @@ private:
 	avt::Manager<avt::Camera> _cams;
 
 
-	avt::SceneNode* _tree = nullptr, *_tree2 = nullptr, * _tree3 = nullptr, *_lightStruct = nullptr , *_light= nullptr, *_floor = nullptr, *_cloud = nullptr, * _floor2 = nullptr;
+	avt::SceneNode* _tree = nullptr, * _tree2 = nullptr, * _tree3 = nullptr, * _lightStruct = nullptr, * _light = nullptr, * _floor = nullptr, * _cloud = nullptr, * _floor2 = nullptr;
 	std::vector<avt::Apple*> _apples;
+	std::vector<avt::Bunny*> _bunny;
 	avt::CloudSystem* _cloudSystem = nullptr;
 	std::string _activeCam = "per";
 	
 	const float _duration = 3, _duration2 = 6;
 	double _time = 0, _time2 = 0;
-	bool _animating = true, _rotating = false, _selecting = false, _morebloom = false, _lessbloom = false, _turnOffOnBloom = false, _animatingApples = false, _isBunny = false;
+	bool _animating = true, _rotating = false, _selecting = false, _morebloom = false, _lessbloom = false, _turnOffOnBloom = false, _animatingApples = false, _isBunny = true;
 
 	unsigned int _selected = -1; //stencil index of the currently selected scene node - mouse picking
 
@@ -77,12 +78,14 @@ private:
 		auto bushM = _meshes.add("bush", new avt::Mesh("./Resources/Objects/simplebush.obj"));
 		bushM->setup();
 
-		auto bunnyM = _meshes.add("bunny", new avt::Mesh("./Resources/Objects/bunny.obj"));
-		bunnyM->setup();
+		auto bunnyearLM = _meshes.add("bunnyLeftEar", new avt::Mesh("./Resources/Objects/leftear.obj"));
+		bunnyearLM->setup();
+		auto bunnyearRM = _meshes.add("bunnyRightEar", new avt::Mesh("./Resources/Objects/rightear.obj"));
+		bunnyearRM->setup();
+		auto bunnytailM = _meshes.add("bunnyTail", new avt::Mesh("./Resources/Objects/tail.obj"));
+		bunnytailM->setup();
 
-		//auto cloudM = _meshes.add("cloud", new avt::Cloud());
-		//cloudM->setup();
-
+		
 		createAppleTree(appleTreeIslandM, appleM);
 		
 		auto lightM = _meshes.add("moon", new avt::Mesh("./Resources/Objects/sun_moon.obj"));
@@ -110,23 +113,33 @@ private:
 		island->translate({ 3.5f, -2.f, -8.5f });
 		island->scale({ 1.5f, 1.5f, 1.5f });
 
-		
-		/**/
-		//_floor->translate({ -15.f, -2.f, -15.f });
-		//_floor->scale({3.f, 1.0f, 3.f});
-		//_floor->translate({ 0.0f, -2.8f, 0.0f });
-
-		//_cloud = _scene.createNode(cloudM);
-		//_cloud->translate({ -2.5f, 4.f, -2.5f });
-
 		auto bunnyIsland = _scene.createNode(bunnyIslandM);
 		bunnyIsland->translate({ -8.5f, -4.5f, -8.5f });
 		bunnyIsland->scale({ 2.2f, 2.2f, 2.2f });
 
 		auto bush = bunnyIsland->createNode(bushM);
-		auto bunny = bunnyIsland->createNode(bunnyM);
+		//auto bunny = bunnyIsland->createNode(bunnyM);
+		auto bunnyEarL = new avt::Bunny();
+		bunnyEarL->setMesh(bunnyearLM);
+		bunnyIsland->addNode(bunnyEarL);
+		bunnyEarL->translate({ 0.f,-0.16f,-0.16f });
+		bunnyEarL->setPosition({ 0.f,-0.16f,-0.16f });
+		_bunny.push_back(bunnyEarL);
 
-		
+		auto bunnyEarR = new avt::Bunny();
+		bunnyEarR->setMesh(bunnyearRM);
+		bunnyIsland->addNode(bunnyEarR);
+		bunnyEarR->translate({ 0.f,-0.16f,-0.16f });
+		bunnyEarR->setPosition({ 0.f,-0.16f,-0.16f });
+		_bunny.push_back(bunnyEarR);
+
+		auto bunnyTail = new avt::Bunny();
+		bunnyTail->setMesh(bunnytailM);
+		bunnyIsland->addNode(bunnyTail);
+		bunnyTail->translate({ -0.2f,0.f,0.f });
+		bunnyTail->setPosition({ -0.2f,0.f,0.f });
+		_bunny.push_back(bunnyTail);
+
 		avt::StencilPicker::addTarget(bush, "bunny");
 
 		auto colorCube = _scene.createNode(colorCubeM);
@@ -391,6 +404,10 @@ public:
 
 		for(int i = 0; i < 4; i++)
 			_apples.at(i)->animate();
+
+		_bunny.at(0)->animateLeftEar();
+		_bunny.at(1)->animateRightEar();
+		_bunny.at(2)->animateTail();
 		
 		if (_animating) {
 			_time += dt;
@@ -585,8 +602,9 @@ public:
 				_apples.at(3)->setAnimating();
 			}
 			else if (target.second == "bunny") {
-				if (_isBunny == false)
-					_isBunny = true;
+				_bunny.at(0)->setAnimating();
+				_bunny.at(1)->setAnimating();
+				_bunny.at(2)->setAnimating();
 			}
 
 		}
