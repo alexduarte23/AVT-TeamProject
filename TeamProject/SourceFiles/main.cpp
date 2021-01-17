@@ -72,7 +72,7 @@ private:
 		auto appleM = _meshes.add("apple", new avt::Mesh("./Resources/Objects/apple.obj"));
 		appleM->setup();
 
-		auto bunnyIslandM = _meshes.add("bunnyIsland", new avt::Mesh("./Resources/Objects/Island2.obj"));
+		auto bunnyIslandM = _meshes.add("bunnyIsland", new avt::Mesh("./Resources/Objects/bunnyIsland.obj"));
 		bunnyIslandM->setup();
 
 		auto bushM = _meshes.add("bush", new avt::Mesh("./Resources/Objects/simplebush.obj"));
@@ -178,45 +178,20 @@ private:
 		appleTreeIsland->translate({ 12.5f, -2.f, -8.5f });
 		appleTreeIsland->scale({ 1.5f, 1.5f, 1.5f });
 
-		auto apple = new avt::Apple();
-		apple->setMesh(appleM);
-		appleTreeIsland->addNode(apple);
-		apple->setPosition({ 1.05f, 1.5f, 0.0f });
-		apple->translate({ 1.05f, 1.5f, 0.0f });
-		apple->scale({ 1.5f, 1.5f, 1.5f });
+		avt::Apple* apple;
+		std::vector<avt::Vector3> applePositions = { { 1.05f, 1.5f, 0.0f } , { 0.6f, 2.45f, 0.0f } , { 0.0f, 2.1f, 0.25f }, { -0.6f, 1.7f, 0.0f } };
 
-		_apples.push_back(apple);
-		avt::StencilPicker::addTarget(apple, "apple");
+		for (int i = 0; i < 4; i++) {
+			apple = new avt::Apple();
+			apple->setMesh(appleM);
+			appleTreeIsland->addNode(apple);
+			apple->setPosition(applePositions.at(i));
+			apple->translate(applePositions.at(i));
+			apple->scale({ 1.5f, 1.5f, 1.5f });
 
-		auto apple2 = new avt::Apple();
-		apple2->setMesh(appleM);
-		appleTreeIsland->addNode(apple2);
-		apple2->setPosition({ 0.6f, 2.45f, 0.0f });
-		apple2->translate({ 0.6f, 2.45f, 0.0f });
-		apple2->scale({ 1.5f, 1.5f, 1.5f });
-
-		_apples.push_back(apple2);
-		avt::StencilPicker::addTarget(apple2, "apple2");
-
-		auto apple3 = new avt::Apple();
-		apple3->setMesh(appleM);
-		appleTreeIsland->addNode(apple3);
-		apple3->setPosition({ 0.0f, 2.1f, 0.25f });
-		apple3->translate({ 0.0f, 2.1f, 0.25f });
-		apple3->scale({ 1.5f, 1.5f, 1.5f });
-
-		_apples.push_back(apple3);
-		avt::StencilPicker::addTarget(apple3, "apple3");
-
-		auto apple4 = new avt::Apple();
-		apple4->setMesh(appleM);
-		appleTreeIsland->addNode(apple4);
-		apple4->setPosition({ -0.6f, 1.7f, 0.0f });
-		apple4->translate({ -0.6f, 1.7f, 0.0f });
-		apple4->scale({ 1.5f, 1.5f, 1.5f });
-
-		_apples.push_back(apple4);
-		avt::StencilPicker::addTarget(apple4, "apple4");
+			_apples.push_back(apple);
+			avt::StencilPicker::addTarget(apple, "apple" + std::to_string(i+1));
+		}
 	}
 		
 
@@ -598,7 +573,7 @@ public:
 				_emitter->toggle();
 				//_meshes.get("tree")->colorAll({ avt::random(), avt::random(), avt::random() });
 				//_meshes.get("tree")->updateBufferData();
-			}else if (target.second == "apple") {
+			}else if (target.second == "apple1") {
 				_apples.at(0)->setAnimating();
 			}else if (target.second == "apple2") {
 				_apples.at(1)->setAnimating();
