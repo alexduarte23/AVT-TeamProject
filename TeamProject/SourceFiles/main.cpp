@@ -43,7 +43,7 @@ private:
 
 
 	avt::SceneNode* _tree = nullptr, *_tree2 = nullptr, * _tree3 = nullptr, *_lightStruct = nullptr , *_light= nullptr, *_floor = nullptr, *_cloud = nullptr, * _floor2 = nullptr;
-	std::vector<avt::SceneNode*> _apples;
+	std::vector<avt::Apple*> _apples;
 	avt::CloudSystem* _cloudSystem = nullptr;
 	std::string _activeCam = "per";
 	
@@ -60,7 +60,7 @@ private:
 		auto treeM = _meshes.add("tree", new avt::Mesh("./Resources/Objects/treeNormal.obj"));
 		treeM->colorAll({0.2f, 0.6f, 0.2f});
 		treeM->setup();
-
+		
 		auto floorM = _meshes.add("floor", new avt::Mesh("./Resources/cube_vtn_flat.obj"));
 		auto islandM = _meshes.add("island", new avt::Mesh("./Resources/Objects/island3.obj"));
 		islandM->setup();
@@ -83,6 +83,7 @@ private:
 		//auto cloudM = _meshes.add("cloud", new avt::Cloud());
 		//cloudM->setup();
 
+		createAppleTree(appleTreeIslandM, appleM);
 		
 		auto lightM = _meshes.add("moon", new avt::Mesh("./Resources/Objects/sun_moon.obj"));
 		lightM->applyTransform(avt::Mat4::scale({ 0.5f, 0.5f, 0.5f }));
@@ -109,34 +110,8 @@ private:
 		island->translate({ 3.5f, -2.f, -8.5f });
 		island->scale({ 1.5f, 1.5f, 1.5f });
 
-		auto appleTreeIsland = _scene.createNode(appleTreeIslandM);
-		appleTreeIsland->translate({ 12.5f, -2.f, -8.5f });
-		appleTreeIsland->scale({ 1.5f, 1.5f, 1.5f });
-
-		auto apple = appleTreeIsland->createNode(appleM);
-		apple->translate({ 1.05f, 1.5f, 0.10f });
-		apple->scale({ 1.5f, 1.5f, 1.5f });
-
-		_apples.push_back(apple);
-		avt::StencilPicker::addTarget(apple, "apple");
-
-		auto apple2 = appleTreeIsland->createNode(appleM);
-		apple2->translate({ 0.6f, 2.45f, 0.25f });
-		apple2->scale({ 1.5f, 1.5f, 1.5f });
-
-		_apples.push_back(apple2);
-
-		auto apple3 = appleTreeIsland->createNode(appleM);
-		apple3->translate({ 0.0f, 2.1f, 0.10f });
-		apple3->scale({ 1.5f, 1.5f, 1.5f });
-
-		_apples.push_back(apple3);
-
-		auto apple4 = appleTreeIsland->createNode(appleM);
-		apple4->translate({ -0.6f, 1.7f, 0.10f });
-		apple4->scale({ 1.5f, 1.5f, 1.5f });
-
-		_apples.push_back(apple4);
+		
+		/**/
 		//_floor->translate({ -15.f, -2.f, -15.f });
 		//_floor->scale({3.f, 1.0f, 3.f});
 		//_floor->translate({ 0.0f, -2.8f, 0.0f });
@@ -178,6 +153,52 @@ private:
 #ifndef ERROR_CALLBACK
 		avt::ErrorManager::checkOpenGLError("ERROR: Could not create VAOs and VBOs.");
 #endif
+	}
+
+	void createAppleTree(avt::Mesh* appleTreeIslandM, avt::Mesh* appleM) {
+		auto appleTreeIsland = _scene.createNode(appleTreeIslandM);
+		appleTreeIsland->translate({ 12.5f, -2.f, -8.5f });
+		appleTreeIsland->scale({ 1.5f, 1.5f, 1.5f });
+
+		auto apple = new avt::Apple();
+		apple->setMesh(appleM);
+		appleTreeIsland->addNode(apple);
+		apple->setPosition({ 1.05f, 1.5f, 0.0f });
+		apple->translate({ 1.05f, 1.5f, 0.0f });
+		apple->scale({ 1.5f, 1.5f, 1.5f });
+
+		_apples.push_back(apple);
+		avt::StencilPicker::addTarget(apple, "apple");
+
+		auto apple2 = new avt::Apple();
+		apple2->setMesh(appleM);
+		appleTreeIsland->addNode(apple2);
+		apple2->setPosition({ 0.6f, 2.45f, 0.0f });
+		apple2->translate({ 0.6f, 2.45f, 0.0f });
+		apple2->scale({ 1.5f, 1.5f, 1.5f });
+
+		_apples.push_back(apple2);
+		avt::StencilPicker::addTarget(apple2, "apple2");
+
+		auto apple3 = new avt::Apple();
+		apple3->setMesh(appleM);
+		appleTreeIsland->addNode(apple3);
+		apple3->setPosition({ 0.0f, 2.1f, 0.25f });
+		apple3->translate({ 0.0f, 2.1f, 0.25f });
+		apple3->scale({ 1.5f, 1.5f, 1.5f });
+
+		_apples.push_back(apple3);
+		avt::StencilPicker::addTarget(apple3, "apple3");
+
+		auto apple4 = new avt::Apple();
+		apple4->setMesh(appleM);
+		appleTreeIsland->addNode(apple4);
+		apple4->setPosition({ -0.6f, 1.7f, 0.0f });
+		apple4->translate({ -0.6f, 1.7f, 0.0f });
+		apple4->scale({ 1.5f, 1.5f, 1.5f });
+
+		_apples.push_back(apple4);
+		avt::StencilPicker::addTarget(apple4, "apple4");
 	}
 		
 
@@ -367,6 +388,9 @@ public:
 
 		_emitter->update(dt);
 		_cloudSystem->update(dt);
+
+		for(int i = 0; i < 4; i++)
+			_apples.at(i)->animate();
 		
 		if (_animating) {
 			_time += dt;
@@ -552,10 +576,13 @@ public:
 				//_meshes.get("tree")->colorAll({ avt::random(), avt::random(), avt::random() });
 				//_meshes.get("tree")->updateBufferData();
 			}else if (target.second == "apple") {
-				if(_animatingApples == false)
-					_animatingApples = true;
-				//_meshes.get("tree")->colorAll({ avt::random(), avt::random(), avt::random() });
-				//_meshes.get("tree")->updateBufferData();
+				_apples.at(0)->setAnimating();
+			}else if (target.second == "apple2") {
+				_apples.at(1)->setAnimating();
+			}else if (target.second == "apple3") {
+				_apples.at(2)->setAnimating();
+			}else if (target.second == "apple4") {
+				_apples.at(3)->setAnimating();
 			}
 			else if (target.second == "bunny") {
 				if (_isBunny == false)
