@@ -117,8 +117,13 @@ private:
 		bunnyIsland->translate({ -8.5f, -4.5f, -8.5f });
 		bunnyIsland->scale({ 2.2f, 2.2f, 2.2f });
 
-		auto bush = bunnyIsland->createNode(bushM);
-		//auto bunny = bunnyIsland->createNode(bunnyM);
+		auto bush = new avt::Bunny();
+		bush ->setMesh(bushM);
+		bunnyIsland->addNode(bush);
+		bush->translate({ 0.f,0.f,0.f });
+		bush->setPosition({ 0.f,0.f,0.f });
+		_bunny.push_back(bush);
+
 		auto bunnyEarL = new avt::Bunny();
 		bunnyEarL->setMesh(bunnyearLM);
 		bunnyIsland->addNode(bunnyEarL);
@@ -405,9 +410,10 @@ public:
 		for(int i = 0; i < 4; i++)
 			_apples.at(i)->animate();
 
-		_bunny.at(0)->animateLeftEar();
-		_bunny.at(1)->animateRightEar();
-		_bunny.at(2)->animateTail();
+		_bunny.at(0)->animateBush();
+		_bunny.at(1)->animateLeftEar();
+		_bunny.at(2)->animateRightEar();
+		_bunny.at(3)->animateTail();
 		
 		if (_animating) {
 			_time += dt;
@@ -605,6 +611,7 @@ public:
 				_bunny.at(0)->setAnimating();
 				_bunny.at(1)->setAnimating();
 				_bunny.at(2)->setAnimating();
+				_bunny.at(3)->setAnimating();
 			}
 
 		}
