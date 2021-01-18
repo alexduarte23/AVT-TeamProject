@@ -29,8 +29,8 @@ namespace avt {
 				auto& cell = grid[i][j];
 
 				if (cell.perlin != 0 || cell.size != 0) {
-					cell.pulseOffset = fmod(cell.pulseOffset + pulseSpeed, 2 * PI);
-					cell.wobbleOffset = fmod(cell.wobbleOffset + wobbleSpeed, 2 * PI);
+					cell.pulseOffset = fmod(cell.pulseOffset + dt*pulseSpeed, 2 * PI);
+					cell.wobbleOffset = fmod(cell.wobbleOffset + dt*wobbleSpeed, 2 * PI);
 				}
 
 				if (cell.time > 0) {

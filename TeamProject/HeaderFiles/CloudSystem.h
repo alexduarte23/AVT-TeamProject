@@ -42,10 +42,10 @@ namespace avt {
 		float spawnPeriod = 1.0f;
 		float growth = 0.12f;
 
-		float pulseSpeed = 0.12f;
+		float pulseSpeed = 4.f;
 		float pulseStrength = 0.07f;
 
-		float wobbleSpeed = 0.1f;
+		float wobbleSpeed = 3.f;
 		float wobbleStrength = 0.12f;
 
 		float moveTimer = 0;
