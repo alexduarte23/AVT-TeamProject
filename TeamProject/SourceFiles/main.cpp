@@ -242,11 +242,13 @@ private:
 		_shader.addUniform("campfireLSM2");
 		_shader.addUniform("campfireLSM3");
 		_shader.addUniform("campfireLSM4");
+		_shader.addUniform("campfireLSM5");
 
 		_shader.addUniform("campfireSM1");
 		_shader.addUniform("campfireSM2");
 		_shader.addUniform("campfireSM3");
 		_shader.addUniform("campfireSM4");
+		_shader.addUniform("campfireSM5");
 
 		_shader.addUniform("envLSM");
 		_shader.addUniform("envSM");
@@ -275,11 +277,13 @@ private:
 		_shaderClouds.addUniform("campfireLSM2");
 		_shaderClouds.addUniform("campfireLSM3");
 		_shaderClouds.addUniform("campfireLSM4");
+		_shaderClouds.addUniform("campfireLSM5");
 
 		_shaderClouds.addUniform("campfireSM1");
 		_shaderClouds.addUniform("campfireSM2");
 		_shaderClouds.addUniform("campfireSM3");
 		_shaderClouds.addUniform("campfireSM4");
+		_shaderClouds.addUniform("campfireSM5");
 
 		_shaderClouds.addUniform("envLSM");
 		_shaderClouds.addUniform("envSM");
@@ -425,9 +429,9 @@ public:
 		//Update Shader uniforms
 
 		campfire.updateLightSpaceMatrices(_shader, _shader.getUniform("campfireLSM1"), _shader.getUniform("campfireLSM2"),
-			_shader.getUniform("campfireLSM3"), _shader.getUniform("campfireLSM4"));
+			_shader.getUniform("campfireLSM3"), _shader.getUniform("campfireLSM4"), _shader.getUniform("campfireLSM5"));
 		campfire.updateLightSpaceMatrices(_shaderClouds, _shaderClouds.getUniform("campfireLSM1"), _shaderClouds.getUniform("campfireLSM2"),
-			_shaderClouds.getUniform("campfireLSM3"), _shaderClouds.getUniform("campfireLSM4"));
+			_shaderClouds.getUniform("campfireLSM3"), _shaderClouds.getUniform("campfireLSM4"), _shaderClouds.getUniform("campfireLSM5"));
 
 		campfire.updateLight(_shader, _shader.getUniform("campfirePos"), _shader.getUniform("campfireColor"));
 		campfire.updateLight(_shaderClouds, _shaderClouds.getUniform("campfirePos"), _shaderClouds.getUniform("campfireColor"));
@@ -458,11 +462,11 @@ public:
 		campfire.renderShadowMaps(_renderer, _scene, (unsigned int)winx, (unsigned int)winy);
 		env.renderShadowMaps(_renderer, _scene, (unsigned int)winx, (unsigned int)winy);
 
-		campfire.shadowMapTextureLoad(_shader, 0, _shader.getUniform("campfireSM1"), _shader.getUniform("campfireSM2"), _shader.getUniform("campfireSM3"), _shader.getUniform("campfireSM4"));
-		campfire.shadowMapTextureLoad(_shaderClouds, 0, _shaderClouds.getUniform("campfireSM1"), _shaderClouds.getUniform("campfireSM2"), _shaderClouds.getUniform("campfireSM3"), _shaderClouds.getUniform("campfireSM4"));
+		campfire.shadowMapTextureLoad(_shader, 0, _shader.getUniform("campfireSM1"), _shader.getUniform("campfireSM2"), _shader.getUniform("campfireSM3"), _shader.getUniform("campfireSM4"), _shader.getUniform("campfireSM5"));
+		campfire.shadowMapTextureLoad(_shaderClouds, 0, _shaderClouds.getUniform("campfireSM1"), _shaderClouds.getUniform("campfireSM2"), _shaderClouds.getUniform("campfireSM3"), _shaderClouds.getUniform("campfireSM4"), _shaderClouds.getUniform("campfireSM5"));
 
-		env.shadowMapTextureLoad(_shader, 4, _shader.getUniform("envSM"));
-		env.shadowMapTextureLoad(_shaderClouds, 4, _shaderClouds.getUniform("envSM"));
+		env.shadowMapTextureLoad(_shader, 5, _shader.getUniform("envSM"));
+		env.shadowMapTextureLoad(_shaderClouds, 5, _shaderClouds.getUniform("envSM"));
 
 		renderWithBloom(win);
 		//renderWithoutBloom(win);
@@ -540,11 +544,13 @@ public:
 			_cloudSystem->createCloud();
 			break;
 		case GLFW_KEY_V:
-			if (env.getIntensity() == 2.f) {
+			if (env.getIntensity() == 1.f) {
+				env.setColor({ 0.1f, 0.1f, 0.1f });
 				env.setIntensity(0.3f);
 			}
 			else {
-				env.setIntensity(2.f);
+				env.setColor({ 1.f, 1.f, 0.3f });
+				env.setIntensity(1.f);
 			}
 			break;
 		}
