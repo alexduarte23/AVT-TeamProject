@@ -18,6 +18,7 @@ out vec4 FragPosLightSpace2;
 out vec4 FragPosLightSpace3;
 out vec4 FragPosLightSpace4;
 out vec4 FragPosLightSpace5;
+out vec4 FragPosLightSpace6;
 
 //UNIFORMS
 uniform mat4 ModelMatrix;
@@ -25,6 +26,7 @@ uniform mat4 campfireLSM1;
 uniform mat4 campfireLSM2;
 uniform mat4 campfireLSM3;
 uniform mat4 campfireLSM4;
+uniform mat4 campfireLSM5;
 uniform mat4 envLSM;
 
 
@@ -50,5 +52,6 @@ void main(void)
 	FragPosLightSpace2 = campfireLSM2 * vec4(FragPos, 1.0);
 	FragPosLightSpace3 = campfireLSM3 * vec4(FragPos, 1.0);
 	FragPosLightSpace4 = campfireLSM4 * vec4(FragPos, 1.0);
-	FragPosLightSpace5 = envLSM * vec4(FragPos, 1.0);
+	FragPosLightSpace5 = campfireLSM5 * vec4(FragPos, 1.0);
+	FragPosLightSpace6 = envLSM * vec4(FragPos, 1.0);
 }
