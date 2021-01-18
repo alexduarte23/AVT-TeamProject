@@ -42,6 +42,8 @@
 #include "DirectionalLight.h"
 #include "Shadow.h"
 
+#include "HUDElement.h"
+
 
 #define ERROR_CALLBACK
 
