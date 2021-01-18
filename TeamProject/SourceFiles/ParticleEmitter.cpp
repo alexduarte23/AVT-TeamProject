@@ -234,10 +234,10 @@ namespace avt {
 			if (p->age < 0) continue;
 			float rand = random();
 			if (rand < 0.1f) {
-				p->v = (Quaternion({ 0,1,0 }, randrange(.05, .3f)).toMat() * p->v.to4D()).to3D();
+				p->v = (Quaternion({ 0,1.f,0 }, randrange(.05f, .3f)).toMat() * p->v.to4D()).to3D();
 			}
 			else if (rand > .95f) {
-				p->v = (Quaternion({ 0,1,0 }, -randrange(.05, .3f)).toMat() * p->v.to4D()).to3D();
+				p->v = (Quaternion({ 0,1.f,0 }, -randrange(.05f, .3f)).toMat() * p->v.to4D()).to3D();
 
 			}
 			//p->v += p->a * dt;

@@ -105,11 +105,11 @@ namespace avt {
 
 		Vector2 operator/(float num) const;
 
-		friend Vector2 operator*(float num, Vector2& vec) {
+		friend Vector2 operator*(float num, const Vector2& vec) {
 			return vec * num;
 		}
 
-		friend Vector2 operator+(float num, Vector2& vec) {
+		friend Vector2 operator+(float num, const Vector2& vec) {
 			return vec + num;
 		}
 	};

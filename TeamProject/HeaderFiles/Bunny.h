@@ -12,11 +12,11 @@ namespace avt {
 	public:
 
 		void animateLeftEar() {
-			if (_animating && _time < 8) {
-				this->translate({ 0.0f, 0.02f, 0.02f });
+			if (_animating && _time < 4) {
+				this->translate({ 0.0f, 0.04f, 0.04f });
 				_time++;
 			}
-			else if (_animating && _time >= 8 && _time < 60)
+			else if (_animating && _time >= 4 && _time < 60)
 				_time++;
 
 			else if (_animating && _time == 60) {
@@ -26,11 +26,11 @@ namespace avt {
 		}
 
 		void animateRightEar() {
-			if (_animating && _time < 8) {
-				this->translate({ 0.0f, 0.02f, 0.02f });
+			if (_animating && _time < 4) {
+				this->translate({ 0.0f, 0.04f, 0.04f });
 				_time++;
 			}
-			else if (_animating && _time >= 8 && _time < 60)
+			else if (_animating && _time >= 4 && _time < 60)
 				_time++;
 
 			else if (_animating && _time == 60) {
@@ -48,6 +48,24 @@ namespace avt {
 				_time++;
 			}
 			else if (_animating && _time >= 12 && _time < 60)
+				_time++;
+
+			else if (_animating && _time == 60) {
+				this->setTranslation(_position);
+				_animating = false;
+			}
+		}
+
+		void animateBush() {
+			if (_animating && _time < 8 && _time%2==0) {
+				this->translate({ -0.01f, -0.01f, -0.01f });
+				_time++;
+			}
+			else if (_animating && _time < 8 && _time % 2 != 0) {
+				this->translate({ 0.01f, 0.01f, 0.01f });
+				_time++;
+			}
+			else if (_animating && _time >= 8 && _time < 60)
 				_time++;
 
 			else if (_animating && _time == 60) {

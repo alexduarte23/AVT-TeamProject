@@ -24,10 +24,10 @@ public:
 
 class MyApp : public avt::App {
 private:
-	avt::Shader _shader, _shaderParticles, _shaderClouds;
+	avt::Shader _shader, _shaderFire, _shaderClouds, _shaderHUD;
 	avt::Renderer _renderer;
 	avt::UniformBuffer _ub;
-	avt::Scene _scene;
+	avt::Scene _scene, _HUD;
 	MyNodeCallback nodeCallback;
 
 	avt::ParticleEmitter* _emitter = nullptr;
@@ -40,6 +40,10 @@ private:
 
 	avt::Manager<avt::Mesh> _meshes;
 	avt::Manager<avt::Camera> _cams;
+
+	bool _cursorVisible = false;
+	bool _fireOn = true;
+	float _campfireBaseIntensity = 1.f;
 
 
 	avt::SceneNode* _tree = nullptr, * _tree2 = nullptr, * _tree3 = nullptr, * _lightStruct = nullptr, * _light = nullptr, * _floor = nullptr, * _cloud = nullptr, * _floor2 = nullptr;
@@ -85,6 +89,9 @@ private:
 		auto bunnytailM = _meshes.add("bunnyTail", new avt::Mesh("./Resources/Objects/tail.obj"));
 		bunnytailM->setup();
 
+		auto fireplaceM = _meshes.add("fireplace", new avt::Mesh("./Resources/Objects/fireplace3.obj"));
+		fireplaceM->setup();
+
 		
 		createAppleTree(appleTreeIslandM, appleM);
 		
@@ -120,8 +127,13 @@ private:
 		bunnyIsland->translate({ -10.5f, -4.5f, -8.5f });
 		bunnyIsland->scale({ 2.2f, 2.2f, 2.2f });
 
-		auto bush = bunnyIsland->createNode(bushM);
-		//auto bunny = bunnyIsland->createNode(bunnyM);
+		auto bush = new avt::Bunny();
+		bush ->setMesh(bushM);
+		bunnyIsland->addNode(bush);
+		bush->translate({ 0.f,0.f,0.f });
+		bush->setPosition({ 0.f,0.f,0.f });
+		_bunny.push_back(bush);
+
 		auto bunnyEarL = new avt::Bunny();
 		bunnyEarL->setMesh(bunnyearLM);
 		bunnyIsland->addNode(bunnyEarL);
@@ -145,10 +157,14 @@ private:
 
 		avt::StencilPicker::addTarget(bush, "bunny");
 
-		auto colorCube = _scene.createNode(colorCubeM);
-		colorCube->translate({ 0,0,5.f });
-		//colorCube->rotateY(-avt::PI/2);
-		colorCube->scale({ .3f,.3f,.3f });
+		//auto colorCube = _scene.createNode(colorCubeM);
+		//colorCube->translate({ 0,0,5.f });
+		//colorCube->scale({ .3f,.3f,.3f });
+
+		//auto fireplace = _scene.createNode(fireplaceM);
+		//fireplace->translate({ 2.7f,-1.35f,-5.f });
+		//fireplace->scale({ .15f,.15f,.15f });
+		//avt::StencilPicker::addTarget(fireplace, "fire");
 
 		auto fireplace = island->createNode(fireplaceM);
 		fireplace->translate({ -2.f,1.35f,6.8f });
@@ -163,12 +179,18 @@ private:
 
 		_emitter = new avt::FireEmitter();
 		avt::StencilPicker::addTarget(_emitter, "fire");
-		_emitter->setShader(&_shaderParticles);
-		//_emitter->scale({ .5f, .5f, .5f });
+		_emitter->setShader(&_shaderFire);
+		_emitter->scale({ .5f, .5f, .5f });
 		_emitter->translate(campfire.getPosition());
 		_scene.addNode(_emitter); // scene deletes nodes when destroyed
 
 		env.setPosition(_light->pos().to3D() + avt::Vector3(0.0f, 10.f, 0.0f));
+
+
+		_HUD.setShader(&_shaderHUD);
+
+		auto crosshair = _HUD.addNode(new avt::HUDElement("Resources/textures/crosshair161.png"));
+		crosshair->scale({ .5f, .5f, .5f });
 
 
 #ifndef ERROR_CALLBACK
@@ -225,11 +247,11 @@ private:
 
 	void processMouseMovement(GLFWwindow* win, const avt::Vector2& lastCursor, const avt::Vector2& newCursor, double  dt) {
 		auto offset = newCursor - lastCursor;
-		if (glfwGetInputMode(win, GLFW_CURSOR) == GLFW_CURSOR_DISABLED) { // free move
+		if (!_cursorVisible) { // free move
 			_cams.get("ort")->processMouse(offset, dt, true);
 			_cams.get("per")->processMouse(offset, dt, true);
 
-		} else if (glfwGetMouseButton(win, GLFW_MOUSE_BUTTON_LEFT) == GLFW_PRESS) { // drag move
+		} else if (glfwGetMouseButton(win, GLFW_MOUSE_BUTTON_RIGHT) == GLFW_PRESS) { // drag move
 			_cams.get("ort")->processMouse(offset, dt);
 			_cams.get("per")->processMouse(offset, dt);
 
@@ -238,6 +260,8 @@ private:
 	}
 
 	void createShader() {
+
+		// create regular mesh shader
 		_shader.addShader(GL_VERTEX_SHADER, "./Resources/shadowShaders/vertexShadowShader.glsl");
 		_shader.addShader(GL_FRAGMENT_SHADER, "./Resources/shadowShaders/fragmentShadowShader.glsl");
 		_shader.addAttribute("inPosition", VERTICES);
@@ -250,11 +274,13 @@ private:
 		_shader.addUniform("campfireLSM2");
 		_shader.addUniform("campfireLSM3");
 		_shader.addUniform("campfireLSM4");
+		_shader.addUniform("campfireLSM5");
 
 		_shader.addUniform("campfireSM1");
 		_shader.addUniform("campfireSM2");
 		_shader.addUniform("campfireSM3");
 		_shader.addUniform("campfireSM4");
+		_shader.addUniform("campfireSM5");
 
 		_shader.addUniform("envLSM");
 		_shader.addUniform("envSM");
@@ -269,6 +295,8 @@ private:
 		_shader.addUbo("CameraMatrices", UBO_BP);
 		_shader.create();
 
+
+		// create clouds shader, simular to mesh shader but with instancing
 		_shaderClouds.addShader(GL_VERTEX_SHADER, "./Resources/shadowShaders/vertexShadowCloudsShader.glsl");
 		_shaderClouds.addShader(GL_FRAGMENT_SHADER, "./Resources/shadowShaders/fragmentShadowShader.glsl");
 		_shaderClouds.addAttribute("inPosition", VERTICES);
@@ -283,11 +311,13 @@ private:
 		_shaderClouds.addUniform("campfireLSM2");
 		_shaderClouds.addUniform("campfireLSM3");
 		_shaderClouds.addUniform("campfireLSM4");
+		_shaderClouds.addUniform("campfireLSM5");
 
 		_shaderClouds.addUniform("campfireSM1");
 		_shaderClouds.addUniform("campfireSM2");
 		_shaderClouds.addUniform("campfireSM3");
 		_shaderClouds.addUniform("campfireSM4");
+		_shaderClouds.addUniform("campfireSM5");
 
 		_shaderClouds.addUniform("envLSM");
 		_shaderClouds.addUniform("envSM");
@@ -302,23 +332,40 @@ private:
 		_shaderClouds.addUbo("CameraMatrices", UBO_BP);
 		_shaderClouds.create();
 
-		_shaderParticles.addShader(GL_VERTEX_SHADER, "./Resources/particleShaders/particles-vs.glsl");
-		_shaderParticles.addShader(GL_FRAGMENT_SHADER, "./Resources/particleShaders/fire-fs.glsl");
-		_shaderParticles.addAttribute("in_vertex", 0);
-		_shaderParticles.addAttribute("in_texCoord", 1);
-		_shaderParticles.addAttribute("in_pos", 2);
-		_shaderParticles.addAttribute("in_color", 3);
-		_shaderParticles.addAttribute("in_size", 4);
-		_shaderParticles.addAttribute("in_rot", 5);
-		_shaderParticles.addUniform("ModelMatrix");
-		_shaderParticles.addUniform("in_texture");
-		_shaderParticles.addUniform("in_dissolveMap");
-		_shaderParticles.addUbo("SharedMatrices", UBO_BP);
-		_shaderParticles.create();
-		_shaderParticles.bind();
-		glUniform1i(_shaderParticles.getUniform("in_texture"), 0);
-		glUniform1i(_shaderParticles.getUniform("in_dissolveMap"), 1);
-		_shaderParticles.unbind();
+
+		// create fire shader
+		_shaderFire.addShader(GL_VERTEX_SHADER, "./Resources/particleShaders/particles-vs.glsl");
+		_shaderFire.addShader(GL_FRAGMENT_SHADER, "./Resources/particleShaders/fire-fs.glsl");
+		_shaderFire.addAttribute("in_vertex", 0);
+		_shaderFire.addAttribute("in_texCoord", 1);
+		_shaderFire.addAttribute("in_pos", 2);
+		_shaderFire.addAttribute("in_color", 3);
+		_shaderFire.addAttribute("in_size", 4);
+		_shaderFire.addAttribute("in_rot", 5);
+		_shaderFire.addUniform("ModelMatrix");
+		_shaderFire.addUniform("in_texture");
+		_shaderFire.addUniform("in_dissolveMap");
+		_shaderFire.addUbo("SharedMatrices", UBO_BP);
+		_shaderFire.create();
+		_shaderFire.bind();
+		glUniform1i(_shaderFire.getUniform("in_texture"), 0);
+		glUniform1i(_shaderFire.getUniform("in_dissolveMap"), 1);
+		_shaderFire.unbind();
+
+
+		// create hud shader
+		_shaderHUD.addShader(GL_VERTEX_SHADER, "./Resources/HUDshaders/hud-vs.glsl");
+		_shaderHUD.addShader(GL_FRAGMENT_SHADER, "./Resources/HUDshaders/hud-fs.glsl");
+		_shaderHUD.addAttribute("inPosition", 0);
+		_shaderHUD.addAttribute("inTexcoord", 1);
+		_shaderHUD.addAttribute("inColor", 2);
+		_shaderHUD.addUniform("ModelMatrix");
+		_shaderHUD.addUniform("inTexture");
+		_shaderHUD.addUbo("CameraMatrices", UBO_BP);
+		_shaderHUD.create();
+		_shaderHUD.bind();
+		glUniform1i(_shaderHUD.getUniform("inTexture"), 0);
+		_shaderHUD.unbind();
 	}
 
 
@@ -330,11 +377,13 @@ private:
 
 		auto camP = new avt::PerspectiveCamera(45.f, aspect, 0.1f, 100.0f, avt::Vector3(0, 0, 10.f));
 		auto camO = new avt::OrthographicCamera(-10.0f, 10.0f, -10.0f / aspect, 10.0f / aspect, 0.1f, 100.0f, avt::Vector3(0, 0, 20.f));
+		auto camHUD = new avt::OrthographicCamera(-10.0f, 10.0f, -10.0f / aspect, 10.0f / aspect, 0.1f, 100.0f, avt::Vector3(0, 0, 10.f));
 		camP->setSpeed(12.f);
 		camO->setSpeed(12.f);
 
 		_cams.add("per", camP);
 		_cams.add("ort", camO);
+		_cams.add("HUD", camHUD);
 
 	}
 
@@ -347,7 +396,7 @@ private:
 		campfire = avt::PointLight({ 3.0f, -0.6f, -3.6f }, { 1.f, 0.5f, 0.f });
 		campfire.setIntensity(1.0f);
 		env = avt::DirectionalLight({ 5.0f, 5.0f, 5.0f }, { 0.1f, 0.1f, 0.1f });
-		env.setIntensity(0.3f);
+		env.setIntensity(0.8f);
 	}
 
 	void createBloom(GLFWwindow* win) {
@@ -388,13 +437,24 @@ public:
 		for(int i = 0; i < 4; i++)
 			_apples.at(i)->animate();
 
-		_bunny.at(0)->animateLeftEar();
-		_bunny.at(1)->animateRightEar();
-		_bunny.at(2)->animateTail();
+		_bunny.at(0)->animateBush();
+		_bunny.at(1)->animateLeftEar();
+		_bunny.at(2)->animateRightEar();
+		_bunny.at(3)->animateTail();
 		
 		if (_animating) {
 			_time += dt;
-			campfire.setIntensity(1.0f + 0.2f * (float)sin(_time * 10) + 0.2f * (float)sin(_time * 7));
+			if (_fireOn && _campfireBaseIntensity != 1.0) {
+				_campfireBaseIntensity = min(campfire.getIntensity() + (float)dt * 1.0f, 1.0f);
+				campfire.setIntensity(_campfireBaseIntensity);
+			}
+			else if (_fireOn && _campfireBaseIntensity == 1.0){
+				campfire.setIntensity(1.0f + 0.2f * (float)sin(_time * 15) + 0.2f * (float)sin(_time * 10));
+			}
+			else {
+				_campfireBaseIntensity = max(campfire.getIntensity() - (float)dt * 1.0f, 0);
+				campfire.setIntensity(_campfireBaseIntensity);
+			}
 			if (_time > _duration) {
 				_time -= _duration;				
 			}
@@ -433,9 +493,9 @@ public:
 		//Update Shader uniforms
 
 		campfire.updateLightSpaceMatrices(_shader, _shader.getUniform("campfireLSM1"), _shader.getUniform("campfireLSM2"),
-			_shader.getUniform("campfireLSM3"), _shader.getUniform("campfireLSM4"));
+			_shader.getUniform("campfireLSM3"), _shader.getUniform("campfireLSM4"), _shader.getUniform("campfireLSM5"));
 		campfire.updateLightSpaceMatrices(_shaderClouds, _shaderClouds.getUniform("campfireLSM1"), _shaderClouds.getUniform("campfireLSM2"),
-			_shaderClouds.getUniform("campfireLSM3"), _shaderClouds.getUniform("campfireLSM4"));
+			_shaderClouds.getUniform("campfireLSM3"), _shaderClouds.getUniform("campfireLSM4"), _shaderClouds.getUniform("campfireLSM5"));
 
 		campfire.updateLight(_shader, _shader.getUniform("campfirePos"), _shader.getUniform("campfireColor"));
 		campfire.updateLight(_shaderClouds, _shaderClouds.getUniform("campfirePos"), _shaderClouds.getUniform("campfireColor"));
@@ -466,20 +526,26 @@ public:
 		campfire.renderShadowMaps(_renderer, _scene, (unsigned int)winx, (unsigned int)winy);
 		env.renderShadowMaps(_renderer, _scene, (unsigned int)winx, (unsigned int)winy);
 
-		campfire.shadowMapTextureLoad(_shader, 0, _shader.getUniform("campfireSM1"), _shader.getUniform("campfireSM2"), _shader.getUniform("campfireSM3"), _shader.getUniform("campfireSM4"));
-		campfire.shadowMapTextureLoad(_shaderClouds, 0, _shaderClouds.getUniform("campfireSM1"), _shaderClouds.getUniform("campfireSM2"), _shaderClouds.getUniform("campfireSM3"), _shaderClouds.getUniform("campfireSM4"));
+		campfire.shadowMapTextureLoad(_shader, 0, _shader.getUniform("campfireSM1"), _shader.getUniform("campfireSM2"), _shader.getUniform("campfireSM3"), _shader.getUniform("campfireSM4"), _shader.getUniform("campfireSM5"));
+		campfire.shadowMapTextureLoad(_shaderClouds, 0, _shaderClouds.getUniform("campfireSM1"), _shaderClouds.getUniform("campfireSM2"), _shaderClouds.getUniform("campfireSM3"), _shaderClouds.getUniform("campfireSM4"), _shaderClouds.getUniform("campfireSM5"));
 
-		env.shadowMapTextureLoad(_shader, 4, _shader.getUniform("envSM"));
-		env.shadowMapTextureLoad(_shaderClouds, 4, _shaderClouds.getUniform("envSM"));
+		env.shadowMapTextureLoad(_shader, 5, _shader.getUniform("envSM"));
+		env.shadowMapTextureLoad(_shaderClouds, 5, _shaderClouds.getUniform("envSM"));
 
 		renderWithBloom(win);
 		//renderWithoutBloom(win);
+
+		_HUD.draw(_ub, _cams.get("HUD"), nullptr);
 	}
 
 	void renderWithBloom(GLFWwindow* win) {
 		_bloom->bindHDR();
 		_scene.draw(_ub, _cams.get(_activeCam), &campfire);
-		avt::StencilPicker::getTargetOn(win); // stencil is lost after unbindHDR so this stores internally the pick
+
+		// stencil is lost after unbindHDR so this stores internally the pick
+		if (_cursorVisible) avt::StencilPicker::getTargetOnCursor(win);
+		else				avt::StencilPicker::getTargetOnCenter(win);
+
 		_bloom->unbindHDR();
 
 		_bloom->bindPingBlur();
@@ -493,14 +559,17 @@ public:
 
 	void renderWithoutBloom(GLFWwindow* win) {
 		_scene.draw(_ub, _cams.get(_activeCam), &campfire);
-		avt::StencilPicker::getTargetOn(win);
+
+		if (_cursorVisible) avt::StencilPicker::getTargetOnCursor(win);
+		else				avt::StencilPicker::getTargetOnCenter(win);
 	}
 
 	void windowResizeCallback(GLFWwindow* win, int w, int h) override {
 		glViewport(0, 0, w, h);
-		if (_cams.size() == 2) {
+		if (_cams.size() == 3) {
 			_cams.get("ort")->resize(w, h);
 			_cams.get("per")->resize(w, h);
+			_cams.get("HUD")->resize(w, h);
 		}
 		_bloom->create(w,h);
 	}
@@ -513,10 +582,9 @@ public:
 			_activeCam = _activeCam == "ort" ? "per" : "ort";
 			break;
 		case GLFW_KEY_ESCAPE:
-			if (glfwGetInputMode(win, GLFW_CURSOR) == GLFW_CURSOR_NORMAL)
-				glfwSetInputMode(win, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
-			else
-				glfwSetInputMode(win, GLFW_CURSOR, GLFW_CURSOR_NORMAL);
+			_cursorVisible = !_cursorVisible;
+			if (_cursorVisible) glfwSetInputMode(win, GLFW_CURSOR, GLFW_CURSOR_NORMAL);
+			else				glfwSetInputMode(win, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
 			break;
 		case GLFW_KEY_0:
 			if (_cams.size() == 2) {
@@ -542,17 +610,21 @@ public:
 			_turnOffOnBloom = !_turnOffOnBloom;
 			break;
 		case GLFW_KEY_X:
+			_fireOn = !_fireOn;
 			_emitter->toggle();
 			break;
 		case GLFW_KEY_ENTER:
 			_cloudSystem->createCloud();
 			break;
 		case GLFW_KEY_V:
-			if (env.getIntensity() == 2.f) {
+			if (env.getIntensity() == 1.f) {
+				env.setColor({ 0.1f, 0.1f, 0.1f });
 				env.setIntensity(0.3f);
 			}
 			else {
-				env.setIntensity(2.f);
+				env.setColor({ 1.f, 1.f, 0.3f });
+				env.setIntensity(1.f);
+
 			}
 			break;
 		}
@@ -561,7 +633,7 @@ public:
 	}
 
 	void mouseButtonCallback(GLFWwindow* win, int button, int action, int mods) override {
-		if (button == GLFW_MOUSE_BUTTON_RIGHT && action == GLFW_PRESS) {
+		if (button == GLFW_MOUSE_BUTTON_LEFT && action == GLFW_PRESS) {
 			double cursorX, cursorY;
 			glfwGetCursorPos(win, &cursorX, &cursorY);
 
@@ -572,9 +644,8 @@ public:
 
 			auto target = avt::StencilPicker::getLastPick();
 			if (target.second == "fire") {
+				_fireOn = !_fireOn;
 				_emitter->toggle();
-				//_meshes.get("tree")->colorAll({ avt::random(), avt::random(), avt::random() });
-				//_meshes.get("tree")->updateBufferData();
 			}else if (target.second == "apple1") {
 				_apples.at(0)->setAnimating();
 			}else if (target.second == "apple2") {
@@ -588,6 +659,7 @@ public:
 				_bunny.at(0)->setAnimating();
 				_bunny.at(1)->setAnimating();
 				_bunny.at(2)->setAnimating();
+				_bunny.at(3)->setAnimating();
 			}
 
 		}
