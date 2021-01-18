@@ -103,9 +103,6 @@ private:
 		auto colorCubeM = _meshes.add("colorCube", new avt::Mesh("./Resources/Objects/colourscube.obj"));
 		colorCubeM->setup();
 
-		auto fireplaceM = _meshes.add("fireplace", new avt::Mesh("./Resources/Objects/fireplace3.obj"));
-		fireplaceM->setup();
-
 		//CAMS
 		_ub.create(2 * 16 * sizeof(GLfloat), 0); // change
 		_ub.unbind();
@@ -170,6 +167,7 @@ private:
 		fireplace->translate({ -2.f,1.35f,6.8f });
 		//colorCube->rotateY(-avt::PI/2);
 		fireplace->scale({ .25f,.25f,.25f });
+		avt::StencilPicker::addTarget(fireplace, "fire");
 
 		_cloudSystem = new avt::CloudSystem();
 		_scene.addNode(_cloudSystem);
