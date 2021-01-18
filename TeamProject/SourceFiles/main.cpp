@@ -24,7 +24,7 @@ public:
 
 class MyApp : public avt::App {
 private:
-	avt::Shader _shader, _shaderParticles, _shaderClouds, _shaderHUD;
+	avt::Shader _shader, _shaderFire, _shaderClouds, _shaderHUD;
 	avt::Renderer _renderer;
 	avt::UniformBuffer _ub;
 	avt::Scene _scene, _HUD;
@@ -42,6 +42,8 @@ private:
 	avt::Manager<avt::Camera> _cams;
 
 	bool _cursorVisible = false;
+	bool _fireOn = true;
+	float _campfireBaseIntensity = 1.f;
 
 
 	avt::SceneNode* _tree = nullptr, * _tree2 = nullptr, * _tree3 = nullptr, * _lightStruct = nullptr, * _light = nullptr, * _floor = nullptr, * _cloud = nullptr, * _floor2 = nullptr;
@@ -161,7 +163,7 @@ private:
 
 		_emitter = new avt::FireEmitter();
 		avt::StencilPicker::addTarget(_emitter, "fire");
-		_emitter->setShader(&_shaderParticles);
+		_emitter->setShader(&_shaderFire);
 		_emitter->scale({ .5f, .5f, .5f });
 		_emitter->translate(campfire.getPosition());
 		_scene.addNode(_emitter); // scene deletes nodes when destroyed
@@ -242,6 +244,8 @@ private:
 	}
 
 	void createShader() {
+
+		// create regular mesh shader
 		_shader.addShader(GL_VERTEX_SHADER, "./Resources/shadowShaders/vertexShadowShader.glsl");
 		_shader.addShader(GL_FRAGMENT_SHADER, "./Resources/shadowShaders/fragmentShadowShader.glsl");
 		_shader.addAttribute("inPosition", VERTICES);
@@ -273,6 +277,8 @@ private:
 		_shader.addUbo("CameraMatrices", UBO_BP);
 		_shader.create();
 
+
+		// create clouds shader, simular to mesh shader but with instancing
 		_shaderClouds.addShader(GL_VERTEX_SHADER, "./Resources/shadowShaders/vertexShadowCloudsShader.glsl");
 		_shaderClouds.addShader(GL_FRAGMENT_SHADER, "./Resources/shadowShaders/fragmentShadowShader.glsl");
 		_shaderClouds.addAttribute("inPosition", VERTICES);
@@ -306,24 +312,28 @@ private:
 		_shaderClouds.addUbo("CameraMatrices", UBO_BP);
 		_shaderClouds.create();
 
-		_shaderParticles.addShader(GL_VERTEX_SHADER, "./Resources/particleShaders/particles-vs.glsl");
-		_shaderParticles.addShader(GL_FRAGMENT_SHADER, "./Resources/particleShaders/fire-fs.glsl");
-		_shaderParticles.addAttribute("in_vertex", 0);
-		_shaderParticles.addAttribute("in_texCoord", 1);
-		_shaderParticles.addAttribute("in_pos", 2);
-		_shaderParticles.addAttribute("in_color", 3);
-		_shaderParticles.addAttribute("in_size", 4);
-		_shaderParticles.addAttribute("in_rot", 5);
-		_shaderParticles.addUniform("ModelMatrix");
-		_shaderParticles.addUniform("in_texture");
-		_shaderParticles.addUniform("in_dissolveMap");
-		_shaderParticles.addUbo("SharedMatrices", UBO_BP);
-		_shaderParticles.create();
-		_shaderParticles.bind();
-		glUniform1i(_shaderParticles.getUniform("in_texture"), 0);
-		glUniform1i(_shaderParticles.getUniform("in_dissolveMap"), 1);
-		_shaderParticles.unbind();
 
+		// create fire shader
+		_shaderFire.addShader(GL_VERTEX_SHADER, "./Resources/particleShaders/particles-vs.glsl");
+		_shaderFire.addShader(GL_FRAGMENT_SHADER, "./Resources/particleShaders/fire-fs.glsl");
+		_shaderFire.addAttribute("in_vertex", 0);
+		_shaderFire.addAttribute("in_texCoord", 1);
+		_shaderFire.addAttribute("in_pos", 2);
+		_shaderFire.addAttribute("in_color", 3);
+		_shaderFire.addAttribute("in_size", 4);
+		_shaderFire.addAttribute("in_rot", 5);
+		_shaderFire.addUniform("ModelMatrix");
+		_shaderFire.addUniform("in_texture");
+		_shaderFire.addUniform("in_dissolveMap");
+		_shaderFire.addUbo("SharedMatrices", UBO_BP);
+		_shaderFire.create();
+		_shaderFire.bind();
+		glUniform1i(_shaderFire.getUniform("in_texture"), 0);
+		glUniform1i(_shaderFire.getUniform("in_dissolveMap"), 1);
+		_shaderFire.unbind();
+
+
+		// create hud shader
 		_shaderHUD.addShader(GL_VERTEX_SHADER, "./Resources/HUDshaders/hud-vs.glsl");
 		_shaderHUD.addShader(GL_FRAGMENT_SHADER, "./Resources/HUDshaders/hud-fs.glsl");
 		_shaderHUD.addAttribute("inPosition", 0);
@@ -366,7 +376,7 @@ private:
 		campfire = avt::PointLight({ 3.0f, -0.6f, -3.6f }, { 1.f, 0.5f, 0.f });
 		campfire.setIntensity(1.0f);
 		env = avt::DirectionalLight({ 5.0f, 5.0f, 5.0f }, { 0.1f, 0.1f, 0.1f });
-		env.setIntensity(0.3f);
+		env.setIntensity(0.8f);
 	}
 
 	void createBloom(GLFWwindow* win) {
@@ -414,7 +424,17 @@ public:
 		
 		if (_animating) {
 			_time += dt;
-			campfire.setIntensity(1.0f + 0.2f * (float)sin(_time * 10) + 0.2f * (float)sin(_time * 7));
+			if (_fireOn && _campfireBaseIntensity != 1.0) {
+				_campfireBaseIntensity = min(campfire.getIntensity() + (float)dt * 1.0f, 1.0f);
+				campfire.setIntensity(_campfireBaseIntensity);
+			}
+			else if (_fireOn && _campfireBaseIntensity == 1.0){
+				campfire.setIntensity(1.0f + 0.2f * (float)sin(_time * 15) + 0.2f * (float)sin(_time * 10));
+			}
+			else {
+				_campfireBaseIntensity = max(campfire.getIntensity() - (float)dt * 1.0f, 0);
+				campfire.setIntensity(_campfireBaseIntensity);
+			}
 			if (_time > _duration) {
 				_time -= _duration;				
 			}
@@ -570,17 +590,18 @@ public:
 			_turnOffOnBloom = !_turnOffOnBloom;
 			break;
 		case GLFW_KEY_X:
+			_fireOn = !_fireOn;
 			_emitter->toggle();
 			break;
 		case GLFW_KEY_ENTER:
 			_cloudSystem->createCloud();
 			break;
 		case GLFW_KEY_V:
-			if (env.getIntensity() == 2.f) {
-				env.setIntensity(0.3f);
+			if (env.getIntensity() == 10.f) {
+				env.setIntensity(1.f);
 			}
 			else {
-				env.setIntensity(2.f);
+				env.setIntensity(10.f);
 			}
 			break;
 		}
@@ -600,9 +621,8 @@ public:
 
 			auto target = avt::StencilPicker::getLastPick();
 			if (target.second == "fire") {
+				_fireOn = !_fireOn;
 				_emitter->toggle();
-				//_meshes.get("tree")->colorAll({ avt::random(), avt::random(), avt::random() });
-				//_meshes.get("tree")->updateBufferData();
 			}else if (target.second == "apple1") {
 				_apples.at(0)->setAnimating();
 			}else if (target.second == "apple2") {
