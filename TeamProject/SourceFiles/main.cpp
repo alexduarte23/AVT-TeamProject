@@ -24,10 +24,10 @@ public:
 
 class MyApp : public avt::App {
 private:
-	avt::Shader _shader, _shaderParticles, _shaderClouds;
+	avt::Shader _shader, _shaderParticles, _shaderClouds, _shaderHUD;
 	avt::Renderer _renderer;
 	avt::UniformBuffer _ub;
-	avt::Scene _scene;
+	avt::Scene _scene, _HUD;
 	MyNodeCallback nodeCallback;
 
 	avt::ParticleEmitter* _emitter = nullptr;
@@ -40,6 +40,8 @@ private:
 
 	avt::Manager<avt::Mesh> _meshes;
 	avt::Manager<avt::Camera> _cams;
+
+	bool _cursorVisible = false;
 
 
 	avt::SceneNode* _tree = nullptr, * _tree2 = nullptr, * _tree3 = nullptr, * _lightStruct = nullptr, * _light = nullptr, * _floor = nullptr, * _cloud = nullptr, * _floor2 = nullptr;
@@ -142,10 +144,9 @@ private:
 
 		avt::StencilPicker::addTarget(bush, "bunny");
 
-		auto colorCube = _scene.createNode(colorCubeM);
-		colorCube->translate({ 0,0,5.f });
-		//colorCube->rotateY(-avt::PI/2);
-		colorCube->scale({ .3f,.3f,.3f });
+		//auto colorCube = _scene.createNode(colorCubeM);
+		//colorCube->translate({ 0,0,5.f });
+		//colorCube->scale({ .3f,.3f,.3f });
 
 		_cloudSystem = new avt::CloudSystem();
 		_scene.addNode(_cloudSystem);
@@ -161,6 +162,12 @@ private:
 		_scene.addNode(_emitter); // scene deletes nodes when destroyed
 
 		env.setPosition(_light->pos().to3D() + avt::Vector3(0.0f, 10.f, 0.0f));
+
+
+		_HUD.setShader(&_shaderHUD);
+
+		auto crosshair = _HUD.addNode(new avt::HUDElement("Resources/textures/crosshair161.png"));
+		crosshair->scale({ .5f, .5f, .5f });
 
 
 #ifndef ERROR_CALLBACK
@@ -217,11 +224,11 @@ private:
 
 	void processMouseMovement(GLFWwindow* win, const avt::Vector2& lastCursor, const avt::Vector2& newCursor, double  dt) {
 		auto offset = newCursor - lastCursor;
-		if (glfwGetInputMode(win, GLFW_CURSOR) == GLFW_CURSOR_DISABLED) { // free move
+		if (!_cursorVisible) { // free move
 			_cams.get("ort")->processMouse(offset, dt, true);
 			_cams.get("per")->processMouse(offset, dt, true);
 
-		} else if (glfwGetMouseButton(win, GLFW_MOUSE_BUTTON_LEFT) == GLFW_PRESS) { // drag move
+		} else if (glfwGetMouseButton(win, GLFW_MOUSE_BUTTON_RIGHT) == GLFW_PRESS) { // drag move
 			_cams.get("ort")->processMouse(offset, dt);
 			_cams.get("per")->processMouse(offset, dt);
 
@@ -311,6 +318,19 @@ private:
 		glUniform1i(_shaderParticles.getUniform("in_texture"), 0);
 		glUniform1i(_shaderParticles.getUniform("in_dissolveMap"), 1);
 		_shaderParticles.unbind();
+
+		_shaderHUD.addShader(GL_VERTEX_SHADER, "./Resources/HUDshaders/hud-vs.glsl");
+		_shaderHUD.addShader(GL_FRAGMENT_SHADER, "./Resources/HUDshaders/hud-fs.glsl");
+		_shaderHUD.addAttribute("inPosition", 0);
+		_shaderHUD.addAttribute("inTexcoord", 1);
+		_shaderHUD.addAttribute("inColor", 2);
+		_shaderHUD.addUniform("ModelMatrix");
+		_shaderHUD.addUniform("inTexture");
+		_shaderHUD.addUbo("CameraMatrices", UBO_BP);
+		_shaderHUD.create();
+		_shaderHUD.bind();
+		glUniform1i(_shaderHUD.getUniform("inTexture"), 0);
+		_shaderHUD.unbind();
 	}
 
 
@@ -322,11 +342,13 @@ private:
 
 		auto camP = new avt::PerspectiveCamera(45.f, aspect, 0.1f, 100.0f, avt::Vector3(0, 0, 10.f));
 		auto camO = new avt::OrthographicCamera(-10.0f, 10.0f, -10.0f / aspect, 10.0f / aspect, 0.1f, 100.0f, avt::Vector3(0, 0, 20.f));
+		auto camHUD = new avt::OrthographicCamera(-10.0f, 10.0f, -10.0f / aspect, 10.0f / aspect, 0.1f, 100.0f, avt::Vector3(0, 0, 10.f));
 		camP->setSpeed(12.f);
 		camO->setSpeed(12.f);
 
 		_cams.add("per", camP);
 		_cams.add("ort", camO);
+		_cams.add("HUD", camHUD);
 
 	}
 
@@ -466,12 +488,18 @@ public:
 
 		renderWithBloom(win);
 		//renderWithoutBloom(win);
+
+		_HUD.draw(_ub, _cams.get("HUD"), nullptr);
 	}
 
 	void renderWithBloom(GLFWwindow* win) {
 		_bloom->bindHDR();
 		_scene.draw(_ub, _cams.get(_activeCam), &campfire);
-		avt::StencilPicker::getTargetOn(win); // stencil is lost after unbindHDR so this stores internally the pick
+
+		// stencil is lost after unbindHDR so this stores internally the pick
+		if (_cursorVisible) avt::StencilPicker::getTargetOnCursor(win);
+		else				avt::StencilPicker::getTargetOnCenter(win);
+
 		_bloom->unbindHDR();
 
 		_bloom->bindPingBlur();
@@ -485,14 +513,17 @@ public:
 
 	void renderWithoutBloom(GLFWwindow* win) {
 		_scene.draw(_ub, _cams.get(_activeCam), &campfire);
-		avt::StencilPicker::getTargetOn(win);
+
+		if (_cursorVisible) avt::StencilPicker::getTargetOnCursor(win);
+		else				avt::StencilPicker::getTargetOnCenter(win);
 	}
 
 	void windowResizeCallback(GLFWwindow* win, int w, int h) override {
 		glViewport(0, 0, w, h);
-		if (_cams.size() == 2) {
+		if (_cams.size() == 3) {
 			_cams.get("ort")->resize(w, h);
 			_cams.get("per")->resize(w, h);
+			_cams.get("HUD")->resize(w, h);
 		}
 		_bloom->create(w,h);
 	}
@@ -505,10 +536,9 @@ public:
 			_activeCam = _activeCam == "ort" ? "per" : "ort";
 			break;
 		case GLFW_KEY_ESCAPE:
-			if (glfwGetInputMode(win, GLFW_CURSOR) == GLFW_CURSOR_NORMAL)
-				glfwSetInputMode(win, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
-			else
-				glfwSetInputMode(win, GLFW_CURSOR, GLFW_CURSOR_NORMAL);
+			_cursorVisible = !_cursorVisible;
+			if (_cursorVisible) glfwSetInputMode(win, GLFW_CURSOR, GLFW_CURSOR_NORMAL);
+			else				glfwSetInputMode(win, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
 			break;
 		case GLFW_KEY_0:
 			if (_cams.size() == 2) {
@@ -553,7 +583,7 @@ public:
 	}
 
 	void mouseButtonCallback(GLFWwindow* win, int button, int action, int mods) override {
-		if (button == GLFW_MOUSE_BUTTON_RIGHT && action == GLFW_PRESS) {
+		if (button == GLFW_MOUSE_BUTTON_LEFT && action == GLFW_PRESS) {
 			double cursorX, cursorY;
 			glfwGetCursorPos(win, &cursorX, &cursorY);
 

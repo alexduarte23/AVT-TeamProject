@@ -112,7 +112,7 @@ namespace avt {
 		return _last;
 	}
 
-	std::pair<SceneNode*, std::string> StencilPicker::getTargetOn(GLFWwindow* win) {
+	std::pair<SceneNode*, std::string> StencilPicker::getTargetOnCursor(GLFWwindow* win) {
 		double cursorX, cursorY;
 		glfwGetCursorPos(win, &cursorX, &cursorY);
 
@@ -124,6 +124,15 @@ namespace avt {
 		if (x <= 0 || y <= 0 || x >= winx || y >= winy)
 			return _last = { nullptr, "" };
 		
+		return getTargetOn(x, y);
+	}
+
+	std::pair<SceneNode*, std::string> StencilPicker::getTargetOnCenter(GLFWwindow* win) {
+		int winx, winy;
+		glfwGetWindowSize(win, &winx, &winy);
+		int x = winx / 2;
+		int y = winy / 2;
+
 		return getTargetOn(x, y);
 	}
 

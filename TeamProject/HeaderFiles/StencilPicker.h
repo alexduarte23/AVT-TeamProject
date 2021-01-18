@@ -56,7 +56,9 @@ namespace avt {
 
 		static std::pair<SceneNode*, std::string> getTargetOn(int x, int y);
 		
-		static std::pair<SceneNode*, std::string> getTargetOn(GLFWwindow* win);
+		static std::pair<SceneNode*, std::string> getTargetOnCursor(GLFWwindow* win);
+		
+		static std::pair<SceneNode*, std::string> getTargetOnCenter(GLFWwindow* win);
 
 		static std::pair<SceneNode*, std::string> getLastPick() {
 			return _last;
