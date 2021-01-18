@@ -79,7 +79,7 @@ private:
 		auto bunnyIslandM = _meshes.add("bunnyIsland", new avt::Mesh("./Resources/Objects/bunnyIsland.obj"));
 		bunnyIslandM->setup();
 
-		auto bushM = _meshes.add("bush", new avt::Mesh("./Resources/Objects/simplebush.obj"));
+		auto bushM = _meshes.add("bush", new avt::Mesh("./Resources/Objects/bunnybush.obj"));
 		bushM->setup();
 
 		auto bunnyearLM = _meshes.add("bunnyLeftEar", new avt::Mesh("./Resources/Objects/leftear.obj"));
