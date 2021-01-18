@@ -89,6 +89,9 @@ private:
 		auto bunnytailM = _meshes.add("bunnyTail", new avt::Mesh("./Resources/Objects/tail.obj"));
 		bunnytailM->setup();
 
+		auto fireplaceM = _meshes.add("fireplace", new avt::Mesh("./Resources/Objects/fireplace3.obj"));
+		fireplaceM->setup();
+
 		
 		createAppleTree(appleTreeIslandM, appleM);
 		
@@ -154,6 +157,11 @@ private:
 		//auto colorCube = _scene.createNode(colorCubeM);
 		//colorCube->translate({ 0,0,5.f });
 		//colorCube->scale({ .3f,.3f,.3f });
+
+		auto fireplace = _scene.createNode(fireplaceM);
+		fireplace->translate({ 2.7f,-1.35f,-5.f });
+		fireplace->scale({ .15f,.15f,.15f });
+		avt::StencilPicker::addTarget(fireplace, "fire");
 
 		_cloudSystem = new avt::CloudSystem();
 		_scene.addNode(_cloudSystem);
