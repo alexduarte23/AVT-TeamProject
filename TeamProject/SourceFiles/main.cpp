@@ -63,7 +63,7 @@ private:
 		treeM->setup();
 		
 		auto floorM = _meshes.add("floor", new avt::Mesh("./Resources/cube_vtn_flat.obj"));
-		auto islandM = _meshes.add("island", new avt::Mesh("./Resources/Objects/island3.obj"));
+		auto islandM = _meshes.add("island", new avt::Mesh("./Resources/Objects/newIsland.obj"));
 		islandM->setup();
 
 		auto appleTreeIslandM = _meshes.add("appleTreeIsland", new avt::Mesh("./Resources/Objects/appleTreeIsland.obj"));
@@ -96,6 +96,9 @@ private:
 		auto colorCubeM = _meshes.add("colorCube", new avt::Mesh("./Resources/Objects/colourscube.obj"));
 		colorCubeM->setup();
 
+		auto fireplaceM = _meshes.add("fireplace", new avt::Mesh("./Resources/Objects/fireplace3.obj"));
+		fireplaceM->setup();
+
 		//CAMS
 		_ub.create(2 * 16 * sizeof(GLfloat), 0); // change
 		_ub.unbind();
@@ -110,11 +113,11 @@ private:
 		//_lightStruct->setRotation(avt::Quaternion({ 0,0,1.f }, avt::PI/10));
 
 		auto island = _scene.createNode(islandM);
-		island->translate({ 3.5f, -2.f, -8.5f });
-		island->scale({ 1.5f, 1.5f, 1.5f });
+		island->translate({ 5.f, -3.f, -10.5f });
+		island->scale({ 1.f, 1.f, 1.f });
 
 		auto bunnyIsland = _scene.createNode(bunnyIslandM);
-		bunnyIsland->translate({ -8.5f, -4.5f, -8.5f });
+		bunnyIsland->translate({ -10.5f, -4.5f, -8.5f });
 		bunnyIsland->scale({ 2.2f, 2.2f, 2.2f });
 
 		auto bush = bunnyIsland->createNode(bushM);
@@ -147,6 +150,11 @@ private:
 		//colorCube->rotateY(-avt::PI/2);
 		colorCube->scale({ .3f,.3f,.3f });
 
+		auto fireplace = island->createNode(fireplaceM);
+		fireplace->translate({ -2.f,1.35f,6.8f });
+		//colorCube->rotateY(-avt::PI/2);
+		fireplace->scale({ .25f,.25f,.25f });
+
 		_cloudSystem = new avt::CloudSystem();
 		_scene.addNode(_cloudSystem);
 		_cloudSystem->setShader(&_shaderClouds);
@@ -156,7 +164,7 @@ private:
 		_emitter = new avt::FireEmitter();
 		avt::StencilPicker::addTarget(_emitter, "fire");
 		_emitter->setShader(&_shaderParticles);
-		_emitter->scale({ .5f, .5f, .5f });
+		//_emitter->scale({ .5f, .5f, .5f });
 		_emitter->translate(campfire.getPosition());
 		_scene.addNode(_emitter); // scene deletes nodes when destroyed
 
@@ -170,7 +178,7 @@ private:
 
 	void createAppleTree(avt::Mesh* appleTreeIslandM, avt::Mesh* appleM) {
 		auto appleTreeIsland = _scene.createNode(appleTreeIslandM);
-		appleTreeIsland->translate({ 12.5f, -2.f, -8.5f });
+		appleTreeIsland->translate({ 15.5f, -2.f, -8.5f });
 		appleTreeIsland->scale({ 1.5f, 1.5f, 1.5f });
 
 		avt::Apple* apple;
