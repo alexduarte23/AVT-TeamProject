@@ -429,9 +429,10 @@ private:
 
 		float aspect = winx / (float)winy;
 
-		auto camP = new avt::PerspectiveCamera(60.f, aspect, 0.1f, 200.0f, avt::Vector3(0, 0, 10.f));
+		auto camP = new avt::PerspectiveCamera(60.f, aspect, 0.1f, 200.0f, avt::Vector3(0, 5.f, 10.f));
 		auto camO = new avt::OrthographicCamera(-10.0f, 10.0f, -10.0f / aspect, 10.0f / aspect, 0.1f, 100.0f, avt::Vector3(0, 0, 20.f));
 		auto camHUD = new avt::OrthographicCamera(-10.0f, 10.0f, -10.0f / aspect, 10.0f / aspect, 0.1f, 100.0f, avt::Vector3(0, 0, 10.f));
+		camP->lookAt(campfire.getPosition());
 		camP->setSpeed(8.f);
 		camO->setSpeed(8.f);
 
@@ -469,8 +470,8 @@ public:
 	~MyApp() {}
 
 	void initCallback(GLFWwindow* win) override {
-		createCams(win);
 		createLights();
+		createCams(win);
 		createShadows();
 		createBloom(win);
 		createShaders();
@@ -534,19 +535,19 @@ public:
 			_crosshair->setScale({ .8f, .8f, .8f });
 
 		}
-		
-		//if (_rotating) {
-		//	_time2 += dt;
-		//	float k = (float)_time2 / _duration2;
-		//	_lightStruct->setRotation(avt::Quaternion({ 0,1.f,0.f }, k * 2 * avt::PI));
-		//	_lightStruct->rotateZ(avt::PI / 10);
-		//	if (_time2 > _duration2) {
-		//		_time2 = 0;
-		//		_rotating = false;
-		//		_lightStruct->setRotation(avt::Quaternion({ 1.f,0,0 }, avt::PI/10));
-		//		campfire.setIntensity(1.f);
-		//	}
-		//}
+		/*
+		if (_rotating) {
+			_time2 += dt;
+			float k = (float)_time2 / _duration2;
+			_lightStruct->setRotation(avt::Quaternion({ 0,1.f,0.f }, k * 2 * avt::PI));
+			_lightStruct->rotateZ(avt::PI / 10);
+			if (_time2 > _duration2) {
+				_time2 = 0;
+				_rotating = false;
+				_lightStruct->setRotation(avt::Quaternion({ 1.f,0,0 }, avt::PI/10));
+				campfire.setIntensity(1.f);
+			}
+		}
 
 		if (_morebloom) { //bloom
 			_bloom->setBlurTex(1);
@@ -561,7 +562,7 @@ public:
 			_bloom->turnOffOnBloom();
 			_turnOffOnBloom = false;
 		}
-
+		*/
 		//campfire.setPosition(_light->pos().to3D());
 		//_fireEmitter->setTranslation(campfire.getPosition());
 
@@ -663,9 +664,9 @@ public:
 		if (action != GLFW_PRESS) return;
 
 		switch (key) {
-		case GLFW_KEY_P:
-			_activeCam = _activeCam == "ort" ? "per" : "ort";
-			break;
+		//case GLFW_KEY_P:
+		//	_activeCam = _activeCam == "ort" ? "per" : "ort";
+		//	break;
 		case GLFW_KEY_ESCAPE:
 			_cursorVisible = !_cursorVisible;
 			if (_cursorVisible) glfwSetInputMode(win, GLFW_CURSOR, GLFW_CURSOR_NORMAL);
@@ -673,12 +674,13 @@ public:
 			break;
 		case GLFW_KEY_0:
 			if (_cams.size() == 3) {
-				_cams.get("ort")->setPosition(avt::Vector3(0, 0, 15.f));
-				_cams.get("per")->setPosition(avt::Vector3(0, 0, 15.f));
+				_cams.get("ort")->setPosition(avt::Vector3(0, 5.f, 10.f));
+				_cams.get("per")->setPosition(avt::Vector3(0, 5.f, 10.f));
 				_cams.get("ort")->lookAt(avt::Vector3());
-				_cams.get("per")->lookAt(avt::Vector3());
+				_cams.get("per")->lookAt(campfire.getPosition());
 			}
 			break;
+		/*
 		case GLFW_KEY_C:
 			_animating = !_animating;
 			break;
@@ -705,6 +707,7 @@ public:
 			_day = !_day;
 			_dayTransition = true;
 			break;
+		*/
 		}
 
 
