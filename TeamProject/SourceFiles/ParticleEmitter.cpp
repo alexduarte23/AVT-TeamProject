@@ -96,7 +96,6 @@ namespace avt {
 		_texture.unbind();
 
 		_va.unbind();
-		curr_shader->unbind();
 
 		if (getShader()) {
 			getShader()->unbind();
@@ -221,8 +220,8 @@ namespace avt {
 		p.initialColor = { 1.f,1.f,1.f,randrange(.7f, 1.f) };
 		//Vector4 cmyk();
 		Vector3 c1 = Vector3(1.6f, 1.4f, 2.f), c2 = Vector3(2.f, 1.4f, 1.6f);
-		//p.initialColor = { randrange(1.5f, 1.9f),randrange(1.2f, 1.6f),randrange(.9f,1.1f),randrange(.7f, 1.f) };
 		p.initialColor = ((c2 - c1) * random() + c1).to4D();
+		p.initialColor = { randrange(1.f, 1.7f),randrange(1.f, 1.7f),randrange(1.f, 1.7f),1.f };
 		p.color = p.initialColor;
 		//p.color.setW(0);
 		p.lifetime = randrange(20.f, 30.f);

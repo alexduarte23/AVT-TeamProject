@@ -12,8 +12,7 @@ namespace avt {
 
 	HUDElement::HUDElement(const std::string& textureFilename) {
 		_sprite.setWrap(GL_REPEAT, GL_REPEAT);
-		_sprite.setFilter(GL_NEAREST, GL_NEAREST);
-		_sprite.useMipmap();
+		_sprite.setFilter(GL_LINEAR, GL_LINEAR);
 		_sprite.create(textureFilename);
 
 		_va.create();
@@ -51,7 +50,6 @@ namespace avt {
 		_sprite.unbind();
 
 		_va.unbind();
-		curr_shader->unbind();
 
 		if (getShader()) {
 			getShader()->unbind();

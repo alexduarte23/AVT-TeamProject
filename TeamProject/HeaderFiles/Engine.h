@@ -43,6 +43,7 @@
 #include "Shadow.h"
 
 #include "HUDElement.h"
+#include "Background.h"
 
 
 #define ERROR_CALLBACK

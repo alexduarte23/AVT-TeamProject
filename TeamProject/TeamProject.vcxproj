@@ -146,6 +146,7 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="Dependencies\stb_image.cpp" />
+    <ClCompile Include="SourceFiles\Background.cpp" />
     <ClCompile Include="SourceFiles\Camera.cpp" />
     <ClCompile Include="SourceFiles\CloudSystem.cpp" />
     <ClCompile Include="SourceFiles\HUDElement.cpp" />
@@ -178,6 +179,7 @@
     <ClInclude Include="HeaderFiles\App.h" />
     <ClInclude Include="HeaderFiles\apple.h" />
     <ClInclude Include="HeaderFiles\avt_math.h" />
+    <ClInclude Include="HeaderFiles\Background.h" />
     <ClInclude Include="HeaderFiles\Bloom.h" />
     <ClInclude Include="HeaderFiles\Bunny.h" />
     <ClInclude Include="HeaderFiles\Camera.h" />
