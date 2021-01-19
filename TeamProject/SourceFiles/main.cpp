@@ -90,7 +90,7 @@ private:
 		bunnyIslandM->setup();
 
 		*/
-		/** /
+
 		auto bushM = _meshes.add("bush", new avt::Mesh("./Resources/Objects/bush.obj"));
 		bushM->setup();
 
@@ -100,7 +100,7 @@ private:
 		bunnyearRM->setup();
 		auto bunnytailM = _meshes.add("bunnyTail", new avt::Mesh("./Resources/Objects/tail.obj"));
 		bunnytailM->setup();
-		/**/
+
 		auto fireplaceM = _meshes.add("fireplace", new avt::Mesh("./Resources/Objects/fireplace3.obj"));
 		fireplaceM->setup();
 
@@ -142,7 +142,7 @@ private:
 		auto tent = island->createNode(tentM);
 		avt::StencilPicker::addTarget(tent, "tent");
 
-		//createBunny(bushM, island, bunnyearLM, bunnyearRM, bunnytailM);
+		createBunny(bushM, island, bunnyearLM, bunnyearRM, bunnytailM);
 
 		auto fireplace = island->createNode(fireplaceM);
 		fireplace->translate({ -4.f,1.3f,6.5f });
@@ -490,14 +490,11 @@ public:
 		for(int i = 0; i < 4; i++)
 			_apples.at(i)->animate((float)dt);
 
-		//_bunny.at(0)->animateBush();
-		//_bunny.at(1)->animateLeftEar();
-		//_bunny.at(2)->animateRightEar();
-		//_bunny.at(3)->animateTail();
+		_bunny.at(0)->animateBush();
+		_bunny.at(1)->animateLeftEar();
+		_bunny.at(2)->animateRightEar();
+		_bunny.at(3)->animateTail();
 		
-		//if (_animating) {
-		//	
-		//}
 
 		float speed = 2.0f;
 		if (_fireOn && _campfireBaseIntensity != 2.0) {
