@@ -67,7 +67,7 @@ private:
 		treeM->setup();
 		
 		auto floorM = _meshes.add("floor", new avt::Mesh("./Resources/cube_vtn_flat.obj"));
-		auto islandM = _meshes.add("island", new avt::Mesh("./Resources/Objects/newIsland.obj"));
+		auto islandM = _meshes.add("island", new avt::Mesh("./Resources/Objects/newIsland2.obj"));
 		islandM->setup();
 
 		auto appleTreeIslandM = _meshes.add("appleTreeIsland", new avt::Mesh("./Resources/Objects/appleTreeIsland.obj"));
@@ -615,13 +615,13 @@ public:
 			_cloudSystem->createCloud();
 			break;
 		case GLFW_KEY_V:
-			if (env.getIntensity() == 1.f) {
+			if (env.getIntensity() == .6f) {
 				env.setColor({ 0.1f, 0.1f, 0.1f });
 				env.setIntensity(0.3f);
 			}
 			else {
 				env.setColor({ 1.f, 1.f, 0.3f });
-				env.setIntensity(1.f);
+				env.setIntensity(.6f);
 
 			}
 			break;
