@@ -24,13 +24,13 @@ public:
 
 class MyApp : public avt::App {
 private:
-	avt::Shader _shader, _shaderFire, _shaderClouds, _shaderHUD;
+	avt::Shader _shader, _shaderFire, _shaderParticles, _shaderClouds, _shaderHUD;
 	avt::Renderer _renderer;
 	avt::UniformBuffer _ub;
 	avt::Scene _scene, _HUD;
 	MyNodeCallback nodeCallback;
 
-	avt::ParticleEmitter* _emitter = nullptr;
+	avt::ParticleEmitter* _fireEmitter = nullptr, *_dustEmitter = nullptr, *_fireflyEmitter = nullptr;
 
 	avt::Shadow _shadow, _shadow2, _shadow3, _shadow4;
 	avt::Bloom* _bloom = nullptr;
@@ -177,12 +177,22 @@ private:
 		_cloudSystem->translate({ 15.f,35.f,0 });
 		_cloudSystem->scale({ 2.5f,2.5f,2.5f });
 
-		_emitter = new avt::FireEmitter();
-		avt::StencilPicker::addTarget(_emitter, "fire");
-		_emitter->setShader(&_shaderFire);
-		_emitter->scale({ .9f, .9f, .9f });
-		_emitter->translate(campfire.getPosition() + avt::Vector3(0,-.5f,0));
-		_scene.addNode(_emitter); // scene deletes nodes when destroyed
+		_fireEmitter = new avt::FireEmitter();
+		avt::StencilPicker::addTarget(_fireEmitter, "fire");
+		_fireEmitter->setShader(&_shaderFire);
+		_fireEmitter->scale({ .9f, .9f, .9f });
+		_fireEmitter->translate(campfire.getPosition() + avt::Vector3(0,-.5f,0));
+		_scene.addNode(_fireEmitter); // scene deletes nodes when destroyed
+
+		_dustEmitter = new avt::DustEmitter(10, 5);
+		_dustEmitter->setShader(&_shaderParticles);
+		_dustEmitter->translate({10.f,-1.f,-17.f});
+		_scene.addNode(_dustEmitter); // scene deletes nodes when destroyed
+
+		_fireflyEmitter = new avt::FireflyEmitter(5, 2);
+		_fireflyEmitter->setShader(&_shaderParticles);
+		_fireflyEmitter->translate({ 26.f,8.f,-10.f });
+		_scene.addNode(_fireflyEmitter); // scene deletes nodes when destroyed
 
 		env.setPosition(_light->pos().to3D() + avt::Vector3(0.0f, 10.f, 0.0f));
 
@@ -336,6 +346,23 @@ private:
 
 
 		// create fire shader
+		_shaderParticles.addShader(GL_VERTEX_SHADER, "./Resources/particleShaders/particles-vs.glsl");
+		_shaderParticles.addShader(GL_FRAGMENT_SHADER, "./Resources/particleShaders/particles-fs.glsl");
+		_shaderParticles.addAttribute("in_vertex", 0);
+		_shaderParticles.addAttribute("in_texCoord", 1);
+		_shaderParticles.addAttribute("in_pos", 2);
+		_shaderParticles.addAttribute("in_color", 3);
+		_shaderParticles.addAttribute("in_size", 4);
+		_shaderParticles.addAttribute("in_rot", 5);
+		_shaderParticles.addUniform("ModelMatrix");
+		_shaderParticles.addUniform("in_texture");
+		_shaderParticles.addUbo("SharedMatrices", UBO_BP);
+		_shaderParticles.create();
+		_shaderParticles.bind();
+		glUniform1i(_shaderParticles.getUniform("in_texture"), 0);
+		_shaderParticles.unbind();
+
+		// create fire shader
 		_shaderFire.addShader(GL_VERTEX_SHADER, "./Resources/particleShaders/particles-vs.glsl");
 		_shaderFire.addShader(GL_FRAGMENT_SHADER, "./Resources/particleShaders/fire-fs.glsl");
 		_shaderFire.addAttribute("in_vertex", 0);
@@ -434,7 +461,9 @@ public:
 		
 		avt::Mat4 rotMat;
 
-		_emitter->update(dt);
+		_fireEmitter->update(dt);
+		_dustEmitter->update(dt);
+		_fireflyEmitter->update(dt);
 		_cloudSystem->update(dt);
 
 		for(int i = 0; i < 4; i++)
@@ -501,7 +530,7 @@ public:
 		}
 
 		//campfire.setPosition(_light->pos().to3D());
-		//_emitter->setTranslation(campfire.getPosition());
+		//_fireEmitter->setTranslation(campfire.getPosition());
 
 		//Update Shader uniforms
 
@@ -629,7 +658,7 @@ public:
 			else				glfwSetInputMode(win, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
 			break;
 		case GLFW_KEY_0:
-			if (_cams.size() == 2) {
+			if (_cams.size() == 3) {
 				_cams.get("ort")->setPosition(avt::Vector3(0, 0, 15.f));
 				_cams.get("per")->setPosition(avt::Vector3(0, 0, 15.f));
 				_cams.get("ort")->lookAt(avt::Vector3());
@@ -653,7 +682,7 @@ public:
 			break;
 		case GLFW_KEY_X:
 			_fireOn = !_fireOn;
-			_emitter->toggle();
+			_fireEmitter->toggle();
 			break;
 		case GLFW_KEY_ENTER:
 			_cloudSystem->createCloud();
@@ -679,7 +708,7 @@ public:
 			auto target = avt::StencilPicker::getLastPick();
 			if (target.second == "fire") {
 				_fireOn = !_fireOn;
-				_emitter->toggle();
+				_fireEmitter->toggle();
 			}else if (target.second == "apple1") {
 				_apples.at(0)->setAnimating();
 			}else if (target.second == "apple2") {

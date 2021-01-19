@@ -181,13 +181,13 @@ namespace avt {
 
 		FireflyEmitter(const Vector3& spawnBox)
 			: ParticleEmitter("Resources/textures/dustParticle.png", 200), _box(spawnBox) {
-			_spawnPeriod = .4f;
+			_spawnPeriod = .5f;
 			initParticles();
 		}
 
 		FireflyEmitter(float radius, float height)
 			: ParticleEmitter("Resources/textures/dustParticle.png", 200), _h(height), _r(radius) {
-			_spawnPeriod = .4f;
+			_spawnPeriod = .5f;
 			initParticles();
 		}
 
