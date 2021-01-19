@@ -52,9 +52,11 @@ private:
 	avt::CloudSystem* _cloudSystem = nullptr;
 	std::string _activeCam = "per";
 	
+	avt::Vector3 ambient;
+	float ambientStrength = 0.05;
 	const float _duration = 3, _duration2 = 6;
-	double _time = 0, _time2 = 0;
-	bool _animating = true, _rotating = false, _selecting = false, _morebloom = false, _lessbloom = false, _turnOffOnBloom = false, _animatingApples = false, _isBunny = true;
+	double _time = 0, _time2 = 0, _time3 = 0;
+	bool _animating = true, _transition=false, _rotating = false, _selecting = false, _morebloom = false, _lessbloom = false, _turnOffOnBloom = false, _animatingApples = false, _isBunny = true;
 
 	unsigned int _selected = -1; //stencil index of the currently selected scene node - mouse picking
 
@@ -289,6 +291,7 @@ private:
 		_shader.addUniform("envPos");
 		_shader.addUniform("envColor");
 
+		_shader.addUniform("AmbientColor");
 		_shader.addUniform("EyePosition");
 		_shader.addUbo("CameraMatrices", UBO_BP);
 		_shader.create();
@@ -326,6 +329,7 @@ private:
 		_shaderClouds.addUniform("envPos");
 		_shaderClouds.addUniform("envColor");
 
+		_shaderClouds.addUniform("AmbientColor");
 		_shaderClouds.addUniform("EyePosition");
 		_shaderClouds.addUbo("CameraMatrices", UBO_BP);
 		_shaderClouds.create();
@@ -393,8 +397,9 @@ private:
 	void createLights() {
 		campfire = avt::PointLight({ 3.0f, -0.6f, -3.6f }, { 1.f, 0.5f, 0.f });
 		campfire.setIntensity(1.0f);
-		env = avt::DirectionalLight({ 5.0f, 5.0f, 5.0f }, { 0.1f, 0.1f, 0.1f });
-		env.setIntensity(0.8f);
+		env = avt::DirectionalLight({ 5.0f, 5.0f, 5.0f }, { 0.19f, 0.17f, 0.33f });
+		env.setIntensity(0.2f);
+		ambient = avt::Vector3(0.19f, 0.17f, 0.33f);
 	}
 
 	void createBloom(GLFWwindow* win) {
@@ -457,6 +462,16 @@ public:
 				_time -= _duration;				
 			}
 		}
+
+		if (_transition) {
+			_time3 += dt;
+			float k = (float)_time3 / _duration2;
+			if (_time3 > _duration2) {
+				_time3 = 0;
+				_transition = false;
+			}
+			transitionLight(k);
+		}
 		
 		if (_rotating) {
 			_time2 += dt;
@@ -508,10 +523,12 @@ public:
 
 		_shader.bind();
 		glUniform3f(_shader.getUniform("EyePosition"), camPos.x(), camPos.y(), camPos.z());
+		glUniform3f(_shader.getUniform("AmbientColor"), ambient.x()*ambientStrength, ambient.y() * ambientStrength, ambient.z() * ambientStrength);
 		_shader.unbind();
 		
 		_shaderClouds.bind();
 		glUniform3f(_shaderClouds.getUniform("EyePosition"), camPos.x(), camPos.y(), camPos.z());
+		glUniform3f(_shaderClouds.getUniform("AmbientColor"), ambient.x() * ambientStrength, ambient.y() * ambientStrength, ambient.z() * ambientStrength);
 		_shaderClouds.unbind();
 		
 	}
@@ -534,6 +551,33 @@ public:
 		//renderWithoutBloom(win);
 
 		_HUD.draw(_ub, _cams.get("HUD"), nullptr);
+	}
+
+	void transitionLight(float state) {
+		avt::Vector3 night = avt::Vector3(0.19f, 0.17f, 0.33f);
+		avt::Vector3 day = avt::Vector3(1.f, 1.f, 0.3f);
+		float nightStrength = 0.05;
+		float dayStrength = 0.2;
+
+		//state 0 = night, state 1 = day
+		if (state <= 0.0f) {
+			env.setColor(night);
+			env.setIntensity(nightStrength * 5.f);
+			ambient = night;
+			ambientStrength = nightStrength;
+			return;
+		}
+		if (state >= 1.f) {
+			env.setColor(day);
+			env.setIntensity(dayStrength * 5.f);
+			ambient = day;
+			ambientStrength = dayStrength;
+			return;
+		}
+		env.setColor(state * day + (1.f - state) * night);
+		env.setIntensity((state * dayStrength + (1.f - state) * nightStrength) * 5.f);
+		ambient = state * day + (1.f - state) * night;
+		ambientStrength = state * dayStrength + (1.f - state) * nightStrength;
 	}
 
 	void renderWithBloom(GLFWwindow* win) {
@@ -615,15 +659,7 @@ public:
 			_cloudSystem->createCloud();
 			break;
 		case GLFW_KEY_V:
-			if (env.getIntensity() == 1.f) {
-				env.setColor({ 0.1f, 0.1f, 0.1f });
-				env.setIntensity(0.3f);
-			}
-			else {
-				env.setColor({ 1.f, 1.f, 0.3f });
-				env.setIntensity(1.f);
-
-			}
+			_transition = !_transition;
 			break;
 		}
 

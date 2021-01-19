@@ -17,6 +17,8 @@ in vec4 FragPosLightSpace6;
 layout(location = 0) out vec4 FragmentColor;
 layout(location = 1) out vec4 BrightColor;
 
+uniform vec3 AmbientColor;
+
 uniform vec3 campfirePos;
 uniform vec3 campfireColor;
 
@@ -47,10 +49,7 @@ float ShadowCalculation(vec4 fragPosLightSpace, vec3 lightDir, sampler2D currSha
     //Get the depth of the current fragment
     float currentDepth = projCoords.z;
 
-    //Create a shadow bias value to avoid shadow acne, based on the light direction and the fragment no
-    //float bias = max(0.05 * (1.0 - dot(exNormal, lightDir)), 0.001); 
     float bias = 0.001;
-	//float shadow = currentDepth - bias > closestDepth  ? 1.0 : 0.0; 
     
     float shadow = 0.0;
 
@@ -67,9 +66,6 @@ float ShadowCalculation(vec4 fragPosLightSpace, vec3 lightDir, sampler2D currSha
             shadow += currentDepth - bias > pcfDepth  ? 1.0 : 0.0;        
         }    
     }
-
-    if(projCoords.z > 1.0)
-        shadow = 0.0;
     shadow /= 25.0;
     
     return shadow;
@@ -106,12 +102,9 @@ void main(void)
 
 	vec3 objectColor = exColor;
 
-	vec3 ambientColor = vec3(0.19, 0.17, 0.33);
-
     float shininess = 10;
 
-	float ambientStrength = 0.05;
-	vec3 ambient = ambientStrength * ambientColor;
+	vec3 ambient = AmbientColor;
 
     //Campfire Calculation
 	vec3 norm = normalize(exNormal);
