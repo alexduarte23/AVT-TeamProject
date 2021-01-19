@@ -435,6 +435,7 @@ private:
 		auto camO = new avt::OrthographicCamera(-20.0f, 20.0f, -20.0f / aspect, 20.0f / aspect, 0.1f, 200.0f, avt::Vector3(0, 5.f, 10.f));
 		auto camHUD = new avt::OrthographicCamera(-10.0f, 10.0f, -10.0f / aspect, 10.0f / aspect, 0.1f, 100.0f, avt::Vector3(0, 0, 10.f));
 		camP->lookAt(campfire.getPosition());
+		camO->lookAt(campfire.getPosition());
 		camP->setSpeed(8.f);
 		camO->setSpeed(8.f);
 
