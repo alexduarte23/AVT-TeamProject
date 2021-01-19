@@ -69,10 +69,10 @@ private:
 		treeM->setup();
 		
 		auto floorM = _meshes.add("floor", new avt::Mesh("./Resources/cube_vtn_flat.obj"));
-		auto islandM = _meshes.add("island", new avt::Mesh("./Resources/Objects/newIsland2.obj"));
+		auto islandM = _meshes.add("island", new avt::Mesh("./Resources/Objects/finalIsland.obj"));
 		islandM->setup();
 
-		auto appleTreeIslandM = _meshes.add("appleTreeIsland", new avt::Mesh("./Resources/Objects/appleTreeIsland.obj"));
+		/*auto appleTreeIslandM = _meshes.add("appleTreeIsland", new avt::Mesh("./Resources/Objects/appleTreeIsland.obj"));
 		appleTreeIslandM->setup();
 
 		auto appleM = _meshes.add("apple", new avt::Mesh("./Resources/Objects/apple.obj"));
@@ -91,11 +91,13 @@ private:
 		auto bunnytailM = _meshes.add("bunnyTail", new avt::Mesh("./Resources/Objects/tail.obj"));
 		bunnytailM->setup();
 
+		*/
+
 		auto fireplaceM = _meshes.add("fireplace", new avt::Mesh("./Resources/Objects/fireplace3.obj"));
 		fireplaceM->setup();
 
 		
-		createAppleTree(appleTreeIslandM, appleM);
+		//createAppleTree(appleTreeIslandM, appleM);
 		
 		auto lightM = _meshes.add("moon", new avt::Mesh("./Resources/Objects/sun_moon.obj"));
 		lightM->applyTransform(avt::Mat4::scale({ 0.5f, 0.5f, 0.5f }));
@@ -122,7 +124,7 @@ private:
 		island->translate({ 5.f, -3.f, -10.5f });
 		island->scale({ 1.f, 1.f, 1.f });
 
-		auto bunnyIsland = _scene.createNode(bunnyIslandM);
+		/*auto bunnyIsland = _scene.createNode(bunnyIslandM);
 		bunnyIsland->translate({ -10.5f, -4.5f, -8.5f });
 		bunnyIsland->scale({ 2.2f, 2.2f, 2.2f });
 
@@ -154,7 +156,7 @@ private:
 		bunnyTail->setPosition({ -0.2f,0.f,0.f });
 		_bunny.push_back(bunnyTail);
 
-		avt::StencilPicker::addTarget(bush, "bunny");
+		avt::StencilPicker::addTarget(bush, "bunny");*/
 
 		//auto colorCube = _scene.createNode(colorCubeM);
 		//colorCube->translate({ 0,0,5.f });
@@ -466,13 +468,13 @@ public:
 		_fireflyEmitter->update(dt);
 		_cloudSystem->update(dt);
 
-		for(int i = 0; i < 4; i++)
+		/*for(int i = 0; i < 4; i++)
 			_apples.at(i)->animate();
 
 		_bunny.at(0)->animateBush();
 		_bunny.at(1)->animateLeftEar();
 		_bunny.at(2)->animateRightEar();
-		_bunny.at(3)->animateTail();
+		_bunny.at(3)->animateTail();*/
 		
 		if (_animating) {
 			_time += dt;
@@ -719,10 +721,10 @@ public:
 				_apples.at(3)->setAnimating();
 			}
 			else if (target.second == "bunny") {
-				_bunny.at(0)->setAnimating();
+				/*_bunny.at(0)->setAnimating();
 				_bunny.at(1)->setAnimating();
 				_bunny.at(2)->setAnimating();
-				_bunny.at(3)->setAnimating();
+				_bunny.at(3)->setAnimating();*/
 			}
 
 		}
