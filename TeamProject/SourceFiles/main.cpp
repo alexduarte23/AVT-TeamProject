@@ -179,7 +179,7 @@ private:
 		bunnyTail->setPosition({ 0.4f,0.f,0.f });
 		_bunny.push_back(bunnyTail);
 
-		//avt::StencilPicker::addTarget(bush, "bunny");
+		avt::StencilPicker::addTarget(bush, "bunny");
 
 		auto fireplace = island->createNode(fireplaceM);
 		fireplace->translate({ -4.f,1.3f,6.5f });
