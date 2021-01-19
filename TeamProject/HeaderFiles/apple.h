@@ -7,27 +7,54 @@ namespace avt {
 
 		bool _animating = false;
 		avt::Vector3 _position = { 0,0,0 };
-		int _time = 0;
+		float _height = 0;
+		float _time = 0;
 	
 	public:
 
-		void animate() {
-			if (_animating && _time < 4) {
-				this->translate({ 0.0f, -_position.y() / 4, 0.0f });
-				_time++;
-			}
-			else if (_animating && _time >= 4 && _time < 8) {
-				this->rotate(avt::Quaternion(1.f, 1.f, 0.f, 2.f));
-				this->translate({ 0.04f,0,0 });
-				_time++;
-			}
-			else if (_animating && _time >= 8 && _time < 100)
-				_time++;
+		void animate(float dt) {
+			if (_animating) {
+				float duration = 0.4f;
+				float duration2 = 0.6f;
+				float duration3 = 3.f;
 
-			else if (_animating && _time == 100) {
-				this->rotate(avt::Quaternion(1.f, 1.f, 0.f, -8.f));
-				this->setTranslation(_position);
-				_animating = false;
+				float distance = 0.1f;
+				if (_time + dt <= duration) {
+					this->translate({ 0.0f, -(dt * _height) / duration, 0.0f });
+					_time += dt;
+				}
+				else if (_time < duration) {
+					float d = duration - _time;
+					this->translate({ 0.0f, -(d * _height) / duration, 0.0f });
+					_time += d;
+				}
+				/** /
+				else if (_time + dt <= duration2) {
+					this->rotate(avt::Quaternion(-1.f, -1.f, 0.f, -(dt * 8.f) / 0.2f));
+					//this->translate({ -0.04f,0,0 });
+					_time += dt;
+				}
+				else if (_time < duration2) {
+					float d = duration2 - _time;
+					this->rotate(avt::Quaternion(-1.f, -1.f, 0.f, -(d * 8.f) / 0.2f));
+					//this->translate({ -0.04f,0,0 });
+					_time += d;
+				}
+				
+				else if (_animating && _time >= 4 && _time < 8) {
+					this->rotate(avt::Quaternion(1.f, 1.f, 0.f, 2.f));
+					this->translate({ -0.04f,0,0 });
+					_time++;
+				}
+				/**/
+				else if (_time >= duration && _time < duration3) {
+					_time += dt;
+				}
+				else if (_time >= duration && _time >= duration3) {
+					//this->rotate(avt::Quaternion(1.f, 1.f, 0.f, -8.f));
+					this->setTranslation(_position);
+					_animating = false;
+				}
 			}
 		}
 
@@ -44,6 +71,10 @@ namespace avt {
 
 		void setPosition(avt::Vector3 p) {
 			_position = p;
+		}
+
+		void setHeight(float h) {
+			_height = h;
 		}
 	};
 }
