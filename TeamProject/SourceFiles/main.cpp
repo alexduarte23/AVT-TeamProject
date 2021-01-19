@@ -164,7 +164,7 @@ private:
 		//avt::StencilPicker::addTarget(fireplace, "fire");
 
 		auto fireplace = island->createNode(fireplaceM);
-		fireplace->translate({ -2.f,1.35f,6.8f });
+		fireplace->translate({ -4.f,1.3f,6.5f });
 		//colorCube->rotateY(-avt::PI/2);
 		fireplace->scale({ .25f,.25f,.25f });
 		avt::StencilPicker::addTarget(fireplace, "fire");
@@ -172,14 +172,14 @@ private:
 		_cloudSystem = new avt::CloudSystem();
 		_scene.addNode(_cloudSystem);
 		_cloudSystem->setShader(&_shaderClouds);
-		_cloudSystem->translate({ 0,15.f,0 });
-		//_cloudSystem->scale({ .5f,.5f,.5f });
+		_cloudSystem->translate({ 15.f,35.f,0 });
+		_cloudSystem->scale({ 2.5f,2.5f,2.5f });
 
 		_emitter = new avt::FireEmitter();
 		avt::StencilPicker::addTarget(_emitter, "fire");
 		_emitter->setShader(&_shaderFire);
-		_emitter->scale({ .5f, .5f, .5f });
-		_emitter->translate(campfire.getPosition());
+		_emitter->scale({ .9f, .9f, .9f });
+		_emitter->translate(campfire.getPosition() + avt::Vector3(0,-.5f,0));
 		_scene.addNode(_emitter); // scene deletes nodes when destroyed
 
 		env.setPosition(_light->pos().to3D() + avt::Vector3(0.0f, 10.f, 0.0f));
@@ -373,11 +373,11 @@ private:
 
 		float aspect = winx / (float)winy;
 
-		auto camP = new avt::PerspectiveCamera(45.f, aspect, 0.1f, 100.0f, avt::Vector3(0, 0, 10.f));
+		auto camP = new avt::PerspectiveCamera(60.f, aspect, 0.1f, 200.0f, avt::Vector3(0, 0, 10.f));
 		auto camO = new avt::OrthographicCamera(-10.0f, 10.0f, -10.0f / aspect, 10.0f / aspect, 0.1f, 100.0f, avt::Vector3(0, 0, 20.f));
 		auto camHUD = new avt::OrthographicCamera(-10.0f, 10.0f, -10.0f / aspect, 10.0f / aspect, 0.1f, 100.0f, avt::Vector3(0, 0, 10.f));
-		camP->setSpeed(12.f);
-		camO->setSpeed(12.f);
+		camP->setSpeed(8.f);
+		camO->setSpeed(8.f);
 
 		_cams.add("per", camP);
 		_cams.add("ort", camO);
@@ -391,8 +391,8 @@ private:
 	}
 
 	void createLights() {
-		campfire = avt::PointLight({ 3.0f, -0.6f, -3.6f }, { 1.f, 0.5f, 0.f });
-		campfire.setIntensity(1.0f);
+		campfire = avt::PointLight({ 1.f, -1.f, -3.9f }, { 1.f, 0.5f, 0.f });
+		campfire.setIntensity(2.0f);
 		env = avt::DirectionalLight({ 5.0f, 5.0f, 5.0f }, { 0.1f, 0.1f, 0.1f });
 		env.setIntensity(0.8f);
 	}
@@ -442,12 +442,12 @@ public:
 		
 		if (_animating) {
 			_time += dt;
-			if (_fireOn && _campfireBaseIntensity != 1.0) {
-				_campfireBaseIntensity = min(campfire.getIntensity() + (float)dt * 1.0f, 1.0f);
+			if (_fireOn && _campfireBaseIntensity != 2.0) {
+				_campfireBaseIntensity = min(campfire.getIntensity() + (float)dt * 1.0f, 2.0f);
 				campfire.setIntensity(_campfireBaseIntensity);
 			}
-			else if (_fireOn && _campfireBaseIntensity == 1.0){
-				campfire.setIntensity(1.0f + 0.2f * (float)sin(_time * 15) + 0.2f * (float)sin(_time * 10));
+			else if (_fireOn && _campfireBaseIntensity == 2.0){
+				campfire.setIntensity(2.0f + 0.2f * (float)sin(_time * 15) + 0.2f * (float)sin(_time * 10));
 			}
 			else {
 				_campfireBaseIntensity = max(campfire.getIntensity() - (float)dt * 1.0f, 0);
@@ -458,18 +458,18 @@ public:
 			}
 		}
 		
-		if (_rotating) {
-			_time2 += dt;
-			float k = (float)_time2 / _duration2;
-			_lightStruct->setRotation(avt::Quaternion({ 0,1.f,0.f }, k * 2 * avt::PI));
-			_lightStruct->rotateZ(avt::PI / 10);
-			if (_time2 > _duration2) {
-				_time2 = 0;
-				_rotating = false;
-				_lightStruct->setRotation(avt::Quaternion({ 1.f,0,0 }, avt::PI/10));
-				campfire.setIntensity(1.f);
-			}
-		}
+		//if (_rotating) {
+		//	_time2 += dt;
+		//	float k = (float)_time2 / _duration2;
+		//	_lightStruct->setRotation(avt::Quaternion({ 0,1.f,0.f }, k * 2 * avt::PI));
+		//	_lightStruct->rotateZ(avt::PI / 10);
+		//	if (_time2 > _duration2) {
+		//		_time2 = 0;
+		//		_rotating = false;
+		//		_lightStruct->setRotation(avt::Quaternion({ 1.f,0,0 }, avt::PI/10));
+		//		campfire.setIntensity(1.f);
+		//	}
+		//}
 
 		if (_morebloom) { //bloom
 			_bloom->setBlurTex(1);
@@ -485,8 +485,8 @@ public:
 			_turnOffOnBloom = false;
 		}
 
-		campfire.setPosition(_light->pos().to3D());
-		_emitter->setTranslation(campfire.getPosition());
+		//campfire.setPosition(_light->pos().to3D());
+		//_emitter->setTranslation(campfire.getPosition());
 
 		//Update Shader uniforms
 

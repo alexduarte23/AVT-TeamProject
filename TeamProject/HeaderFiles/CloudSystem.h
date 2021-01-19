@@ -35,11 +35,11 @@ namespace avt {
 		float threshold = 0.35f;
 		float threshold2 = 0.05f;
 		//int gridN = 50;
-		int rowN = 100;
+		int rowN = 80;
 		int _maxCubes = rowN * rowN;
 
-		float movePeriod = .8f;
-		float spawnPeriod = 1.0f;
+		float movePeriod = .9f;
+		float spawnPeriod = 2.0f;
 		float growth = 0.12f;
 
 		float pulseSpeed = 4.f;
