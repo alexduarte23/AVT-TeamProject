@@ -46,6 +46,7 @@ private:
 
 
 	avt::ParticleEmitter* _fireEmitter = nullptr, * _dustEmitter = nullptr, * _fireflyEmitter = nullptr;
+	avt::Background* _background = nullptr;
 	avt::SceneNode* _crosshair = nullptr;
 	avt::SceneNode* _tree = nullptr, * _tree2 = nullptr, * _tree3 = nullptr, * _lightStruct = nullptr, * _light = nullptr, * _floor = nullptr, * _cloud = nullptr, * _floor2 = nullptr;
 	std::vector<avt::Apple*> _apples;
@@ -60,8 +61,10 @@ private:
 	float _transitionDuration = 1.f;
 	float _transitionTime = 0;
 	avt::Vector3 _dayColor = { 1.f, 1.f, 1.f };
+	avt::Vector3 _dayBackColor = { .0916f, .631f, .58f };
 	float _dayStrength = 0.15f;
 	avt::Vector3 _nightColor = { 0.035f, 0.08f, 0.2f };
+	avt::Vector3 _nightBackColor = { 0.0f, 0.0f, 0.001f };
 	float _nightStrength = 0.05f;
 
 	const float _duration = 100000, _duration2 = 6;
@@ -123,8 +126,9 @@ private:
 		_scene.setShader(&_shader);
 
 		// SCENE ----------------------------
-		auto background = _scene.addNode(new avt::Background());
-		background->setShader(&_shaderBG);
+		_background = new avt::Background(_nightBackColor);
+		_scene.addNode(_background);
+		_background->setShader(&_shaderBG);
 
 		_lightStruct = _scene.createNode();
 
@@ -444,7 +448,7 @@ private:
 	void createLights() {
 		campfire = avt::PointLight({ 1.f, -1.f, -3.9f }, { 1.f, 0.5f, 0.f });
 		campfire.setIntensity(2.0f);
-		env = avt::DirectionalLight({ 5.0f, 5.0f, 5.0f }, _nightColor);
+		env = avt::DirectionalLight({0.0f, 50.0f, 0.0f }, _nightColor);
 		env.setIntensity(_nightStrength);
 		ambient = _nightColor;
 	}
@@ -618,6 +622,7 @@ public:
 		env.setIntensity((k * _dayStrength + (1.f - k) * _nightStrength) * 5.f);
 		ambient = k * _dayColor + (1.f - k) * _nightColor;
 		ambientStrength = k * 2*_dayStrength + (1.f - k) * _nightStrength;
+		_background->setColor(k * _dayBackColor + (1.f - k) * _nightBackColor);
 	}
 
 	void renderWithBloom(GLFWwindow* win) {

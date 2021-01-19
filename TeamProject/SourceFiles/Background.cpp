@@ -4,15 +4,16 @@
 
 namespace avt {
 
-	const float Background::QUAD_STRIP[4 * 6] = { // pos tex color
-			-1.f, -1.f, 0,    1.f, 1.f, 1.f,  // bottom left
-			 1.f, -1.f, 0,    1.f, 1.f, 1.f,  // bottomm right
-			-1.f,  1.f, 0,    1.f, 1.f, 1.f,  // top left
-			 1.f,  1.f, 0,    1.f, 1.f, 1.f   // top right
-	};
-
 
 	Background::Background(const Vector3& color) {
+		for (int i = 0; i < 4*6; i += 6) {
+			QUAD_STRIP[i + 3] = color.x();
+			QUAD_STRIP[i + 4] = color.y();
+			QUAD_STRIP[i + 5] = color.z();
+		}
+
+		_color = color;
+
 		_va.create();
 
 		VertexBufferLayout layout;
