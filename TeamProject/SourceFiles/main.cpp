@@ -79,7 +79,9 @@ private:
 		/*auto bunnyIslandM = _meshes.add("bunnyIsland", new avt::Mesh("./Resources/Objects/bunnyIsland.obj"));
 		bunnyIslandM->setup();
 
-		auto bushM = _meshes.add("bush", new avt::Mesh("./Resources/Objects/simplebush.obj"));
+		*/
+
+		auto bushM = _meshes.add("bush", new avt::Mesh("./Resources/Objects/bush.obj"));
 		bushM->setup();
 
 		auto bunnyearLM = _meshes.add("bunnyLeftEar", new avt::Mesh("./Resources/Objects/leftear.obj"));
@@ -88,8 +90,6 @@ private:
 		bunnyearRM->setup();
 		auto bunnytailM = _meshes.add("bunnyTail", new avt::Mesh("./Resources/Objects/tail.obj"));
 		bunnytailM->setup();
-
-		*/
 
 		auto fireplaceM = _meshes.add("fireplace", new avt::Mesh("./Resources/Objects/fireplace3.obj"));
 		fireplaceM->setup();
@@ -131,45 +131,41 @@ private:
 		/*auto bunnyIsland = _scene.createNode(bunnyIslandM);
 		bunnyIsland->translate({ -10.5f, -4.5f, -8.5f });
 		bunnyIsland->scale({ 2.2f, 2.2f, 2.2f });
-
+		*/
 		auto bush = new avt::Bunny();
 		bush ->setMesh(bushM);
-		bunnyIsland->addNode(bush);
+		island->addNode(bush);
 		bush->translate({ 0.f,0.f,0.f });
 		bush->setPosition({ 0.f,0.f,0.f });
 		_bunny.push_back(bush);
 
 		auto bunnyEarL = new avt::Bunny();
 		bunnyEarL->setMesh(bunnyearLM);
-		bunnyIsland->addNode(bunnyEarL);
-		bunnyEarL->translate({ 0.f,-0.16f,-0.16f });
-		bunnyEarL->setPosition({ 0.f,-0.16f,-0.16f });
+		bush->addNode(bunnyEarL);
+		//bunnyIsland->addNode(bunnyEarL);
+		
+		bunnyEarL->translate({ 0.f,-0.7f,0.7f });
+		bunnyEarL->setPosition({ 0.f,-0.7f,0.7f });
 		_bunny.push_back(bunnyEarL);
 
 		auto bunnyEarR = new avt::Bunny();
 		bunnyEarR->setMesh(bunnyearRM);
-		bunnyIsland->addNode(bunnyEarR);
-		bunnyEarR->translate({ 0.f,-0.16f,-0.16f });
-		bunnyEarR->setPosition({ 0.f,-0.16f,-0.16f });
+		bush->addNode(bunnyEarR);
+
+		bunnyEarR->translate({ 0.f,-0.7f,0.7f });
+		bunnyEarR->setPosition({ 0.f,-0.7f,0.7f });
 		_bunny.push_back(bunnyEarR);
+
 
 		auto bunnyTail = new avt::Bunny();
 		bunnyTail->setMesh(bunnytailM);
-		bunnyIsland->addNode(bunnyTail);
-		bunnyTail->translate({ -0.2f,0.f,0.f });
-		bunnyTail->setPosition({ -0.2f,0.f,0.f });
+		bush->addNode(bunnyTail);
+
+		bunnyTail->translate({ 0.4f,0.f,0.f });
+		bunnyTail->setPosition({ 0.4f,0.f,0.f });
 		_bunny.push_back(bunnyTail);
 
-		avt::StencilPicker::addTarget(bush, "bunny");*/
-
-		//auto colorCube = _scene.createNode(colorCubeM);
-		//colorCube->translate({ 0,0,5.f });
-		//colorCube->scale({ .3f,.3f,.3f });
-
-		//auto fireplace = _scene.createNode(fireplaceM);
-		//fireplace->translate({ 2.7f,-1.35f,-5.f });
-		//fireplace->scale({ .15f,.15f,.15f });
-		//avt::StencilPicker::addTarget(fireplace, "fire");
+		avt::StencilPicker::addTarget(bush, "bunny");
 
 		auto fireplace = island->createNode(fireplaceM);
 		fireplace->translate({ -4.f,1.3f,6.5f });
@@ -469,13 +465,13 @@ public:
 		_fireflyEmitter->update(dt);
 		_cloudSystem->update(dt);
 
-		/*for(int i = 0; i < 4; i++)
-			_apples.at(i)->animate();
+		//for(int i = 0; i < 4; i++)
+		//	_apples.at(i)->animate();
 
 		_bunny.at(0)->animateBush();
 		_bunny.at(1)->animateLeftEar();
 		_bunny.at(2)->animateRightEar();
-		_bunny.at(3)->animateTail();*/
+		_bunny.at(3)->animateTail();
 		
 		if (_animating) {
 			_time += dt;
@@ -722,10 +718,10 @@ public:
 				_apples.at(3)->setAnimating();
 			}
 			else if (target.second == "bunny") {
-				/*_bunny.at(0)->setAnimating();
+				_bunny.at(0)->setAnimating();
 				_bunny.at(1)->setAnimating();
 				_bunny.at(2)->setAnimating();
-				_bunny.at(3)->setAnimating();*/
+				_bunny.at(3)->setAnimating();
 			}
 
 		}
