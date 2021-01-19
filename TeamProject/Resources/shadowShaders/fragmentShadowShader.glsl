@@ -58,7 +58,8 @@ float ShadowCalculation(vec4 fragPosLightSpace, vec3 lightDir, sampler2D currSha
     //Avoid having shadow when outside light projection 
     if(projCoords.z > 1.0)
         return shadow;
-
+    
+    /*
     //Check if in shadow intersection, and avoid doing smoothing to mitigate smoothing artifacts in the shadow joins
     vec3 v = FragPos - campfirePos;
     float dist = 0.01*v.length;
@@ -66,6 +67,7 @@ float ShadowCalculation(vec4 fragPosLightSpace, vec3 lightDir, sampler2D currSha
         shadow = currentDepth - bias > closestDepth  ? 1.0 : 0.0; 
         return shadow;
     }
+    */
 
 	//Apply smoothing to the shadow
     vec2 texelSize = 1.0 / textureSize(currShadowMap, 0);
