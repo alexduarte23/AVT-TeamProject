@@ -30,7 +30,6 @@ private:
 	avt::Scene _scene, _HUD;
 	MyNodeCallback nodeCallback;
 
-	avt::ParticleEmitter* _fireEmitter = nullptr, *_dustEmitter = nullptr, *_fireflyEmitter = nullptr;
 
 	avt::Shadow _shadow, _shadow2, _shadow3, _shadow4;
 	avt::Bloom* _bloom = nullptr;
@@ -46,17 +45,28 @@ private:
 	float _campfireBaseIntensity = 1.f;
 
 
+	avt::ParticleEmitter* _fireEmitter = nullptr, * _dustEmitter = nullptr, * _fireflyEmitter = nullptr;
+	avt::SceneNode* _crosshair = nullptr;
 	avt::SceneNode* _tree = nullptr, * _tree2 = nullptr, * _tree3 = nullptr, * _lightStruct = nullptr, * _light = nullptr, * _floor = nullptr, * _cloud = nullptr, * _floor2 = nullptr;
 	std::vector<avt::Apple*> _apples;
 	std::vector<avt::Bunny*> _bunny;
 	avt::CloudSystem* _cloudSystem = nullptr;
 	std::string _activeCam = "per";
-	
+
 	avt::Vector3 ambient;
-	float ambientStrength = 0.05;
-	const float _duration = 3, _duration2 = 6;
+	float ambientStrength = 0.05f;
+	bool _day = false;
+	bool _dayTransition = false;
+	float _transitionDuration = 1.f;
+	float _transitionTime = 0;
+	avt::Vector3 _dayColor = { 1.f, 1.f, 1.f };
+	float _dayStrength = 0.15f;
+	avt::Vector3 _nightColor = { 0.035f, 0.08f, 0.2f };
+	float _nightStrength = 0.05f;
+
+	const float _duration = 100000, _duration2 = 6;
 	double _time = 0, _time2 = 0, _time3 = 0;
-	bool _animating = true, _transition=false, _rotating = false, _selecting = false, _morebloom = false, _lessbloom = false, _turnOffOnBloom = false, _animatingApples = false, _isBunny = true;
+	bool _animating = true, _rotating = false, _selecting = false, _morebloom = false, _lessbloom = false, _turnOffOnBloom = false, _animatingApples = false, _isBunny = true;
 
 	unsigned int _selected = -1; //stencil index of the currently selected scene node - mouse picking
 
@@ -201,8 +211,8 @@ private:
 
 		_HUD.setShader(&_shaderHUD);
 
-		auto crosshair = _HUD.addNode(new avt::HUDElement("Resources/textures/crosshair161.png"));
-		crosshair->scale({ .5f, .5f, .5f });
+		_crosshair = _HUD.addNode(new avt::HUDElement("Resources/textures/crosshair161.png"));
+		_crosshair->scale({ .5f, .5f, .5f });
 
 
 #ifndef ERROR_CALLBACK
@@ -271,7 +281,7 @@ private:
 
 	}
 
-	void createShader() {
+	void createShaders() {
 
 		// create regular mesh shader
 		_shader.addShader(GL_VERTEX_SHADER, "./Resources/shadowShaders/vertexShadowShader.glsl");
@@ -426,9 +436,9 @@ private:
 	void createLights() {
 		campfire = avt::PointLight({ 1.f, -1.f, -3.9f }, { 1.f, 0.5f, 0.f });
 		campfire.setIntensity(2.0f);
-		env = avt::DirectionalLight({ 5.0f, 5.0f, 5.0f }, { 0.1f, 0.1f, 0.1f });
-		env.setIntensity(0.8f);
-		ambient = avt::Vector3(0.19f, 0.17f, 0.33f);
+		env = avt::DirectionalLight({ 5.0f, 5.0f, 5.0f }, _nightColor);
+		env.setIntensity(_nightStrength);
+		ambient = _nightColor;
 	}
 
 	void createBloom(GLFWwindow* win) {
@@ -450,7 +460,7 @@ public:
 		createLights();
 		createShadows();
 		createBloom(win);
-		createShader();
+		createShaders();
 		createScene();
 	}
 
@@ -461,7 +471,7 @@ public:
 
 	void updateCallback(GLFWwindow* win, double dt) override {
 		
-		avt::Mat4 rotMat;
+		_time += dt;
 
 		_fireEmitter->update(dt);
 		_dustEmitter->update(dt);
@@ -476,32 +486,43 @@ public:
 		_bunny.at(2)->animateRightEar();
 		_bunny.at(3)->animateTail();*/
 		
-		if (_animating) {
-			_time += dt;
-			if (_fireOn && _campfireBaseIntensity != 2.0) {
-				_campfireBaseIntensity = min(campfire.getIntensity() + (float)dt * 1.0f, 2.0f);
-				campfire.setIntensity(_campfireBaseIntensity);
-			}
-			else if (_fireOn && _campfireBaseIntensity == 2.0){
-				campfire.setIntensity(2.0f + 0.2f * (float)sin(_time * 15) + 0.2f * (float)sin(_time * 10));
-			}
-			else {
-				_campfireBaseIntensity = max(campfire.getIntensity() - (float)dt * 1.0f, 0);
-				campfire.setIntensity(_campfireBaseIntensity);
-			}
-			if (_time > _duration) {
-				_time -= _duration;				
-			}
+		//if (_animating) {
+		//	
+		//}
+
+		float speed = 2.0f;
+		if (_fireOn && _campfireBaseIntensity != 2.0) {
+			_campfireBaseIntensity = min(campfire.getIntensity() + (float)dt * speed, 2.0f);
+			campfire.setIntensity(_campfireBaseIntensity);
+		}
+		else if (_fireOn && _campfireBaseIntensity == 2.0) {
+			campfire.setIntensity(2.0f + 0.2f * (float)sin(_time * 15) + 0.2f * (float)sin(_time * 10));
+		}
+		else {
+			_campfireBaseIntensity = max(campfire.getIntensity() - (float)dt * speed, 0);
+			campfire.setIntensity(_campfireBaseIntensity);
+		}
+		if (_time > _duration) {
+			_time = 0;
 		}
 
-		if (_transition) {
-			_time3 += dt;
-			float k = (float)_time3 / _duration2;
-			if (_time3 > _duration2) {
-				_time3 = 0;
-				_transition = false;
+		if (_dayTransition) {
+			_transitionTime += (float)dt;
+			float p = clamp(_transitionTime / _transitionDuration, 0, 1);
+			float k =  _day ? p : 1.f - p;
+			if (_transitionTime >= _transitionDuration) {
+				_transitionTime = 0;
+				_dayTransition = false;
 			}
 			transitionLight(k);
+		}
+
+		if (avt::StencilPicker::getLastPick().first == nullptr) {
+			_crosshair->setScale({ .5f, .5f, .5f });
+		}
+		else {
+			_crosshair->setScale({ .8f, .8f, .8f });
+
 		}
 		
 		//if (_rotating) {
@@ -584,31 +605,11 @@ public:
 		_HUD.draw(_ub, _cams.get("HUD"), nullptr);
 	}
 
-	void transitionLight(float state) {
-		avt::Vector3 night = avt::Vector3(0.19f, 0.17f, 0.33f);
-		avt::Vector3 day = avt::Vector3(1.f, 1.f, 0.3f);
-		float nightStrength = 0.05;
-		float dayStrength = 0.2;
-
-		//state 0 = night, state 1 = day
-		if (state <= 0.0f) {
-			env.setColor(night);
-			env.setIntensity(nightStrength * 5.f);
-			ambient = night;
-			ambientStrength = nightStrength;
-			return;
-		}
-		if (state >= 1.f) {
-			env.setColor(day);
-			env.setIntensity(dayStrength * 5.f);
-			ambient = day;
-			ambientStrength = dayStrength;
-			return;
-		}
-		env.setColor(state * day + (1.f - state) * night);
-		env.setIntensity((state * dayStrength + (1.f - state) * nightStrength) * 5.f);
-		ambient = state * day + (1.f - state) * night;
-		ambientStrength = state * dayStrength + (1.f - state) * nightStrength;
+	void transitionLight(float k) {
+		env.setColor(k * _dayColor + (1.f - k) * _nightColor);
+		env.setIntensity((k * _dayStrength + (1.f - k) * _nightStrength) * 5.f);
+		ambient = k * _dayColor + (1.f - k) * _nightColor;
+		ambientStrength = k * 2*_dayStrength + (1.f - k) * _nightStrength;
 	}
 
 	void renderWithBloom(GLFWwindow* win) {
@@ -690,7 +691,8 @@ public:
 			_cloudSystem->createCloud();
 			break;
 		case GLFW_KEY_V:
-			_transition = !_transition;
+			_day = !_day;
+			_dayTransition = true;
 			break;
 		}
 
