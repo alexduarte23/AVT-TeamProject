@@ -51,7 +51,7 @@ float ShadowCalculation(vec4 fragPosLightSpace, vec3 lightDir, sampler2D currSha
     float currentDepth = projCoords.z;
 
     //Shadow bias to avoid artifacts
-    float bias = 0.001;
+    float bias = 0.0006;
     
     float shadow = 0.0;
 
