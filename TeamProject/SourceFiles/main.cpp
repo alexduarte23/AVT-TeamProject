@@ -24,7 +24,7 @@ public:
 
 class MyApp : public avt::App {
 private:
-	avt::Shader _shader, _shaderFire, _shaderParticles, _shaderClouds, _shaderHUD;
+	avt::Shader _shader, _shaderFire, _shaderParticles, _shaderClouds, _shaderHUD, _shaderBG;
 	avt::Renderer _renderer;
 	avt::UniformBuffer _ub;
 	avt::Scene _scene, _HUD;
@@ -123,6 +123,9 @@ private:
 		_scene.setShader(&_shader);
 
 		// SCENE ----------------------------
+		auto background = _scene.addNode(new avt::Background());
+		background->setShader(&_shaderBG);
+
 		_lightStruct = _scene.createNode();
 
 		_light = _lightStruct->createNode();
@@ -405,6 +408,13 @@ private:
 		_shaderHUD.bind();
 		glUniform1i(_shaderHUD.getUniform("inTexture"), 0);
 		_shaderHUD.unbind();
+
+		// create background shader
+		_shaderBG.addShader(GL_VERTEX_SHADER, "./Resources/bgShaders/bg-vs.glsl");
+		_shaderBG.addShader(GL_FRAGMENT_SHADER, "./Resources/bgShaders/bg-fs.glsl");
+		_shaderBG.addAttribute("inPosition", 0);
+		_shaderBG.addAttribute("inColor", 1);
+		_shaderBG.create();
 	}
 
 

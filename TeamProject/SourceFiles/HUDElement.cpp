@@ -50,7 +50,6 @@ namespace avt {
 		_sprite.unbind();
 
 		_va.unbind();
-		curr_shader->unbind();
 
 		if (getShader()) {
 			getShader()->unbind();

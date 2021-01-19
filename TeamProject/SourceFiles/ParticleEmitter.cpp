@@ -96,7 +96,6 @@ namespace avt {
 		_texture.unbind();
 
 		_va.unbind();
-		curr_shader->unbind();
 
 		if (getShader()) {
 			getShader()->unbind();
