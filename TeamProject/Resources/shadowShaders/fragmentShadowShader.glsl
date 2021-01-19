@@ -46,17 +46,28 @@ float ShadowCalculation(vec4 fragPosLightSpace, vec3 lightDir, sampler2D currSha
 
     //Get the closest depth position
     float closestDepth = texture(currShadowMap, projCoords.xy).r; 
+
     //Get the depth of the current fragment
     float currentDepth = projCoords.z;
 
+    //Shadow bias to avoid artifacts
     float bias = 0.001;
     
     float shadow = 0.0;
 
+    //Avoid having shadow when outside light projection 
     if(projCoords.z > 1.0)
         return shadow;
 
-	//PCF TEST
+    //Check if in shadow intersection, and avoid doing smoothing to mitigate smoothing artifacts in the shadow joins
+    vec3 v = FragPos - campfirePos;
+    float dist = 0.01*v.length;
+    if((v.x-v.z < dist && v.x-v.z > -dist) || ( v.x+v.z < dist && v.x+v.z > -dist )){
+        shadow = currentDepth - bias > closestDepth  ? 1.0 : 0.0; 
+        return shadow;
+    }
+
+	//Apply smoothing to the shadow
     vec2 texelSize = 1.0 / textureSize(currShadowMap, 0);
     for(int x = -2; x <= 2; ++x)
     {
