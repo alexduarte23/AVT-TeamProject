@@ -24,13 +24,13 @@ public:
 
 class MyApp : public avt::App {
 private:
-	avt::Shader _shader, _shaderFire, _shaderClouds, _shaderHUD;
+	avt::Shader _shader, _shaderFire, _shaderParticles, _shaderClouds, _shaderHUD;
 	avt::Renderer _renderer;
 	avt::UniformBuffer _ub;
 	avt::Scene _scene, _HUD;
 	MyNodeCallback nodeCallback;
 
-	avt::ParticleEmitter* _emitter = nullptr;
+	avt::ParticleEmitter* _fireEmitter = nullptr, *_dustEmitter = nullptr, *_fireflyEmitter = nullptr;
 
 	avt::Shadow _shadow, _shadow2, _shadow3, _shadow4;
 	avt::Bloom* _bloom = nullptr;
@@ -72,7 +72,7 @@ private:
 		auto islandM = _meshes.add("island", new avt::Mesh("./Resources/Objects/finalIsland.obj"));
 		islandM->setup();
 
-		auto appleTreeIslandM = _meshes.add("appleTreeIsland", new avt::Mesh("./Resources/Objects/appleTreeIsland.obj"));
+		/*auto appleTreeIslandM = _meshes.add("appleTreeIsland", new avt::Mesh("./Resources/Objects/appleTreeIsland.obj"));
 		appleTreeIslandM->setup();
 
 		auto appleM = _meshes.add("apple", new avt::Mesh("./Resources/Objects/apple.obj"));
@@ -81,7 +81,9 @@ private:
 		auto bunnyIslandM = _meshes.add("bunnyIsland", new avt::Mesh("./Resources/Objects/bunnyIsland.obj"));
 		bunnyIslandM->setup();
 
-		auto bushM = _meshes.add("bush", new avt::Mesh("./Resources/Objects/simplebush.obj"));
+		*/
+
+		auto bushM = _meshes.add("bush", new avt::Mesh("./Resources/Objects/bush.obj"));
 		bushM->setup();
 
 		auto bunnyearLM = _meshes.add("bunnyLeftEar", new avt::Mesh("./Resources/Objects/leftear.obj"));
@@ -95,7 +97,7 @@ private:
 		fireplaceM->setup();
 
 		
-		createAppleTree(appleTreeIslandM, appleM);
+		//createAppleTree(appleTreeIslandM, appleM);
 		
 		auto lightM = _meshes.add("moon", new avt::Mesh("./Resources/Objects/sun_moon.obj"));
 		lightM->applyTransform(avt::Mat4::scale({ 0.5f, 0.5f, 0.5f }));
@@ -122,48 +124,46 @@ private:
 		island->translate({ 5.f, -3.f, -10.5f });
 		island->scale({ 1.f, 1.f, 1.f });
 
-		auto bunnyIsland = _scene.createNode(bunnyIslandM);
-		bunnyIsland->translate({ -10.5f, -4.5f, -8.5f });
-		bunnyIsland->scale({ 2.2f, 2.2f, 2.2f });
+		//auto bunnyIsland = _scene.createNode(bunnyIslandM);
+		//bunnyIsland->translate({ -10.5f, -4.5f, -8.5f });
+		//bunnyIsland->scale({ 2.2f, 2.2f, 2.2f });
 
 		auto bush = new avt::Bunny();
 		bush ->setMesh(bushM);
-		bunnyIsland->addNode(bush);
+		island->addNode(bush);
 		bush->translate({ 0.f,0.f,0.f });
 		bush->setPosition({ 0.f,0.f,0.f });
 		_bunny.push_back(bush);
 
 		auto bunnyEarL = new avt::Bunny();
 		bunnyEarL->setMesh(bunnyearLM);
-		bunnyIsland->addNode(bunnyEarL);
-		bunnyEarL->translate({ 0.f,-0.16f,-0.16f });
-		bunnyEarL->setPosition({ 0.f,-0.16f,-0.16f });
+		bush->addNode(bunnyEarL);
+		//bunnyIsland->addNode(bunnyEarL);
+		
+		bunnyEarL->translate({ 0.f,-0.7f,0.7f });
+		bunnyEarL->setPosition({ 0.f,-0.7f,0.7f });
 		_bunny.push_back(bunnyEarL);
 
 		auto bunnyEarR = new avt::Bunny();
 		bunnyEarR->setMesh(bunnyearRM);
-		bunnyIsland->addNode(bunnyEarR);
-		bunnyEarR->translate({ 0.f,-0.16f,-0.16f });
-		bunnyEarR->setPosition({ 0.f,-0.16f,-0.16f });
+		bush->addNode(bunnyEarR);
+
+		bunnyEarR->translate({ 0.f,-0.7f,0.7f });
+		bunnyEarR->setPosition({ 0.f,-0.7f,0.7f });
 		_bunny.push_back(bunnyEarR);
+
 
 		auto bunnyTail = new avt::Bunny();
 		bunnyTail->setMesh(bunnytailM);
-		bunnyIsland->addNode(bunnyTail);
-		bunnyTail->translate({ -0.2f,0.f,0.f });
-		bunnyTail->setPosition({ -0.2f,0.f,0.f });
+		bush->addNode(bunnyTail);
+
+		bunnyTail->translate({ 0.4f,0.f,0.f });
+		bunnyTail->setPosition({ 0.4f,0.f,0.f });
 		_bunny.push_back(bunnyTail);
 
 		avt::StencilPicker::addTarget(bush, "bunny");
 
-		//auto colorCube = _scene.createNode(colorCubeM);
-		//colorCube->translate({ 0,0,5.f });
-		//colorCube->scale({ .3f,.3f,.3f });
-
-		//auto fireplace = _scene.createNode(fireplaceM);
-		//fireplace->translate({ 2.7f,-1.35f,-5.f });
-		//fireplace->scale({ .15f,.15f,.15f });
-		//avt::StencilPicker::addTarget(fireplace, "fire");
+		
 
 		auto fireplace = island->createNode(fireplaceM);
 		fireplace->translate({ -4.f,1.3f,6.5f });
@@ -177,12 +177,22 @@ private:
 		_cloudSystem->translate({ 15.f,35.f,0 });
 		_cloudSystem->scale({ 2.5f,2.5f,2.5f });
 
-		_emitter = new avt::FireEmitter();
-		avt::StencilPicker::addTarget(_emitter, "fire");
-		_emitter->setShader(&_shaderFire);
-		_emitter->scale({ .9f, .9f, .9f });
-		_emitter->translate(campfire.getPosition() + avt::Vector3(0,-.5f,0));
-		_scene.addNode(_emitter); // scene deletes nodes when destroyed
+		_fireEmitter = new avt::FireEmitter();
+		avt::StencilPicker::addTarget(_fireEmitter, "fire");
+		_fireEmitter->setShader(&_shaderFire);
+		_fireEmitter->scale({ .9f, .9f, .9f });
+		_fireEmitter->translate(campfire.getPosition() + avt::Vector3(0,-.5f,0));
+		_scene.addNode(_fireEmitter); // scene deletes nodes when destroyed
+
+		_dustEmitter = new avt::DustEmitter(10, 5);
+		_dustEmitter->setShader(&_shaderParticles);
+		_dustEmitter->translate({10.f,-1.f,-17.f});
+		_scene.addNode(_dustEmitter); // scene deletes nodes when destroyed
+
+		_fireflyEmitter = new avt::FireflyEmitter(5, 2);
+		_fireflyEmitter->setShader(&_shaderParticles);
+		_fireflyEmitter->translate({ 26.f,8.f,-10.f });
+		_scene.addNode(_fireflyEmitter); // scene deletes nodes when destroyed
 
 		env.setPosition(_light->pos().to3D() + avt::Vector3(0.0f, 10.f, 0.0f));
 
@@ -336,6 +346,23 @@ private:
 
 
 		// create fire shader
+		_shaderParticles.addShader(GL_VERTEX_SHADER, "./Resources/particleShaders/particles-vs.glsl");
+		_shaderParticles.addShader(GL_FRAGMENT_SHADER, "./Resources/particleShaders/particles-fs.glsl");
+		_shaderParticles.addAttribute("in_vertex", 0);
+		_shaderParticles.addAttribute("in_texCoord", 1);
+		_shaderParticles.addAttribute("in_pos", 2);
+		_shaderParticles.addAttribute("in_color", 3);
+		_shaderParticles.addAttribute("in_size", 4);
+		_shaderParticles.addAttribute("in_rot", 5);
+		_shaderParticles.addUniform("ModelMatrix");
+		_shaderParticles.addUniform("in_texture");
+		_shaderParticles.addUbo("SharedMatrices", UBO_BP);
+		_shaderParticles.create();
+		_shaderParticles.bind();
+		glUniform1i(_shaderParticles.getUniform("in_texture"), 0);
+		_shaderParticles.unbind();
+
+		// create fire shader
 		_shaderFire.addShader(GL_VERTEX_SHADER, "./Resources/particleShaders/particles-vs.glsl");
 		_shaderFire.addShader(GL_FRAGMENT_SHADER, "./Resources/particleShaders/fire-fs.glsl");
 		_shaderFire.addAttribute("in_vertex", 0);
@@ -434,11 +461,13 @@ public:
 		
 		avt::Mat4 rotMat;
 
-		_emitter->update(dt);
+		_fireEmitter->update(dt);
+		_dustEmitter->update(dt);
+		_fireflyEmitter->update(dt);
 		_cloudSystem->update(dt);
 
-		for(int i = 0; i < 4; i++)
-			_apples.at(i)->animate();
+		//for(int i = 0; i < 4; i++)
+		//	_apples.at(i)->animate();
 
 		_bunny.at(0)->animateBush();
 		_bunny.at(1)->animateLeftEar();
@@ -501,7 +530,7 @@ public:
 		}
 
 		//campfire.setPosition(_light->pos().to3D());
-		//_emitter->setTranslation(campfire.getPosition());
+		//_fireEmitter->setTranslation(campfire.getPosition());
 
 		//Update Shader uniforms
 
@@ -629,7 +658,7 @@ public:
 			else				glfwSetInputMode(win, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
 			break;
 		case GLFW_KEY_0:
-			if (_cams.size() == 2) {
+			if (_cams.size() == 3) {
 				_cams.get("ort")->setPosition(avt::Vector3(0, 0, 15.f));
 				_cams.get("per")->setPosition(avt::Vector3(0, 0, 15.f));
 				_cams.get("ort")->lookAt(avt::Vector3());
@@ -653,7 +682,7 @@ public:
 			break;
 		case GLFW_KEY_X:
 			_fireOn = !_fireOn;
-			_emitter->toggle();
+			_fireEmitter->toggle();
 			break;
 		case GLFW_KEY_ENTER:
 			_cloudSystem->createCloud();
@@ -679,7 +708,7 @@ public:
 			auto target = avt::StencilPicker::getLastPick();
 			if (target.second == "fire") {
 				_fireOn = !_fireOn;
-				_emitter->toggle();
+				_fireEmitter->toggle();
 			}else if (target.second == "apple1") {
 				_apples.at(0)->setAnimating();
 			}else if (target.second == "apple2") {

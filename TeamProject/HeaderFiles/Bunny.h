@@ -13,7 +13,7 @@ namespace avt {
 
 		void animateLeftEar() {
 			if (_animating && _time < 4) {
-				this->translate({ 0.0f, 0.175f, 0.175f });
+				this->translate({ 0.0f, 0.175f, -0.175f });
 				_time++;
 			}
 			else if (_animating && _time >= 4 && _time < 60)
@@ -27,7 +27,7 @@ namespace avt {
 
 		void animateRightEar() {
 			if (_animating && _time < 4) {
-				this->translate({ 0.0f, 0.175f, 0.175f });
+				this->translate({ 0.0f, 0.175f, -0.175f });
 				_time++;
 			}
 			else if (_animating && _time >= 4 && _time < 60)
@@ -44,7 +44,7 @@ namespace avt {
 				_time++;
 			}
 			else if (_animating && _time < 12) {
-				this->translate({ 0.05f, 0.f, 0.f });
+				this->translate({ -0.05f, 0.f, 0.f });
 				_time++;
 			}
 			else if (_animating && _time >= 12 && _time < 60)
