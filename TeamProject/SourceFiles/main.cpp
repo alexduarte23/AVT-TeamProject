@@ -78,10 +78,12 @@ private:
 		avt::StencilPicker::enable();
 
 		// MESHES -------------------
+		/*
 		auto treeM = _meshes.add("tree", new avt::Mesh("./Resources/Objects/treeNormal.obj"));
 		treeM->colorAll({0.2f, 0.6f, 0.2f});
 		treeM->setup();
-		
+		*/
+
 		auto floorM = _meshes.add("floor", new avt::Mesh("./Resources/cube_vtn_flat.obj"));
 		auto islandM = _meshes.add("island", new avt::Mesh("./Resources/Objects/finalIsland.obj"));
 		islandM->setup();
@@ -177,7 +179,7 @@ private:
 		_fireflyEmitter->translate({ 24.f,8.f,-13.f });
 		_scene.addNode(_fireflyEmitter); // scene deletes nodes when destroyed
 
-		env.setPosition(_light->pos().to3D() + avt::Vector3(0.0f, 10.f, 0.0f));
+		env.setPosition(_light->pos().to3D() - _light->pos().to3D() + avt::Vector3(6.0f, 25.f, 0.0f));
 
 
 		_HUD.setShader(&_shaderHUD);
