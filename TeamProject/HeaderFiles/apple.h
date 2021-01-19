@@ -29,14 +29,14 @@ namespace avt {
 					_time += d;
 				}
 				/** /
-				else if (_time + dt <= duration2) {
-					this->rotate(avt::Quaternion(-1.f, -1.f, 0.f, -(dt * 8.f) / 0.2f));
+				else if (_time >= duration && _time + dt <= duration2) {
+					//this->setRotation(avt::Quaternion(1.f, 1.f, 0.f, -(dt * 8.f) / 0.2f));
 					//this->translate({ -0.04f,0,0 });
 					_time += dt;
 				}
-				else if (_time < duration2) {
+				else if (_time >= duration && _time < duration2) {
 					float d = duration2 - _time;
-					this->rotate(avt::Quaternion(-1.f, -1.f, 0.f, -(d * 8.f) / 0.2f));
+					//this->setRotation(avt::Quaternion(1.f, 1.f, 0.f, -(d * 8.f) / 0.2f));
 					//this->translate({ -0.04f,0,0 });
 					_time += d;
 				}

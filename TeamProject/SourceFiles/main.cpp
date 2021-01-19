@@ -229,7 +229,7 @@ private:
 	void createAppleTree(avt::SceneNode * island, avt::Mesh* appleM) {
 
 		avt::Apple* apple;
-		std::vector<avt::Vector3> applePositions = { { -3.8, -2.5f, -0.2f } , { -2.3f, -1.5f, 1.f } , { 0.3f, 0.f, 0.0f }, { 1.5f, -2.5f, 0.0f } }; //7 height
+		std::vector<avt::Vector3> applePositions = { { -3.8f, -2.5f, -0.2f } , { -2.3f, -1.5f, 1.f } , { 0.3f, 0.f, 0.0f }, { 1.5f, -2.5f, 0.0f } }; //7 height
 		std::vector<float> heights = {5.1f, 5.5f, 7.0f, 4.3f};
 		for (int i = 0; i < 4; i++) {
 			apple = new avt::Apple();
