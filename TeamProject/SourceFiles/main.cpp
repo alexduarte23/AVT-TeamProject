@@ -137,6 +137,7 @@ private:
 		createAppleTree(island, appleM);
 
 		auto tent = island->createNode(tentM);
+		avt::StencilPicker::addTarget(tent, "tent");
 
 		/*auto bunnyIsland = _scene.createNode(bunnyIslandM);
 		bunnyIsland->translate({ -10.5f, -4.5f, -8.5f });
@@ -175,7 +176,7 @@ private:
 		bunnyTail->setPosition({ 0.4f,0.f,0.f });
 		_bunny.push_back(bunnyTail);
 
-		avt::StencilPicker::addTarget(bush, "bunny");
+		//avt::StencilPicker::addTarget(bush, "bunny");
 
 		auto fireplace = island->createNode(fireplaceM);
 		fireplace->translate({ -4.f,1.3f,6.5f });
@@ -203,7 +204,7 @@ private:
 
 		_fireflyEmitter = new avt::FireflyEmitter(5, 2);
 		_fireflyEmitter->setShader(&_shaderParticles);
-		_fireflyEmitter->translate({ 26.f,8.f,-10.f });
+		_fireflyEmitter->translate({ 24.f,8.f,-13.f });
 		_scene.addNode(_fireflyEmitter); // scene deletes nodes when destroyed
 
 		env.setPosition(_light->pos().to3D() + avt::Vector3(0.0f, 10.f, 0.0f));
@@ -514,7 +515,7 @@ public:
 			transitionLight(k);
 		}
 
-		if (avt::StencilPicker::getLastPick().first == nullptr) {
+		if (avt::StencilPicker::getLastPick().first == nullptr && avt::StencilPicker::getLastPick().second == "") {
 			_crosshair->setScale({ .5f, .5f, .5f });
 		}
 		else {
@@ -710,6 +711,9 @@ public:
 			if (target.second == "fire") {
 				_fireOn = !_fireOn;
 				_fireEmitter->toggle();
+			}else if (target.second == "tent") {
+				_day = !_day;
+				_dayTransition = true;
 			}else if (target.second == "apple1") {
 				_apples.at(0)->setAnimating();
 			}else if (target.second == "apple2") {
