@@ -432,7 +432,7 @@ private:
 		float aspect = winx / (float)winy;
 
 		auto camP = new avt::PerspectiveCamera(60.f, aspect, 0.1f, 200.0f, avt::Vector3(0, 5.f, 10.f));
-		auto camO = new avt::OrthographicCamera(-10.0f, 10.0f, -10.0f / aspect, 10.0f / aspect, 0.1f, 100.0f, avt::Vector3(0, 0, 20.f));
+		auto camO = new avt::OrthographicCamera(-20.0f, 20.0f, -20.0f / aspect, 20.0f / aspect, 0.1f, 200.0f, avt::Vector3(0, 5.f, 10.f));
 		auto camHUD = new avt::OrthographicCamera(-10.0f, 10.0f, -10.0f / aspect, 10.0f / aspect, 0.1f, 100.0f, avt::Vector3(0, 0, 10.f));
 		camP->lookAt(campfire.getPosition());
 		camP->setSpeed(8.f);
@@ -666,9 +666,9 @@ public:
 		if (action != GLFW_PRESS) return;
 
 		switch (key) {
-		//case GLFW_KEY_P:
-		//	_activeCam = _activeCam == "ort" ? "per" : "ort";
-		//	break;
+		case GLFW_KEY_P:
+			_activeCam = _activeCam == "ort" ? "per" : "ort";
+			break;
 		case GLFW_KEY_ESCAPE:
 			_cursorVisible = !_cursorVisible;
 			if (_cursorVisible) glfwSetInputMode(win, GLFW_CURSOR, GLFW_CURSOR_NORMAL);
@@ -678,7 +678,7 @@ public:
 			if (_cams.size() == 3) {
 				_cams.get("ort")->setPosition(avt::Vector3(0, 5.f, 10.f));
 				_cams.get("per")->setPosition(avt::Vector3(0, 5.f, 10.f));
-				_cams.get("ort")->lookAt(avt::Vector3());
+				_cams.get("ort")->lookAt(campfire.getPosition());
 				_cams.get("per")->lookAt(campfire.getPosition());
 			}
 			break;
@@ -763,7 +763,7 @@ int main(int argc, char* argv[]) {
 	avt::Engine engine;
 	engine.setApp(app);
 	engine.setOpenGL(gl_major, gl_minor);
-	engine.setWindow(1280, 960, "Low Poly Loli", is_fullscreen, is_vsync);
+	engine.setWindow(1280, 960, "Up High", is_fullscreen, is_vsync);
 
 	engine.init();
 	engine.run();
