@@ -64,6 +64,7 @@ private:
 
 		avt::StencilPicker::enable();
 
+		// MESHES -------------------
 		auto treeM = _meshes.add("tree", new avt::Mesh("./Resources/Objects/treeNormal.obj"));
 		treeM->colorAll({0.2f, 0.6f, 0.2f});
 		treeM->setup();
@@ -72,13 +73,10 @@ private:
 		auto islandM = _meshes.add("island", new avt::Mesh("./Resources/Objects/finalIsland.obj"));
 		islandM->setup();
 
-		/*auto appleTreeIslandM = _meshes.add("appleTreeIsland", new avt::Mesh("./Resources/Objects/appleTreeIsland.obj"));
-		appleTreeIslandM->setup();
-
 		auto appleM = _meshes.add("apple", new avt::Mesh("./Resources/Objects/apple.obj"));
 		appleM->setup();
 
-		auto bunnyIslandM = _meshes.add("bunnyIsland", new avt::Mesh("./Resources/Objects/bunnyIsland.obj"));
+		/*auto bunnyIslandM = _meshes.add("bunnyIsland", new avt::Mesh("./Resources/Objects/bunnyIsland.obj"));
 		bunnyIslandM->setup();
 
 		auto bushM = _meshes.add("bush", new avt::Mesh("./Resources/Objects/simplebush.obj"));
@@ -97,8 +95,6 @@ private:
 		fireplaceM->setup();
 
 		
-		//createAppleTree(appleTreeIslandM, appleM);
-		
 		auto lightM = _meshes.add("moon", new avt::Mesh("./Resources/Objects/sun_moon.obj"));
 		lightM->applyTransform(avt::Mat4::scale({ 0.5f, 0.5f, 0.5f }));
 		lightM->colorAll({ 1.f, 1.f, 1.f });
@@ -107,12 +103,16 @@ private:
 		auto colorCubeM = _meshes.add("colorCube", new avt::Mesh("./Resources/Objects/colourscube.obj"));
 		colorCubeM->setup();
 
+		auto tentM = _meshes.add("tent", new avt::Mesh("./Resources/Objects/tent.obj"));
+		tentM->setup();
+
 		//CAMS
 		_ub.create(2 * 16 * sizeof(GLfloat), 0); // change
 		_ub.unbind();
 
 		_scene.setShader(&_shader);
 
+		// SCENE ----------------------------
 		_lightStruct = _scene.createNode();
 
 		_light = _lightStruct->createNode();
@@ -123,6 +123,10 @@ private:
 		auto island = _scene.createNode(islandM);
 		island->translate({ 5.f, -3.f, -10.5f });
 		island->scale({ 1.f, 1.f, 1.f });
+
+		createAppleTree(island, appleM);
+
+		auto tent = island->createNode(tentM);
 
 		/*auto bunnyIsland = _scene.createNode(bunnyIslandM);
 		bunnyIsland->translate({ -10.5f, -4.5f, -8.5f });
@@ -210,21 +214,18 @@ private:
 #endif
 	}
 
-	void createAppleTree(avt::Mesh* appleTreeIslandM, avt::Mesh* appleM) {
-		auto appleTreeIsland = _scene.createNode(appleTreeIslandM);
-		appleTreeIsland->translate({ 15.5f, -2.f, -8.5f });
-		appleTreeIsland->scale({ 1.5f, 1.5f, 1.5f });
+	void createAppleTree(avt::SceneNode * island, avt::Mesh* appleM) {
 
 		avt::Apple* apple;
-		std::vector<avt::Vector3> applePositions = { { 1.05f, 1.5f, 0.0f } , { 0.6f, 2.45f, 0.0f } , { 0.0f, 2.1f, 0.25f }, { -0.6f, 1.7f, 0.0f } };
+		std::vector<avt::Vector3> applePositions = { { 19.05f, 11.5f, 0.0f } , { 19.6f, 12.45f, 0.0f } , { 19.0f, 12.1f, 0.25f }, { 19.4f, 11.7f, 0.0f } };
 
 		for (int i = 0; i < 4; i++) {
 			apple = new avt::Apple();
 			apple->setMesh(appleM);
-			appleTreeIsland->addNode(apple);
+			island->addNode(apple);
 			apple->setPosition(applePositions.at(i));
-			apple->translate(applePositions.at(i));
-			apple->scale({ 1.5f, 1.5f, 1.5f });
+			//apple->translate(applePositions.at(i));
+			//apple->scale({ 2.f, 2.f, 2.f });
 
 			_apples.push_back(apple);
 			avt::StencilPicker::addTarget(apple, "apple" + std::to_string(i+1));
