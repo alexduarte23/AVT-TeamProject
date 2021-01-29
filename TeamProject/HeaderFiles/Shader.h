@@ -42,7 +42,7 @@ namespace avt {
 		std::map<std::string, UniformInfo> _uniforms;
 
 		struct UboInfo {
-			GLuint i;
+			GLuint block_index;
 			GLuint binding_point;
 		};
 		std::map<std::string, UboInfo> _ubos;
@@ -76,7 +76,7 @@ namespace avt {
 		}
 
 		void addUbo(const std::string& name, const GLuint binding_point) {
-			_ubos.insert({ name, {0, binding_point} });
+			_ubos.insert({ name, {0, binding_point} }); // block index will be determined later
 		}
 
 		bool isUniformBlock(const std::string& name) {

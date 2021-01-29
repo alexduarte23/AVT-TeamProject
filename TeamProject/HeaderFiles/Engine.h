@@ -6,10 +6,10 @@
 #include <GL/glew.h>
 #include <GLFW/glfw3.h>
 
+
 #include "App.h"
 
 #include "Renderer.h"
-//#include "Shader.h"
 #include "Shader.h"
 #include "VertexBuffer.h"
 #include "IndexBuffer.h"
@@ -17,16 +17,33 @@
 #include "Renderer.h"
 #include "avt_math.h"
 #include "ErrorManager.h"
+#include "Light.h"
+#include "Bloom.h"
+#include "Texture.h"
 #include "PerspectiveCamera.h"
 #include "OrthographicCamera.h"
 
 #include "Scene.h"
 #include "SceneNode.h"
+#include "apple.h"
+#include "Bunny.h"
+
 
 #include "Manager.h"
 
 #include "Mesh.h"
 #include "Cube.h"
+
+#include "ParticleEmitter.h"
+#include "StencilPicker.h"
+
+#include "CloudSystem.h"
+#include "PointLight.h"
+#include "DirectionalLight.h"
+#include "Shadow.h"
+
+#include "HUDElement.h"
+#include "Background.h"
 
 
 #define ERROR_CALLBACK
@@ -98,6 +115,7 @@ namespace avt {
 		static void window_size_callback(GLFWwindow* win, int winx, int winy);
 		static void glfw_error_callback(int error, const char* description);
 		static void window_key_callback(GLFWwindow* win, int key, int scanncode, int action, int mods);
+		static void window_mouse_button_callback(GLFWwindow* win, int button, int action, int mods);
 	};
 
 }

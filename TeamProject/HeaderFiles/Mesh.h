@@ -7,90 +7,105 @@
 #include <vector>
 
 #include <GL/glew.h>
-#include <GLFW/glfw3.h>
+//#include <GLFW/glfw3.h>
 
 #include "avt_math.h"
 
 #include "VertexBuffer.h"
 #include "IndexBuffer.h"
 #include "VertexArray.h"
-#include "UniformBuffer.h"
-#include "Shader.h"
-#include "Renderer.h"
+//#include "UniformBuffer.h"
+//#include "Shader.h"
+//#include "Renderer.h"
 #include "Camera.h"
+
+#include "Texture.h"
 
 namespace avt {
 
 	struct Vertex{
-		Vector4 position;
-		Vector4 color;
+		Vector3 position;
+		Vector2 tex;
+		Vector3 normal;
+		Vector3 color;
 	};
 
 	class Mesh {
-	public:
+	private:
 
-		std::vector<Vertex> _vertices;
-		std::vector<GLubyte> _indices;
-
-		VertexArray _va;
 		VertexBuffer _vb;
-		IndexBuffer _ib;
+		VertexArray _va;
 
-		Mesh(){}
+		Texture* _texture = nullptr;
 
-		Mesh(const std::string& filename) {
-			loadMeshData(filename);
+	protected:
+
+
+	public:
+		std::vector<Vertex> _meshData;
+
+		Mesh() {}
+
+		Mesh(const std::string& filename, const Vector3& baseColor = Vector3(1.f, 1.f, 1.f)) {
+			addOBJ(filename, baseColor);
 		}
 
-		void loadOBJ(const std::string& filename) {
-			loadMeshData(filename);
+		void addOBJ(const std::string& filename, const Vector3& baseColor = Vector3(1.f, 1.f, 1.f)) {
+			auto data = loadOBJ(filename, baseColor);
+			_meshData.insert(_meshData.end(), data.begin(), data.end());
 		}
 
-		void addVertex(const Vector3& v, const Vector4& color) {
-			_vertices.push_back({ v.to4D(), color });
-		}
+		void addFace(const Vertex& v1, const Vertex& v2, const Vertex& v3, bool computeFaceNormal = false);
 
-		void addVertex(const Vertex& v) {
-			_vertices.push_back(v);
-		}
-
-		void addFace(GLubyte i1, GLubyte i2, GLubyte i3) {
-			_indices.push_back(i1);
-			_indices.push_back(i2);
-			_indices.push_back(i3);
-		}
-
-		void colorAll(Vector4 color);
-
-		void applyTransform(Mat4 mat);
-
+		//  must be called before the first draw
 		void setup();
 
-		std::vector<Vertex>& getVertices() {
-			return _vertices;
+		// call only after setup
+		void updateBufferData();
+
+		// saves memory if the mesh won't be modified again
+		void clearLocalData() {
+			_meshData.clear();
 		}
 
-		VertexArray& va() {
+		void setTexture(Texture* texture) {
+			_texture = texture;
+		}
+
+		const Texture* texture() const {
+			return _texture;
+		}
+
+		void colorAll(Vector3 color);
+		void applyTransform(Mat4 mat);
+
+
+		const VertexArray& va() const {
 			return _va;
 		}
 
-		VertexBuffer& vb() {
+		const VertexBuffer& vb() const {
 			return _vb;
 		}
 
-		IndexBuffer& ib() {
-			return _ib;
-		}
+		// produces sharp meshes
+		void computeFaceNormals();
+		// produces smooth meshes
+		void computeVertexNormals(bool weighted = true);
+		// produces smooth transitions only when the angle between the face normals is below the threshold
+		void computeMixedNormals(float threshold, bool weighted = true);
+
+
+		static std::vector<Vertex> loadOBJ(const std::string& filename, const Vector3& baseColor = Vector3(1.f, 1.f, 1.f));
 
 	private:
 
-		void parseVertex(std::stringstream& sin);
-
-		void parseFace(std::stringstream& sin);
-
-		void parseLine(const std::string& line);
-
-		void loadMeshData(const std::string& filename);
+		static void parseLine(const std::string& line, std::vector<Vertex>& data, std::vector<Vector3>& vertices, std::vector<Vector2>& textures, std::vector<Vector3>& normals, const Vector3& baseColor, Vector3& color);
+		static void parseVertex(std::stringstream& sin, std::vector<Vector3>& vertices);
+		static void parseTexture(std::stringstream& sin, std::vector<Vector2>& textures);
+		static void parseNormal(std::stringstream& sin, std::vector<Vector3>& normals);
+		static void parseFace(std::stringstream& sin, std::vector<Vertex>& data, const std::vector<Vector3>& vertices, const std::vector<Vector2>& textures, const std::vector<Vector3>& normals, const Vector3& color);
+		static Vector3 parseMaterial(std::stringstream& sin, const Vector3& baseColor);
 
 	};
 }

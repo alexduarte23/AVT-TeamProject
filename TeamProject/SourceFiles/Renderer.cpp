@@ -2,6 +2,7 @@
 
 #include "../HeaderFiles/Mat4.h"
 #include "../HeaderFiles/Mesh.h"
+#include "../HeaderFiles/StencilPicker.h"
 
 namespace avt {
 
@@ -40,35 +41,75 @@ namespace avt {
 		ub.fill({ camera->viewMatrix(), camera->projMatrix() });
 		drawNode(scene.getRoot(), shader, Mat4::identity());
 
-		ub.unbind();ub.bind();
+		ub.unbind();
 		shader.unbind();
 	}
 
+	void Renderer::draw(const Scene& scene, UniformBuffer& ub, Shader& shader, Camera* camera, Light* light) {
+		shader.bind();
+		ub.bind();
+
+		glUniform3f(shader.getUniform("LightPosition"), light->getPosition().x(), light->getPosition().y(), light->getPosition().z());
+		glUniform3f(shader.getUniform("LightColor"), light->getColor().x(), light->getColor().y(), light->getColor().z());
+		ub.fill({ camera->viewMatrix(), camera->projMatrix() });
+		drawNode(scene.getRoot(), shader, Mat4::identity());
+
+		ub.unbind();
+		shader.unbind();
+	}
+
+	void Renderer::draw(const Scene& scene, Shader& shader) {
+		shader.bind();
+
+		drawNode(scene.getRoot(), shader, Mat4::identity());
+
+		shader.unbind();
+	}
+
+
 	void Renderer::drawNode(SceneNode* node, Shader& shader, const Mat4& worldMatrix) {
 		auto newWorldMat = worldMatrix * node->getTransform();
+
+		//enableStencilBuffer(node); //mouse picking
 		
 		if (node->getMesh()) {
 			Mesh* mesh = node->getMesh();
 
 			mesh->va().bind();
-			mesh->ib().bind();
+
+			StencilPicker::prepareStencil(node->getStencilIndex());
 			
 			node->beforeDraw();
 			glUniformMatrix4fv(shader.getUniform(MODEL_MATRIX), 1, GL_FALSE, newWorldMat.data());
-			glDrawElements(GL_TRIANGLES, mesh->ib().count(), GL_UNSIGNED_BYTE, (GLvoid*)0);
+			glDrawArrays(GL_TRIANGLES, 0, mesh->vb().size());
+			//glDrawArrays(GL_TRIANGLES, 0, (GLsizei)mesh->getVertices().size());
+			//glDrawElements(GL_TRIANGLES, mesh->ib().count(), GL_UNSIGNED_BYTE, (GLvoid*)0);
 			node->afterDraw();
 
 			mesh->va().unbind();
-			mesh->ib().unbind();
 		}
 
 		for (auto childNode : node->children()) {
 			drawNode(childNode, shader, newWorldMat);
 		}
+
+		//disableStencilBuffer(); //mouse picking
+	}
+
+	void Renderer::disableStencilBuffer() //mouse picking
+	{
+		//glDisable(GL_STENCIL_TEST);
+	}
+
+	void Renderer::enableStencilBuffer(avt::SceneNode* node) //mouse picking
+	{
+		glEnable(GL_STENCIL_TEST);
+		glStencilFunc(GL_ALWAYS, node->getStencilIndex(), 0xFF);
+		glStencilOp(GL_KEEP, GL_KEEP, GL_REPLACE);
 	}
 
 	void Renderer::clear() const {
-		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
 	}
 
 }

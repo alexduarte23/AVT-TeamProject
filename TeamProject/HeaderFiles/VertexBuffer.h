@@ -7,8 +7,9 @@ namespace avt{
 	class VertexBuffer {
 	private:
 		GLuint _vboID;
+		GLsizei _size;
 	public:
-		VertexBuffer() : _vboID(0) {}
+		VertexBuffer(): _vboID(0), _size(0) {}
 		~VertexBuffer();
 
 		void create(const void* data, GLsizeiptr size);
@@ -18,6 +19,10 @@ namespace avt{
 		void unbind() const;
 
 		void fill(const void* data, GLsizeiptr size);
+
+		GLsizei size() const {
+			return _size;
+		}
 	};
 
 }

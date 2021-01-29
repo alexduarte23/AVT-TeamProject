@@ -3,10 +3,10 @@
 #include <GL/glew.h>
 
 #include "avt_math.h"
+#include "UniformBuffer.h"
 
 
 namespace avt {
-
 
 	class Camera {
 	protected:
@@ -43,7 +43,9 @@ namespace avt {
 
 		const Mat4& projMatrix() const;
 
-		virtual void resize(int w, int h) = 0;
+		virtual void resize(int w, int h) {
+			return;
+		};
 
 		void setSensitivity(float sens) {
 			_mouseSens = sens;

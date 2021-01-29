@@ -11,6 +11,10 @@
 
 #include "Quaternion.h"
 
+#define max(a, b) (a > b ? a : b)
+#define min(a, b) (a > b ? b : a)
+#define clamp(v, b1, b2) min(max(v, b1), b2)
+
 namespace avt {
 
 	constexpr float PI = 3.14159265359f;
@@ -21,6 +25,22 @@ namespace avt {
 
 	inline float toDeg(const float rad) {
 		return rad * 180 / PI;
+	}
+
+	inline float random() {
+		return std::rand() % 10000 / 10000.0f;
+	}
+
+	inline float randrange(float lower, float upper) {
+		return random() * (upper - lower) + lower;
+	}
+
+	inline Vector3 randVector() {
+		return { random(), random(), random() };
+	}
+
+	inline Vector3 randVector(float lower, float upper) {
+		return { randrange(lower, upper), randrange(lower, upper), randrange(lower, upper) };
 	}
 
 	// Vectors

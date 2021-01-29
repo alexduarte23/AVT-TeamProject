@@ -25,6 +25,11 @@ namespace avt {
 		engine->app()->keyCallback(win, key, scancode, action, mods);
 	}
 
+	void Engine::window_mouse_button_callback(GLFWwindow* win, int button, int action, int mods) {
+		Engine* engine = (Engine*)glfwGetWindowUserPointer(win);
+		engine->app()->mouseButtonCallback(win, button, action, mods);
+	}
+
 
 	////////////////////////////////////////////////////////////////////////////////// SETUP
 
@@ -34,7 +39,7 @@ namespace avt {
 		setupOpenGL();
 #ifdef ERROR_CALLBACK
 		_errorManager = ErrorManager(true);
-		_errorManager.setupErrorCallback();
+		//_errorManager.setupErrorCallback();
 #else
 		_errorManager = ErrorManager(false);
 #endif
@@ -49,6 +54,8 @@ namespace avt {
 		glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, _glMinor);
 		glfwWindowHint(GLFW_OPENGL_DEBUG_CONTEXT, GLFW_TRUE);
 
+		glfwWindowHint(GLFW_SAMPLES, 4);
+
 		setupWindow();
 
 		glfwSetWindowCloseCallback(_win, Engine::window_close_callback);
@@ -57,6 +64,7 @@ namespace avt {
 
 		glfwSetWindowUserPointer(_win, this);
 		glfwSetKeyCallback(_win, Engine::window_key_callback);
+		glfwSetMouseButtonCallback(_win, Engine::window_mouse_button_callback);
 
 #if _DEBUG
 		std::cout << "GLFW " << glfwGetVersionString() << std::endl;
@@ -94,12 +102,19 @@ namespace avt {
 #if _DEBUG
 		checkOpenGLInfo();
 #endif
-		glClearColor(0.6f, 0.6f, 0.6f, 1.0f);
+		glClearColor(0.0f, 0.0f, 0.05f, 1.0f);
 		glEnable(GL_DEPTH_TEST);
 		glDepthFunc(GL_LEQUAL);
 		glDepthMask(GL_TRUE);
 		glDepthRange(0.0, 1.0);
 		glClearDepth(1.0);
+
+		glEnable(GL_BLEND);
+		glBlendEquation(GL_FUNC_ADD);
+		glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+
+		glEnable(GL_MULTISAMPLE);
+
 		glEnable(GL_CULL_FACE);
 		glCullFace(GL_BACK);
 		glFrontFace(GL_CCW);
